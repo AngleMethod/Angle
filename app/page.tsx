@@ -612,7 +612,7 @@ export default function Home() {
     <section className="bg-white py-10">
       <div className="mx-auto flex max-w-[1400px] items-center justify-center px-6">
         <img
-          src="/footer-logo.svg"
+          src="/angle-logo-footer-black.svg"
           alt="Angle Logo"
           className="h-auto w-full max-w-[1200px] opacity-100"
         />
