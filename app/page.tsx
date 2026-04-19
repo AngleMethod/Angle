@@ -514,6 +514,9 @@ export default function Home() {
 
     const { error } = await supabase.auth.signInWithOtp({
       email: cleanEmail,
+      options: {
+        emailRedirectTo: `${window.location.origin}/dashboard`,
+      },
     });
 
     if (error) {
