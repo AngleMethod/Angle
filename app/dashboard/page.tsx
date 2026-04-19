@@ -20,9 +20,12 @@ export default function Dashboard() {
   const router = useRouter();
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "redirecting">("checking");
   const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+  const [isUpgrading, setIsUpgrading] = useState(false);
+  const [upgradeError, setUpgradeError] = useState("");
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("not_booked");
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
   const [workoutLoaded, setWorkoutLoaded] = useState(false);
@@ -44,6 +47,7 @@ export default function Dashboard() {
         return;
       }
 
+      setUserId(session.user.id);
       setUserEmail(session.user.email ?? null);
 
       const { data: subscription } = await supabase
@@ -120,6 +124,35 @@ export default function Dashboard() {
     );
   }
 
+  async function handleUpgrade() {
+    if (!userId) {
+      setUpgradeError("Session not found. Please sign in again.");
+      return;
+    }
+
+    setIsUpgrading(true);
+    setUpgradeError("");
+
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+      const data = await res.json();
+
+      if (data?.url) {
+        window.location.href = data.url;
+      } else {
+        setIsUpgrading(false);
+        setUpgradeError("Unable to start checkout. Please try again.");
+      }
+    } catch {
+      setIsUpgrading(false);
+      setUpgradeError("Something went wrong. Please try again.");
+    }
+  }
+
   if (!hasAccess) {
     return (
       <main className="min-h-screen bg-black p-8 text-white">
@@ -128,12 +161,20 @@ export default function Dashboard() {
           <p className="mb-6 text-gray-400">
             This training program is part of the paid Angle membership.
           </p>
-          <a
-            href="/"
-            className="inline-block rounded-none bg-white px-6 py-3 font-semibold text-black"
+          {/* DEBUG — remove before launch */}
+          <p className="mb-4 text-xs text-zinc-500">
+            session: {userEmail ?? "none"} · userId: {userId ?? "none"} · hasAccess: {String(hasAccess)}
+          </p>
+          <button
+            onClick={handleUpgrade}
+            disabled={isUpgrading}
+            className="inline-block rounded-none bg-white px-6 py-3 font-semibold text-black transition hover:bg-gray-200 disabled:opacity-50"
           >
-            Upgrade to Access
-          </a>
+            {isUpgrading ? "Redirecting..." : "Upgrade to Access"}
+          </button>
+          {upgradeError ? (
+            <p className="mt-4 text-sm text-red-400">{upgradeError}</p>
+          ) : null}
         </div>
       </main>
     );
