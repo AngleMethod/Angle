@@ -10,10 +10,20 @@ type WorkoutStep = {
   description: string;
   videoId?: string;
   video?: string;
+  videoUrl?: string;
 };
 
+function extractYouTubeId(input: string): string {
+  const t = input.trim();
+  if (!t) return "";
+  if (t.includes("youtube.com/watch?v=")) return t.split("v=")[1]?.split("&")[0] ?? "";
+  if (t.includes("youtu.be/")) return t.split("youtu.be/")[1]?.split("?")[0] ?? "";
+  if (t.includes("youtube.com/embed/")) return t.split("embed/")[1]?.split("?")[0] ?? "";
+  return t;
+}
+
 function getVideoId(step: WorkoutStep): string {
-  return step.videoId || step.video || "";
+  return extractYouTubeId(step.videoId || step.video || step.videoUrl || "");
 }
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
@@ -244,16 +254,18 @@ export default function Dashboard() {
                     <h2 className="mb-4 text-xl font-semibold">
                       Step {i + 1}: {step.title}
                     </h2>
-                    <div className="aspect-video w-full overflow-hidden rounded">
-                      <iframe
-                        className="h-full w-full"
-                        src={`https://www.youtube.com/embed/${getVideoId(step)}?rel=0`}
-                        title={step.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                      />
-                    </div>
+                    {getVideoId(step) && (
+                      <div className="aspect-video w-full overflow-hidden rounded">
+                        <iframe
+                          className="h-full w-full"
+                          src={`https://www.youtube.com/embed/${getVideoId(step)}?rel=0`}
+                          title={step.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          referrerPolicy="strict-origin-when-cross-origin"
+                          allowFullScreen
+                        />
+                      </div>
+                    )}
                     <p className="mt-2 text-gray-400">{step.description}</p>
                   </div>
                 ))}

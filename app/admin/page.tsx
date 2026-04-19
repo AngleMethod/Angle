@@ -162,6 +162,22 @@ export default function AdminPage() {
     if (!assignedUserId) return;
     setSaveStatus("saving");
 
+    let stepsToSave = workout;
+    const pendingVideoId = getYoutubeId(video);
+    if (title.trim() && description.trim() && pendingVideoId) {
+      const pendingStep: WorkoutStep = { title: title.trim(), description: description.trim(), videoId: pendingVideoId };
+      const alreadyAdded = workout.some(
+        (s) => s.title === pendingStep.title && s.videoId === pendingStep.videoId
+      );
+      if (!alreadyAdded) {
+        stepsToSave = [...workout, pendingStep];
+        setWorkout(stepsToSave);
+        setTitle("");
+        setDescription("");
+        setVideo("");
+      }
+    }
+
     const token = await getAccessToken();
     const res = await fetch("/api/admin/workout", {
       method: "POST",
@@ -169,7 +185,7 @@ export default function AdminPage() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ userId: assignedUserId, steps: workout }),
+      body: JSON.stringify({ userId: assignedUserId, steps: stepsToSave }),
     });
 
     if (!res.ok) {
