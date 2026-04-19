@@ -8,13 +8,14 @@ import { supabase } from "@/lib/supabase";
 type WorkoutStep = {
   title: string;
   description: string;
-  video: string;
+  videoId: string;
 };
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 
 const ADMIN_EMAIL = "josh@notecreativestudios.com";
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
+
 
 export default function Dashboard() {
   const router = useRouter();
@@ -80,7 +81,11 @@ export default function Dashboard() {
         if (!isMounted) return;
 
         if (workoutData && workoutData.steps?.length > 0) {
-          setWorkout(workoutData.steps);
+          setWorkout(workoutData.steps.map((s: WorkoutStep & { video?: string }) => ({
+            title: s.title,
+            description: s.description,
+            videoId: s.videoId ?? s.video ?? "",
+          })));
         }
 
         setWorkoutLoaded(true);
@@ -161,10 +166,6 @@ export default function Dashboard() {
           <p className="mb-6 text-gray-400">
             This training program is part of the paid Angle membership.
           </p>
-          {/* DEBUG — remove before launch */}
-          <p className="mb-4 text-xs text-zinc-500">
-            session: {userEmail ?? "none"} · userId: {userId ?? "none"} · hasAccess: {String(hasAccess)}
-          </p>
           <button
             onClick={handleUpgrade}
             disabled={isUpgrading}
@@ -238,14 +239,14 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-6">
                 {workout.map((step, i) => (
-                  <div key={`${step.video}-${i}`} className="rounded-lg bg-zinc-900 p-4">
+                  <div key={`${step.videoId}-${i}`} className="rounded-lg bg-zinc-900 p-4">
                     <h2 className="mb-4 text-xl font-semibold">
                       Step {i + 1}: {step.title}
                     </h2>
                     <div className="aspect-video w-full overflow-hidden rounded">
                       <iframe
                         className="h-full w-full"
-                        src={`https://www.youtube.com/embed/${step.video}?rel=0`}
+                        src={`https://www.youtube.com/embed/${step.videoId}?rel=0`}
                         title={step.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerPolicy="strict-origin-when-cross-origin"

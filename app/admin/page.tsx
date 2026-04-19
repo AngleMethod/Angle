@@ -8,7 +8,7 @@ import { supabase } from "@/lib/supabase";
 type WorkoutStep = {
   title: string;
   description: string;
-  video: string;
+  videoId: string;
 };
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
@@ -56,6 +56,7 @@ export default function AdminPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [video, setVideo] = useState("");
+  const [addStepError, setAddStepError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -131,7 +132,11 @@ export default function AdminPage() {
     setAssignedUserId(userId);
     setAssignedUserEmail(lookupEmail.trim());
     setAssignedOnboardingStatus(onboardingStatus ?? "not_booked");
-    setWorkout(workoutData.steps ?? []);
+    setWorkout((workoutData.steps ?? []).map((s: WorkoutStep & { video?: string }) => ({
+      title: s.title,
+      description: s.description,
+      videoId: s.videoId ?? getYoutubeId(s.video ?? ""),
+    })));
     setLookupStatus("found");
   }
 
@@ -179,10 +184,12 @@ export default function AdminPage() {
   function addStep() {
     const videoId = getYoutubeId(video);
     if (!title.trim() || !description.trim() || !videoId) {
-      alert("Please add a title, description, and YouTube link or video ID.");
+      setAddStepError("Please add a title, description, and YouTube link or video ID.");
       return;
     }
-    setWorkout([...workout, { title: title.trim(), description: description.trim(), video: videoId }]);
+    setAddStepError("");
+    const newStep: WorkoutStep = { title: title.trim(), description: description.trim(), videoId };
+    setWorkout(prev => [...prev, newStep]);
     setTitle("");
     setDescription("");
     setVideo("");
@@ -308,7 +315,11 @@ export default function AdminPage() {
                 placeholder="YouTube link or video ID"
                 className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-white outline-none"
               />
+              {addStepError ? (
+                <p className="text-sm text-red-400">{addStepError}</p>
+              ) : null}
               <button
+                type="button"
                 onClick={addStep}
                 className="rounded-lg bg-white px-6 py-3 font-semibold text-black"
               >
@@ -321,7 +332,7 @@ export default function AdminPage() {
                 <p className="text-gray-500">No steps yet. Add the first step above.</p>
               ) : (
                 workout.map((step, i) => (
-                  <div key={`${step.video}-${i}`} className="rounded-lg bg-zinc-900 p-4">
+                  <div key={`${step.videoId}-${i}`} className="rounded-lg bg-zinc-900 p-4">
                     <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                       <h2 className="text-xl font-semibold">
                         Step {i + 1}: {step.title}
@@ -335,7 +346,7 @@ export default function AdminPage() {
                     <div className="aspect-video w-full overflow-hidden rounded">
                       <iframe
                         className="h-full w-full"
-                        src={`https://www.youtube.com/embed/${step.video}?rel=0`}
+                        src={`https://www.youtube.com/embed/${step.videoId}?rel=0`}
                         title={step.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerPolicy="strict-origin-when-cross-origin"
