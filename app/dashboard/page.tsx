@@ -31,7 +31,6 @@ type OnboardingStatus = "not_booked" | "booked" | "completed";
 const ADMIN_EMAIL = "josh@notecreativestudios.com";
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 
-
 export default function Dashboard() {
   const router = useRouter();
 
@@ -249,16 +248,18 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-6">
-                {workout.map((step, i) => (
-                  <div key={`${getVideoId(step)}-${i}`} className="rounded-lg bg-zinc-900 p-4">
+                {workout.map((step, i) => {
+                  const videoId = getVideoId(step);
+                  return (
+                  <div key={`${videoId}-${i}`} className="rounded-lg bg-zinc-900 p-4">
                     <h2 className="mb-4 text-xl font-semibold">
                       Step {i + 1}: {step.title}
                     </h2>
-                    {getVideoId(step) && (
+                    {videoId && (
                       <div className="aspect-video w-full overflow-hidden rounded">
                         <iframe
                           className="h-full w-full"
-                          src={`https://www.youtube.com/embed/${getVideoId(step)}?rel=0`}
+                          src={`https://www.youtube.com/embed/${videoId}?rel=0`}
                           title={step.title}
                           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                           referrerPolicy="strict-origin-when-cross-origin"
@@ -268,7 +269,8 @@ export default function Dashboard() {
                     )}
                     <p className="mt-2 text-gray-400">{step.description}</p>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </>
