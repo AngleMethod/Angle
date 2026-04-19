@@ -8,8 +8,13 @@ import { supabase } from "@/lib/supabase";
 type WorkoutStep = {
   title: string;
   description: string;
-  videoId: string;
+  videoId?: string;
+  video?: string;
 };
+
+function getVideoId(step: WorkoutStep): string {
+  return step.videoId || step.video || "";
+}
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 
@@ -81,11 +86,7 @@ export default function Dashboard() {
         if (!isMounted) return;
 
         if (workoutData && workoutData.steps?.length > 0) {
-          setWorkout(workoutData.steps.map((s: WorkoutStep & { video?: string }) => ({
-            title: s.title,
-            description: s.description,
-            videoId: s.videoId ?? s.video ?? "",
-          })));
+          setWorkout(workoutData.steps);
         }
 
         setWorkoutLoaded(true);
@@ -239,14 +240,14 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-6">
                 {workout.map((step, i) => (
-                  <div key={`${step.videoId}-${i}`} className="rounded-lg bg-zinc-900 p-4">
+                  <div key={`${getVideoId(step)}-${i}`} className="rounded-lg bg-zinc-900 p-4">
                     <h2 className="mb-4 text-xl font-semibold">
                       Step {i + 1}: {step.title}
                     </h2>
                     <div className="aspect-video w-full overflow-hidden rounded">
                       <iframe
                         className="h-full w-full"
-                        src={`https://www.youtube.com/embed/${step.videoId}?rel=0`}
+                        src={`https://www.youtube.com/embed/${getVideoId(step)}?rel=0`}
                         title={step.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerPolicy="strict-origin-when-cross-origin"
