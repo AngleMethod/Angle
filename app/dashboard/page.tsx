@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 type WorkoutStep = {
@@ -33,8 +33,10 @@ const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 
 export default function Dashboard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showBookedBanner, setShowBookedBanner] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "redirecting">("checking");
@@ -44,6 +46,14 @@ export default function Dashboard() {
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("not_booked");
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
   const [workoutLoaded, setWorkoutLoaded] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("booked") === "true") {
+      setShowBookedBanner(true);
+      const t = setTimeout(() => setShowBookedBanner(false), 5000);
+      return () => clearTimeout(t);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let isMounted = true;
@@ -194,6 +204,11 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-black p-8 text-white">
       <div className="mx-auto max-w-5xl">
+        {showBookedBanner && (
+          <div className="mb-6 rounded-lg bg-zinc-800 px-6 py-4 text-sm text-white">
+            You&apos;re scheduled ✅ — we&apos;ll prepare your program after your call.
+          </div>
+        )}
         <div className="mb-8 flex items-center justify-between gap-4">
           <div>
             <h1 className="mb-2 text-3xl font-bold">Your Training</h1>
@@ -227,11 +242,15 @@ export default function Dashboard() {
         )}
 
         {onboardingStatus === "booked" && (
-          <div className="rounded-lg bg-zinc-900 p-8 text-center">
-            <h2 className="mb-2 text-2xl font-semibold">Your call is booked, we&apos;re looking forward to working together!</h2>
-            <p className="text-gray-400">
-              We&apos;ll assign your custom training program after your call.
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center">
+            <h2 className="mb-3 text-2xl font-semibold">Your setup call is booked</h2>
+            <p className="mb-6 text-zinc-400">
+              We&apos;ll use your call to understand your current level and build your custom training plan.
             </p>
+            <div className="inline-flex items-center gap-2 text-sm text-zinc-500">
+              <span className="h-2 w-2 rounded-full bg-green-500" />
+              You&apos;re scheduled
+            </div>
           </div>
         )}
 
