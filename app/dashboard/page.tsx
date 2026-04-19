@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import BookedRedirectHandler from "@/components/BookedRedirectHandler";
 
 type WorkoutStep = {
   title: string;
@@ -33,7 +34,6 @@ const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 
 export default function Dashboard() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [showBookedBanner, setShowBookedBanner] = useState(false);
@@ -46,14 +46,6 @@ export default function Dashboard() {
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("not_booked");
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
   const [workoutLoaded, setWorkoutLoaded] = useState(false);
-
-  useEffect(() => {
-    if (searchParams.get("booked") === "true") {
-      setShowBookedBanner(true);
-      const t = setTimeout(() => setShowBookedBanner(false), 5000);
-      return () => clearTimeout(t);
-    }
-  }, [searchParams]);
 
   useEffect(() => {
     let isMounted = true;
@@ -204,6 +196,9 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-black p-8 text-white">
       <div className="mx-auto max-w-5xl">
+        <Suspense fallback={null}>
+          <BookedRedirectHandler onBooked={() => setShowBookedBanner(true)} />
+        </Suspense>
         {showBookedBanner && (
           <div className="mb-6 rounded-lg bg-zinc-800 px-6 py-4 text-sm text-white">
             You&apos;re scheduled ✅ — we&apos;ll prepare your program after your call.
