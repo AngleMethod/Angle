@@ -238,6 +238,13 @@ export default function Dashboard() {
 
         {onboardingStatus === "completed" && (
           <>
+            {/* DEBUG — remove after diagnosis */}
+            <div className="mb-6 rounded bg-zinc-800 p-4 text-xs text-zinc-400 space-y-1">
+              <p>email: {userEmail ?? "none"}</p>
+              <p>userId: {userId ?? "none"}</p>
+              <p>loaded steps: {JSON.stringify(workout)}</p>
+              {workout[0] && <p>embed src: https://www.youtube.com/embed/{getVideoId(workout[0])}?rel=0</p>}
+            </div>
             {!workoutLoaded ? (
               <p className="text-gray-400">Loading your workout...</p>
             ) : workout.length === 0 ? (
