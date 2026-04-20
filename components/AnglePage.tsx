@@ -113,7 +113,7 @@ function Hero({
       </div>
 
       {/* Right: athlete photo — below content on mobile, right column on desktop */}
-      <div className="relative aspect-square w-[calc(100%-3rem)] mx-6 md:mx-0 md:h-full md:w-auto md:max-w-[50%] md:self-center overflow-hidden rounded-lg border border-[#222]" style={{ background: '#111110' }}>
+      <div className="relative aspect-square w-[calc(100%-3rem)] mx-6 md:mx-0 md:w-full md:self-center overflow-hidden rounded-lg border border-[#222]" style={{ background: '#111110' }}>
         <Image
           src="/hero.png"
           alt="Handstand athlete"
