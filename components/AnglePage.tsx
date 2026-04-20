@@ -227,9 +227,9 @@ function ClearPath() {
 function Journey() {
   const [ref, visible] = useReveal()
   const rows = [
-    { img: '/angle-2.png', title: 'Start Where You Are', body: "Whether you're still using the wall or starting to find your first freestanding holds, Angle meets you at your current level with a clear starting point and structured path forward.", reverse: false, num: '01' },
-    { img: '/angle-1.png', title: 'Build Control and Consistency', body: 'As your balance and alignment improve, your training evolves with you. Each session builds toward stronger lines, better control, and more consistent freestanding handstands.', reverse: true, num: '02' },
-    { img: '/angle-3.png', title: 'Progress With Intent', body: 'Move into deeper balance work, stronger shapes, and advanced handstand control — all without losing structure. The system continues to guide you as you level up.', reverse: false, num: '03' },
+    { img: '/angle-2.png', eyebrow: 'Built For You', eyebrowColor: 'oklch(0.68 0.14 155)', title: 'Start At Your Exact Level', body: 'Begin with a 30-minute assessment to identify where you are right now. Your training plan is built specifically for you — so you always know what to do next.', reverse: false },
+    { img: '/angle-1.png', eyebrow: 'Progressions',  eyebrowColor: 'oklch(0.72 0.14 50)',  title: 'Build Control, Step By Step', body: 'Follow structured progressions that develop strength, balance, and alignment over time. Each phase builds on the last — so you\'re always improving with purpose.', reverse: true },
+    { img: '/angle-3.png', eyebrow: 'Coach-Led',     eyebrowColor: 'oklch(0.65 0.14 240)', title: 'Train With Guidance, Not Guesswork', body: "Get clear instruction, demonstrations, and direction at every stage. You're not figuring it out alone — the system guides you forward.", reverse: false },
   ]
 
   return (
@@ -248,13 +248,13 @@ function Journey() {
 
         <div className="divide-y divide-[#1a1a1a]">
           {rows.map(row => (
-            <div key={row.num} className={`flex flex-col gap-6 py-10 md:py-16 md:gap-12 md:items-center ${row.reverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
+            <div key={row.eyebrow} className={`flex flex-col gap-6 py-10 md:py-16 md:gap-12 md:items-center ${row.reverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
               <div className="relative w-full md:w-1/2 aspect-[4/3] overflow-hidden flex-shrink-0" style={{ background: '#111110' }}>
                 <Image src={row.img} alt={row.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
               </div>
               <div className="w-full md:w-1/2">
-                <span className="text-[#444] text-xs font-bold tracking-widest">{row.num}</span>
-                <h3 className="text-white uppercase text-4xl tracking-wide mt-2 mb-3 md:mb-4" style={{ fontFamily: 'var(--font-bebas)' }}>{row.title}</h3>
+                <span className="text-xs font-bold tracking-widest uppercase mb-1 block" style={{ color: row.eyebrowColor }}>{row.eyebrow}</span>
+                <h3 className="text-white uppercase leading-[0.95] tracking-wide mb-3" style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(28px, 3.5vw, 48px)' }}>{row.title}</h3>
                 <p className="text-[#777] leading-relaxed">{row.body}</p>
               </div>
             </div>
