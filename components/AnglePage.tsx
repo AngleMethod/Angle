@@ -88,7 +88,7 @@ function Hero({
         </h1>
 
         <p className="text-[#aaa] text-base md:text-lg leading-relaxed max-w-md mb-8 md:mb-10">
-          Start with an assessment, then follow a custom playlist built for your level, goals, and next progression.
+          Start with a 30-minute assessment. Then follow a custom plan built specifically for you.
         </p>
 
         <div>
@@ -166,7 +166,7 @@ function FeatureBlock() {
           </div>
 
           {/* Right: image grid flush to card edge */}
-          <div className="hidden md:grid grid-cols-2 gap-[2px] min-h-[480px]">
+          <div className="hidden md:grid grid-cols-2 gap-[2px] min-h-[480px]" style={{ background: '#111110' }}>
             <div className="relative col-span-1 row-span-2 bg-[#161616]">
               <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
