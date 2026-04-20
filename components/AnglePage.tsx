@@ -42,7 +42,7 @@ function Nav({
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-10 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
       <a href="#hero" className="flex-shrink-0">
-        <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} priority />
+        <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} priority className="w-[56px] md:w-[75px] h-auto" />
       </a>
       <div className="hidden md:flex items-center gap-8">
         <a href="#how-it-works" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">How It Works</a>
@@ -70,7 +70,7 @@ function Hero({
   return (
     <section id="hero" className="bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen overflow-hidden">
       {/* Left: content */}
-      <div className="relative z-10 flex flex-col justify-center px-6 pt-20 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[62%]">
+      <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[62%]">
         {/* Accent line — desktop only */}
         <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-36 bg-white" />
 
