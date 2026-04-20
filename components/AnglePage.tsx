@@ -113,7 +113,7 @@ function Hero({
       </div>
 
       {/* Right: athlete photo — below content on mobile, right column on desktop */}
-      <div className="relative w-full aspect-[3/4] md:aspect-auto md:w-[50%] md:h-full overflow-hidden">
+      <div className="relative w-full aspect-[3/4] md:aspect-auto md:w-[50%] md:h-full overflow-hidden rounded-lg border border-[#222]" style={{ background: '#111110' }}>
         <Image
           src="/hero.png"
           alt="Handstand athlete"
