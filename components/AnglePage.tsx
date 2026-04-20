@@ -113,15 +113,17 @@ function Hero({
       </div>
 
       {/* Right: athlete photo — below content on mobile, right column on desktop */}
-      <div className="relative aspect-square w-[calc(100%-3rem)] mx-6 md:mx-auto md:w-[70%] md:self-center overflow-hidden rounded-lg border border-[#222]" style={{ background: '#111110' }}>
-        <Image
-          src="/hero.png"
-          alt="Handstand athlete"
-          fill
-          className="object-contain object-center md:object-right origin-center md:origin-right"
-          priority
-          sizes="(max-width: 768px) 100vw, 38vw"
-        />
+      <div className="md:w-[50%] md:flex md:items-center md:justify-center md:flex-shrink-0">
+        <div className="relative aspect-square w-[calc(100%-3rem)] mx-6 md:mx-0 md:w-[70%] overflow-hidden rounded-lg border border-[#222]" style={{ background: '#111110' }}>
+          <Image
+            src="/hero.png"
+            alt="Handstand athlete"
+            fill
+            className="object-contain object-center origin-center"
+            priority
+            sizes="(max-width: 768px) 100vw, 35vw"
+          />
+        </div>
       </div>
     </section>
   )
