@@ -92,8 +92,7 @@ function Hero({
           className="text-white uppercase leading-[0.9] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 8vw, 100px)' }}
         >
-          Master<br />
-          Handstands<br />
+          Master Handstands<br />
           <em className="text-[#c0c0c0] italic">With Real Structure</em>
         </h1>
 
