@@ -97,7 +97,7 @@ function Hero({
         </h1>
 
         <p className="text-[#aaa] text-base md:text-lg leading-relaxed max-w-md mb-8 md:mb-10">
-          Start with a 30-minute assessment. Then follow a custom plan built specifically for you.
+          Start with a 30-minute assessment. Then follow a plan built for you.
         </p>
 
         <div>
