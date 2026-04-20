@@ -279,7 +279,7 @@ function InsideAngle() {
 
   return (
     <section id="inside-angle" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-      <div className="max-w-6xl mx-auto text-center mb-10 md:mb-14">
+      <div className="max-w-6xl mx-auto text-left mb-10 md:mb-14">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Inside Angle</p>
         <h2
           className="text-white uppercase leading-[0.95] tracking-wide mb-4"
@@ -287,13 +287,13 @@ function InsideAngle() {
         >
           Everything You Need To Train With Clarity.
         </h2>
-        <p className="text-[#777] max-w-xl mx-auto">
+        <p className="text-[#777] max-w-xl">
           Start with an assessment, then train through playlists built specifically for your level, goals, and next progression.
         </p>
       </div>
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
         {features.map(f => (
-          <div key={f.title} className="rounded-lg border border-[#1e1e1e] p-6 hover:border-[#333] transition-colors">
+          <div key={f.title} className="rounded-lg border border-[#1e1e1e] p-6 hover:border-[#333] transition-colors" style={{ background: '#111110' }}>
             <h3 className="text-white font-semibold mb-3">{f.title}</h3>
             <p className="text-[#666] text-sm leading-relaxed">{f.body}</p>
           </div>
@@ -365,7 +365,7 @@ function Pricing({
           One Plan. Everything Included.
         </h2>
       </div>
-      <div className="max-w-md mx-auto rounded-lg bg-[#111] border border-[#1e1e1e] p-6 md:p-10 text-center">
+      <div className="max-w-xl mx-auto rounded-lg bg-[#111] border border-[#1e1e1e] p-6 md:p-10 text-center">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">Angle Member</p>
         <div className="mb-8">
           <span className="text-white" style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(60px, 8vw, 96px)' }}>$95</span>
@@ -374,7 +374,7 @@ function Pricing({
         <ul className="space-y-3 mb-10 text-left">
           {features.map(f => (
             <li key={f} className="flex items-center gap-3 text-[#ccc] text-sm">
-              <span className="text-[#999]">✓</span> {f}
+              <span className="text-green-500">✓</span> {f}
             </li>
           ))}
         </ul>
@@ -456,7 +456,7 @@ function SignIn({
 
   return (
     <section id="signin" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-      <div className="max-w-md mx-auto text-center">
+      <div className="max-w-xl mx-auto text-center">
         <div className="rounded-lg border border-[#1e1e1e] p-8 md:p-12" style={{ background: '#111110' }}>
         <p className="text-left text-[#666] text-xs tracking-widest uppercase mb-4">— Sign In</p>
         <h2
