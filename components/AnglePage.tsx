@@ -82,8 +82,9 @@ function Hero({
         <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-36 bg-white" />
 
         <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
-          <span className="text-xs px-3 py-1 rounded-full font-medium border border-green-900" style={{ backgroundColor: 'oklch(0.18 0.06 155)', color: 'oklch(0.68 0.14 155)' }}>Structured</span>
-          <span className="text-xs px-3 py-1 rounded-full font-medium border border-orange-900" style={{ backgroundColor: 'oklch(0.18 0.06 50)', color: 'oklch(0.72 0.14 50)' }}>Progressive</span>
+          <span className="text-xs px-3 py-1 rounded-full font-medium border border-purple-900" style={{ backgroundColor: 'oklch(0.18 0.06 290)', color: 'oklch(0.65 0.14 290)' }}>Assessment</span>
+          <span className="text-xs px-3 py-1 rounded-full font-medium border border-green-900" style={{ backgroundColor: 'oklch(0.18 0.06 155)', color: 'oklch(0.68 0.14 155)' }}>Built for you</span>
+          <span className="text-xs px-3 py-1 rounded-full font-medium border border-orange-900" style={{ backgroundColor: 'oklch(0.18 0.06 50)', color: 'oklch(0.72 0.14 50)' }}>Progressions</span>
           <span className="text-xs px-3 py-1 rounded-full font-medium border border-blue-900" style={{ backgroundColor: 'oklch(0.18 0.06 240)', color: 'oklch(0.65 0.14 240)' }}>Coach-led</span>
         </div>
 
@@ -163,7 +164,7 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
             </h2>
             <div className="flex flex-wrap gap-2 mb-6">
               {[
-                { label: 'Assessment first', border: 'border border-purple-900', bg: 'oklch(0.18 0.06 290)', text: 'oklch(0.65 0.14 290)' },
+                { label: 'Assessment', border: 'border border-purple-900', bg: 'oklch(0.18 0.06 290)', text: 'oklch(0.65 0.14 290)' },
                 { label: 'Built for you',    border: 'border border-green-900',  bg: 'oklch(0.18 0.06 155)', text: 'oklch(0.68 0.14 155)' },
                 { label: 'Progressions',     border: 'border border-orange-900', bg: 'oklch(0.18 0.06 50)',  text: 'oklch(0.72 0.14 50)'  },
                 { label: 'Coach-led',        border: 'border border-blue-900',   bg: 'oklch(0.18 0.06 240)', text: 'oklch(0.65 0.14 240)' },
