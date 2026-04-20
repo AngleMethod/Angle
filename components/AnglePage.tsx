@@ -40,18 +40,18 @@ function Nav({
   }, [])
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
+    <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-10 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
       <a href="#hero" className="flex-shrink-0">
         <Image src="/angle-logo-white.svg" alt="Angle" width={110} height={32} priority />
       </a>
-      <div className="flex items-center gap-8">
+      <div className="hidden md:flex items-center gap-8">
         <a href="#how-it-works" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">How It Works</a>
         <a href="#pricing" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">Pricing</a>
         <a href="#signin" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">Sign In</a>
       </div>
       <button
         onClick={onStartTraining}
-        className="bg-white text-black text-xs font-bold tracking-widest uppercase px-6 py-3 hover:bg-[#e8673a] hover:text-white transition-colors"
+        className="bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e8673a] hover:text-white transition-colors"
       >
         {isStartingTraining ? 'Starting...' : 'Start Training'}
       </button>
@@ -70,31 +70,31 @@ function Hero({
   return (
     <section id="hero" className="relative h-screen flex overflow-hidden bg-[#0a0a0a]">
       {/* Left: content */}
-      <div className="relative z-10 flex flex-col justify-center pl-16 pr-8 w-[52%]">
-        {/* Accent line */}
-        <div className="absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-36 bg-[#e8673a]" />
+      <div className="relative z-10 flex flex-col justify-center px-6 pt-20 md:pt-0 md:pl-16 md:pr-8 w-full md:w-[52%]">
+        {/* Accent line — desktop only */}
+        <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-36 bg-[#e8673a]" />
 
-        <p className="text-[#888] text-[11px] tracking-[0.2em] uppercase mb-6">
+        <p className="text-[#888] text-[11px] tracking-[0.2em] uppercase mb-4 md:mb-6">
           Structured. Progressive. Coach-Led.
         </p>
 
         <h1
-          className="text-white uppercase leading-[0.88] mb-6"
-          style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(72px, 9vw, 120px)' }}
+          className="text-white uppercase leading-[0.88] mb-4 md:mb-6"
+          style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(48px, 11vw, 120px)' }}
         >
           Master<br />
           Handstands<br />
           <em className="text-[#e8673a] italic">With A Real System</em>
         </h1>
 
-        <p className="text-[#aaa] text-lg leading-relaxed max-w-md mb-10">
+        <p className="text-[#aaa] text-base md:text-lg leading-relaxed max-w-md mb-8 md:mb-10">
           Start with an assessment, then follow a custom playlist built for your level, goals, and next progression.
         </p>
 
         <div>
           <button
             onClick={onStartTraining}
-            className="inline-block bg-white text-black font-bold text-sm tracking-widest uppercase px-10 py-4 hover:bg-[#e8673a] hover:text-white transition-colors"
+            className="inline-block bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 md:px-10 hover:bg-[#e8673a] hover:text-white transition-colors"
           >
             {isStartingTraining ? 'Starting...' : 'Start Training'}
           </button>
@@ -104,21 +104,25 @@ function Hero({
           </p>
         </div>
 
-        <p className="absolute bottom-8 left-16 text-[#444] text-xs tracking-widest uppercase flex items-center gap-2">
+        {/* Scroll indicator — desktop only */}
+        <p className="hidden md:flex absolute bottom-8 left-16 text-[#444] text-xs tracking-widest uppercase items-center gap-2">
           <span className="w-6 h-px bg-[#444]" /> Scroll
         </p>
       </div>
 
-      {/* Right: full-bleed athlete photo */}
-      <div className="absolute right-0 top-0 w-[55%] h-full overflow-hidden">
-        <div className="absolute left-0 top-0 w-48 h-full bg-gradient-to-r from-[#0a0a0a] to-transparent z-10" />
+      {/* Right: athlete photo — full bleed background on mobile, right half on desktop */}
+      <div className="absolute inset-0 md:inset-auto md:right-0 md:top-0 w-full md:w-[55%] h-full overflow-hidden">
+        {/* Mobile: dark overlay so text stays readable */}
+        <div className="absolute inset-0 bg-black/65 md:hidden z-10" />
+        {/* Desktop: left-edge gradient blend */}
+        <div className="hidden md:block absolute left-0 top-0 w-48 h-full bg-gradient-to-r from-[#0a0a0a] to-transparent z-10" />
         <Image
           src="/hero.png"
           alt="Handstand athlete"
           fill
           className="object-cover object-center"
           priority
-          sizes="55vw"
+          sizes="(max-width: 768px) 100vw, 55vw"
         />
       </div>
     </section>
@@ -129,8 +133,8 @@ function Hero({
 function FeatureBlock() {
   const [ref, visible] = useReveal()
   return (
-    <section ref={ref as RefObject<HTMLElement>} className={`relative bg-[#111] py-28 px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-      <div className="max-w-7xl mx-auto grid grid-cols-2 gap-16 items-center">
+    <section ref={ref as RefObject<HTMLElement>} className={`relative bg-[#111] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
         <div>
           <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Start Now</p>
           <h2
@@ -158,7 +162,8 @@ function FeatureBlock() {
           </a>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 h-[500px]">
+        {/* Photo grid — desktop only (fixed height breaks on mobile) */}
+        <div className="hidden md:grid grid-cols-2 gap-2 h-[500px]">
           <div className="relative col-span-1 row-span-2">
             <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
           </div>
@@ -184,7 +189,7 @@ function ClearPath() {
   ]
 
   return (
-    <section id="how-it-works" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-28 px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+    <section id="how-it-works" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-6xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— How It Works</p>
         <h2
@@ -193,13 +198,13 @@ function ClearPath() {
         >
           A Clear Path To Your First —<br />Or Next — Handstand.
         </h2>
-        <p className="text-[#777] max-w-xl mb-14">
+        <p className="text-[#777] max-w-xl mb-10 md:mb-14">
           Angle gives you structured training built around your current level, so you can stop guessing and start progressing.
         </p>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {steps.map(s => (
-            <div key={s.num} className="border border-[#222] p-8 hover:border-[#333] transition-colors">
-              <span className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-white text-xs font-bold mb-6 ${s.color}`}>{s.num}</span>
+            <div key={s.num} className="border border-[#222] p-6 md:p-8 hover:border-[#333] transition-colors">
+              <span className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-white text-xs font-bold mb-5 md:mb-6 ${s.color}`}>{s.num}</span>
               <h3 className="text-white text-2xl uppercase mb-3" style={{ fontFamily: 'var(--font-bebas)' }}>{s.title}</h3>
               <p className="text-[#777] text-sm leading-relaxed">{s.body}</p>
             </div>
@@ -220,7 +225,7 @@ function Journey() {
   ]
 
   return (
-    <section id="journey" ref={ref as RefObject<HTMLElement>} className={`bg-[#0e0e0d] py-28 px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+    <section id="journey" ref={ref as RefObject<HTMLElement>} className={`bg-[#0e0e0d] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-6xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— The Journey</p>
         <h2
@@ -229,19 +234,19 @@ function Journey() {
         >
           A System That Grows With You.
         </h2>
-        <p className="text-[#777] max-w-xl mb-16">
+        <p className="text-[#777] max-w-xl mb-10 md:mb-16">
           Start where you are, build real control, and progress toward advanced handstand training — all within one system.
         </p>
 
-        <div className="space-y-0 divide-y divide-[#1a1a1a]">
+        <div className="divide-y divide-[#1a1a1a]">
           {rows.map(row => (
-            <div key={row.num} className={`flex items-center gap-12 py-16 ${row.reverse ? 'flex-row-reverse' : ''}`}>
-              <div className="relative w-1/2 aspect-[4/3] flex-shrink-0 overflow-hidden">
-                <Image src={row.img} alt={row.title} fill className="object-cover" sizes="50vw" />
+            <div key={row.num} className={`flex flex-col gap-6 py-10 md:py-16 md:gap-12 md:items-center ${row.reverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
+              <div className="relative w-full md:w-1/2 aspect-[4/3] overflow-hidden flex-shrink-0">
+                <Image src={row.img} alt={row.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
               </div>
-              <div className="w-1/2">
+              <div className="w-full md:w-1/2">
                 <span className="text-[#444] text-xs font-bold tracking-widest">{row.num}</span>
-                <h3 className="text-white uppercase text-4xl mt-2 mb-4" style={{ fontFamily: 'var(--font-bebas)' }}>{row.title}</h3>
+                <h3 className="text-white uppercase text-4xl mt-2 mb-3 md:mb-4" style={{ fontFamily: 'var(--font-bebas)' }}>{row.title}</h3>
                 <p className="text-[#777] leading-relaxed">{row.body}</p>
               </div>
             </div>
@@ -263,8 +268,8 @@ function InsideAngle() {
   ]
 
   return (
-    <section id="inside-angle" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-28 px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-      <div className="max-w-6xl mx-auto text-center mb-14">
+    <section id="inside-angle" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+      <div className="max-w-6xl mx-auto text-center mb-10 md:mb-14">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Inside Angle</p>
         <h2
           className="text-white uppercase leading-none mb-4"
@@ -276,7 +281,7 @@ function InsideAngle() {
           Start with an assessment, then train through playlists built specifically for your level, goals, and next progression.
         </p>
       </div>
-      <div className="max-w-6xl mx-auto grid grid-cols-4 gap-4">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {features.map(f => (
           <div key={f.title} className="border border-[#1e1e1e] p-6 hover:border-[#333] transition-colors">
             <h3 className="text-white font-semibold mb-3">{f.title}</h3>
@@ -298,18 +303,18 @@ function Testimonials() {
   ]
 
   return (
-    <section ref={ref as RefObject<HTMLElement>} className={`bg-[#0e0e0d] py-28 px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+    <section ref={ref as RefObject<HTMLElement>} className={`bg-[#0e0e0d] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-6xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— What People Say</p>
         <h2
-          className="text-white uppercase leading-none mb-14"
+          className="text-white uppercase leading-none mb-10 md:mb-14"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
           Built For People Serious<br />About Their Practice.
         </h2>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {quotes.map(q => (
-            <div key={q.name} className="bg-[#111] border border-[#1e1e1e] p-8">
+            <div key={q.name} className="bg-[#111] border border-[#1e1e1e] p-6 md:p-8">
               <p className="text-[#ccc] leading-relaxed mb-6 italic">&ldquo;{q.quote}&rdquo;</p>
               <div>
                 <p className="text-white font-semibold text-sm">{q.name}</p>
@@ -340,8 +345,8 @@ function Pricing({
   ]
 
   return (
-    <section id="pricing" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-28 px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-      <div className="max-w-6xl mx-auto text-center mb-14">
+    <section id="pricing" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+      <div className="max-w-6xl mx-auto text-center mb-10 md:mb-14">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Pricing</p>
         <h2
           className="text-white uppercase leading-none"
@@ -350,7 +355,7 @@ function Pricing({
           One Plan. Everything Included.
         </h2>
       </div>
-      <div className="max-w-md mx-auto bg-[#111] border border-[#1e1e1e] p-10 text-center">
+      <div className="max-w-md mx-auto bg-[#111] border border-[#1e1e1e] p-6 md:p-10 text-center">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">Angle Member</p>
         <div className="mb-8">
           <span className="text-white" style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(60px, 8vw, 96px)' }}>$95</span>
@@ -387,11 +392,11 @@ function FAQ() {
   ]
 
   return (
-    <section id="faq" ref={ref as RefObject<HTMLElement>} className={`bg-[#0e0e0d] py-28 px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+    <section id="faq" ref={ref as RefObject<HTMLElement>} className={`bg-[#0e0e0d] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-3xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— FAQ</p>
         <h2
-          className="text-white uppercase leading-none mb-14"
+          className="text-white uppercase leading-none mb-10 md:mb-14"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
           Common Questions.
@@ -403,8 +408,8 @@ function FAQ() {
                 onClick={() => setOpen(open === i ? null : i)}
                 className="w-full flex items-center justify-between text-left"
               >
-                <span className="text-white font-medium">{item.q}</span>
-                <span className="text-[#e8673a] text-xl ml-4">{open === i ? '−' : '+'}</span>
+                <span className="text-white font-medium text-sm md:text-base">{item.q}</span>
+                <span className="text-[#e8673a] text-xl ml-4 flex-shrink-0">{open === i ? '−' : '+'}</span>
               </button>
               {open === i && (
                 <p className="mt-4 text-[#777] leading-relaxed text-sm">{item.a}</p>
@@ -440,7 +445,7 @@ function SignIn({
   const [ref, visible] = useReveal()
 
   return (
-    <section id="signin" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-28 px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+    <section id="signin" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-md mx-auto text-center">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Sign In</p>
         <h2
@@ -449,7 +454,7 @@ function SignIn({
         >
           Access Your Training Dashboard
         </h2>
-        <p className="text-[#777] mb-10">
+        <p className="text-[#777] mb-8 md:mb-10">
           Sign in with your email to open your dashboard and resume your program.
         </p>
 
@@ -461,7 +466,7 @@ function SignIn({
           <div className="space-y-4">
             <div>
               <p className="text-sm text-[#777]">Signed in as</p>
-              <p className="mt-1 font-medium text-white">{userEmail}</p>
+              <p className="mt-1 font-medium text-white break-all">{userEmail}</p>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
@@ -518,10 +523,10 @@ function SignIn({
 // ── Footer ────────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="bg-[#080808] border-t border-[#111] py-10 px-12">
-      <div className="max-w-6xl mx-auto flex items-center justify-between">
+    <footer className="bg-[#080808] border-t border-[#111] py-8 md:py-10 px-6 md:px-12">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-6 md:justify-between">
         <Image src="/angle-logo-white.svg" alt="Angle" width={80} height={24} />
-        <div className="flex gap-8 text-[#555] text-xs tracking-widest uppercase">
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8 text-[#555] text-xs tracking-widest uppercase">
           <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
           <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
           <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
@@ -636,7 +641,7 @@ export default function AnglePage() {
   }
 
   return (
-    <main className="bg-[#0a0a0a] text-white">
+    <main className="bg-[#0a0a0a] text-white overflow-x-hidden">
       <Nav isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <Hero isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <FeatureBlock />
