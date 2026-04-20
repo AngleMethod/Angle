@@ -74,9 +74,11 @@ function Hero({
         {/* Accent line — desktop only */}
         <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-36 bg-white" />
 
-        <p className="text-[#888] text-[11px] tracking-[0.2em] uppercase mb-4 md:mb-6">
-          Structured. Progressive. Coach-Led.
-        </p>
+        <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
+          <span className="text-xs px-3 py-1 rounded-full font-medium border border-green-900" style={{ backgroundColor: 'oklch(0.18 0.06 155)', color: 'oklch(0.68 0.14 155)' }}>Structured</span>
+          <span className="text-xs px-3 py-1 rounded-full font-medium border border-orange-900" style={{ backgroundColor: 'oklch(0.18 0.06 50)', color: 'oklch(0.72 0.14 50)' }}>Progressive</span>
+          <span className="text-xs px-3 py-1 rounded-full font-medium border border-blue-900" style={{ backgroundColor: 'oklch(0.18 0.06 240)', color: 'oklch(0.65 0.14 240)' }}>Coach-Led</span>
+        </div>
 
         <h1
           className="text-white uppercase leading-[0.9] tracking-wide mb-4 md:mb-6"
