@@ -42,7 +42,7 @@ function Nav({
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-10 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
       <a href="#hero" className="flex-shrink-0">
-        <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} priority className="w-[56px] md:w-[75px] h-auto" />
+        <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} priority className="w-[50px] md:w-[68px] h-auto" />
       </a>
       <div className="hidden md:flex items-center gap-8">
         <a href="#how-it-works" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">How It Works</a>
@@ -77,7 +77,7 @@ function Hero({
         <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
           <span className="text-xs px-3 py-1 rounded-full font-medium border border-green-900" style={{ backgroundColor: 'oklch(0.18 0.06 155)', color: 'oklch(0.68 0.14 155)' }}>Structured</span>
           <span className="text-xs px-3 py-1 rounded-full font-medium border border-orange-900" style={{ backgroundColor: 'oklch(0.18 0.06 50)', color: 'oklch(0.72 0.14 50)' }}>Progressive</span>
-          <span className="text-xs px-3 py-1 rounded-full font-medium border border-blue-900" style={{ backgroundColor: 'oklch(0.18 0.06 240)', color: 'oklch(0.65 0.14 240)' }}>Coach-Led</span>
+          <span className="text-xs px-3 py-1 rounded-full font-medium border border-blue-900" style={{ backgroundColor: 'oklch(0.18 0.06 240)', color: 'oklch(0.65 0.14 240)' }}>Coach-led</span>
         </div>
 
         <h1
@@ -227,9 +227,9 @@ function ClearPath() {
 function Journey() {
   const [ref, visible] = useReveal()
   const rows = [
-    { img: '/angle-2.png', eyebrow: 'Built For You', eyebrowBorder: 'border border-green-900',  eyebrowBg: 'oklch(0.18 0.06 155)', eyebrowText: 'oklch(0.68 0.14 155)', title: 'Start At Your Exact Level',          body: 'Begin with a 30-minute assessment to identify where you are right now. Your training plan is built specifically for you — so you always know what to do next.',                              reverse: false },
+    { img: '/angle-2.png', eyebrow: 'Built for you', eyebrowBorder: 'border border-green-900',  eyebrowBg: 'oklch(0.18 0.06 155)', eyebrowText: 'oklch(0.68 0.14 155)', title: 'Start At Your Exact Level',          body: 'Begin with a 30-minute assessment to identify where you are right now. Your training plan is built specifically for you — so you always know what to do next.',                              reverse: false },
     { img: '/angle-1.png', eyebrow: 'Progressions',  eyebrowBorder: 'border border-orange-900', eyebrowBg: 'oklch(0.18 0.06 50)',  eyebrowText: 'oklch(0.72 0.14 50)',  title: 'Build Control, Step By Step',          body: "Follow structured progressions that develop strength, balance, and alignment over time. Each phase builds on the last — so you're always improving with purpose.",                         reverse: true  },
-    { img: '/angle-3.png', eyebrow: 'Coach-Led',     eyebrowBorder: 'border border-blue-900',   eyebrowBg: 'oklch(0.18 0.06 240)', eyebrowText: 'oklch(0.65 0.14 240)', title: 'Train With Guidance, Not Guesswork',   body: "Get clear instruction, demonstrations, and direction at every stage. You're not figuring it out alone — the system guides you forward.",                                               reverse: false },
+    { img: '/angle-3.png', eyebrow: 'Coach-led',     eyebrowBorder: 'border border-blue-900',   eyebrowBg: 'oklch(0.18 0.06 240)', eyebrowText: 'oklch(0.65 0.14 240)', title: 'Train With Guidance, Not Guesswork',   body: "Get clear instruction, demonstrations, and direction at every stage. You're not figuring it out alone — the system guides you forward.",                                               reverse: false },
   ]
 
   return (
