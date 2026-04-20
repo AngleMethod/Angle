@@ -68,7 +68,7 @@ function Hero({
   onStartTraining: () => void
 }) {
   return (
-    <section id="hero" className="bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen overflow-hidden">
+    <section id="hero" className="bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen md:px-12 overflow-hidden">
       {/* Left: content */}
       <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[50%]">
         {/* Accent line — desktop only */}
@@ -113,7 +113,7 @@ function Hero({
       </div>
 
       {/* Right: athlete photo — below content on mobile, right column on desktop */}
-      <div className="relative w-full aspect-square md:w-[50%] md:self-center overflow-hidden rounded-lg border border-[#222]" style={{ background: '#111110' }}>
+      <div className="relative aspect-square w-[calc(100%-3rem)] mx-6 md:mx-0 md:h-full md:w-auto md:max-w-[50%] md:self-center overflow-hidden rounded-lg border border-[#222]" style={{ background: '#111110' }}>
         <Image
           src="/hero.png"
           alt="Handstand athlete"
