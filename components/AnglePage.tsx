@@ -134,7 +134,7 @@ function FeatureBlock() {
   const [ref, visible] = useReveal()
   return (
     <section ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-8 md:py-12 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-      <div className="max-w-7xl mx-auto overflow-hidden rounded-2xl border border-[#222] bg-[#161616]">
+      <div className="max-w-7xl mx-auto overflow-hidden rounded-2xl border border-[#222] bg-[#0a0a0a]">
         <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
 
           {/* Left: text */}
@@ -166,7 +166,7 @@ function FeatureBlock() {
           </div>
 
           {/* Right: image grid flush to card edge */}
-          <div className="hidden md:grid grid-cols-2 gap-[2px] min-h-[480px]" style={{ background: '#111110' }}>
+          <div className="hidden md:grid grid-cols-2 gap-2 min-h-[480px]" style={{ background: '#111110' }}>
             <div className="relative col-span-1 row-span-2 bg-[#161616]">
               <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
