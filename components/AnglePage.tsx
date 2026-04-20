@@ -417,7 +417,7 @@ function FAQ() {
         >
           Common Questions.
         </h2>
-        <div className="divide-y divide-[#1a1a1a]">
+        <div className="divide-y divide-[#1a1a1a] border-t border-b border-[#1a1a1a]">
           {items.map((item, i) => (
             <div key={i} className="py-5">
               <button
