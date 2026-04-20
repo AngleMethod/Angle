@@ -458,14 +458,14 @@ function SignIn({
     <section id="signin" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-md mx-auto text-center">
         <div className="rounded-lg border border-[#1e1e1e] p-8 md:p-12" style={{ background: '#111110' }}>
-        <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Sign In</p>
+        <p className="text-left text-[#666] text-xs tracking-widest uppercase mb-4">— Sign In</p>
         <h2
-          className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+          className="text-left text-white uppercase leading-[0.95] tracking-wide mb-4"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(32px, 4vw, 52px)' }}
         >
           Access Your Training Dashboard
         </h2>
-        <p className="text-[#777] mb-8 md:mb-10">
+        <p className="text-left text-[#777] mb-8 md:mb-10">
           Sign in with your email to open your dashboard and resume your program.
         </p>
 
@@ -536,15 +536,15 @@ function SignIn({
 function Footer() {
   return (
     <footer className="bg-white border-t border-[#e5e5e5] py-8 md:py-10 px-6 md:px-12">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-6 md:justify-between">
-        <Image src="/angle-logo-footer-black.svg" alt="Angle" width={80} height={24} />
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8 text-black text-xs tracking-widest uppercase">
+      <div className="max-w-6xl mx-auto flex flex-col items-center gap-6">
+        <Image src="/angle-logo-footer-black.svg" alt="Angle" width={800} height={240} style={{ width: '100%', height: 'auto' }} />
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8 text-[#777] text-xs tracking-widest uppercase">
           <a href="#how-it-works" className="hover:text-[#444] transition-colors">How It Works</a>
           <a href="#pricing" className="hover:text-[#444] transition-colors">Pricing</a>
           <a href="#faq" className="hover:text-[#444] transition-colors">FAQ</a>
           <a href="#signin" className="hover:text-[#444] transition-colors">Sign In</a>
         </div>
-        <p className="text-black text-xs">© 2025 Angle. All rights reserved.</p>
+        <p className="text-[#777] text-xs">© 2026 Angle. All rights reserved.</p>
       </div>
     </footer>
   )
