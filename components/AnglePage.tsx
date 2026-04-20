@@ -133,46 +133,51 @@ function Hero({
 function FeatureBlock() {
   const [ref, visible] = useReveal()
   return (
-    <section ref={ref as RefObject<HTMLElement>} className={`relative bg-[#111] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
-        <div>
-          <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Start Now</p>
-          <h2
-            className="text-white uppercase leading-[0.95] tracking-wide mb-6"
-            style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 5vw, 72px)' }}
-          >
-            Train With More Structure.<br />
-            <em className="text-[#aaa] italic">Progress With More Intent.</em>
-          </h2>
-          <div className="flex flex-wrap gap-2 mb-6">
-            {[
-              { label: 'Assessment first', color: 'bg-purple-900 text-purple-300 border border-purple-950' },
-              { label: 'Built for you', color: 'bg-green-900 text-green-300 border border-green-950' },
-              { label: 'Progressions', color: 'bg-orange-900 text-orange-300 border border-orange-950' },
-              { label: 'Coach-led', color: 'bg-blue-900 text-blue-300 border border-blue-950' },
-            ].map(tag => (
-              <span key={tag.label} className={`text-xs px-3 py-1 rounded-full font-medium ${tag.color}`}>{tag.label}</span>
-            ))}
-          </div>
-          <p className="text-[#888] leading-relaxed mb-8 max-w-md">
-            Start with an assessment, then train with a custom playlist built for your level, goals, and next progression.
-          </p>
-          <a href="#signin" className="inline-block border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
-            Start Training
-          </a>
-        </div>
+    <section ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-8 md:py-12 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+      <div className="max-w-7xl mx-auto overflow-hidden rounded-2xl border border-[#222] bg-[#161616]">
+        <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
 
-        {/* Photo grid — desktop only (fixed height breaks on mobile) */}
-        <div className="hidden md:grid grid-cols-2 gap-2 h-[500px]">
-          <div className="relative col-span-1 row-span-2">
-            <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
+          {/* Left: text */}
+          <div className="flex flex-col justify-center p-8 md:p-12">
+            <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Start Now</p>
+            <h2
+              className="text-white uppercase leading-[0.95] tracking-wide mb-6"
+              style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 5vw, 72px)' }}
+            >
+              Train With More Structure.<br />
+              <em className="text-[#aaa] italic">Progress With More Intent.</em>
+            </h2>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {[
+                { label: 'Assessment first', color: 'bg-purple-800 text-purple-200 border border-purple-900' },
+                { label: 'Built for you', color: 'bg-green-800 text-green-200 border border-green-900' },
+                { label: 'Progressions', color: 'bg-orange-800 text-orange-200 border border-orange-900' },
+                { label: 'Coach-led', color: 'bg-blue-800 text-blue-200 border border-blue-900' },
+              ].map(tag => (
+                <span key={tag.label} className={`text-xs px-3 py-1 rounded-full font-medium ${tag.color}`}>{tag.label}</span>
+              ))}
+            </div>
+            <p className="text-[#888] leading-relaxed mb-8 max-w-md">
+              Start with an assessment, then train with a custom playlist built for your level, goals, and next progression.
+            </p>
+            <a href="#signin" className="inline-block border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
+              Start Training
+            </a>
           </div>
-          <div className="relative">
-            <Image src="/angle-1.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
+
+          {/* Right: image grid flush to card edge */}
+          <div className="hidden md:grid grid-cols-2 gap-[2px] min-h-[480px]">
+            <div className="relative col-span-1 row-span-2 bg-[#161616]">
+              <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
+            </div>
+            <div className="relative bg-[#161616]">
+              <Image src="/angle-1.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
+            </div>
+            <div className="relative bg-[#161616]">
+              <Image src="/angle-3.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
+            </div>
           </div>
-          <div className="relative">
-            <Image src="/angle-3.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
-          </div>
+
         </div>
       </div>
     </section>
