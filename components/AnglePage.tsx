@@ -42,7 +42,7 @@ function Nav({
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-10 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
       <a href="#hero" className="flex-shrink-0">
-        <Image src="/angle-logo-white.svg" alt="Angle" width={110} height={32} priority />
+        <Image src="/angle-logo-white.svg" alt="Angle" width={83} height={24} priority />
       </a>
       <div className="hidden md:flex items-center gap-8">
         <a href="#how-it-works" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">How It Works</a>
@@ -51,7 +51,7 @@ function Nav({
       </div>
       <button
         onClick={onStartTraining}
-        className="bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e0e0e0] transition-colors"
+        className="rounded-[10px] bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e0e0e0] transition-colors"
       >
         {isStartingTraining ? 'Starting...' : 'Start Training'}
       </button>
@@ -94,7 +94,7 @@ function Hero({
         <div>
           <button
             onClick={onStartTraining}
-            className="inline-block bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 md:px-10 hover:bg-[#e0e0e0] transition-colors"
+            className="inline-block rounded-[10px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 md:px-10 hover:bg-[#e0e0e0] transition-colors"
           >
             {isStartingTraining ? 'Starting...' : 'Start Training'}
           </button>
@@ -160,7 +160,7 @@ function FeatureBlock() {
             <p className="text-[#888] leading-relaxed mb-8 max-w-md">
               Start with an assessment, then train with a custom playlist built for your level, goals, and next progression.
             </p>
-            <a href="#signin" className="self-start inline-block border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
+            <a href="#signin" className="self-start inline-block rounded-[10px] border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
               Start Training
             </a>
           </div>
@@ -213,7 +213,7 @@ function ClearPath() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {steps.map(s => (
-            <div key={s.num} className="border border-[#222] p-6 md:p-8 hover:border-[#333] transition-colors">
+            <div key={s.num} className="rounded-lg border border-[#222] p-6 md:p-8 hover:border-[#333] transition-colors">
               <span className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-xs font-bold mb-5 md:mb-6 ${s.border}`} style={{ backgroundColor: s.bg, color: s.text }}>{s.num}</span>
               <h3 className="text-white text-2xl uppercase tracking-wide mb-3" style={{ fontFamily: 'var(--font-bebas)' }}>{s.title}</h3>
               <p className="text-[#777] text-sm leading-relaxed">{s.body}</p>
@@ -293,7 +293,7 @@ function InsideAngle() {
       </div>
       <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {features.map(f => (
-          <div key={f.title} className="border border-[#1e1e1e] p-6 hover:border-[#333] transition-colors">
+          <div key={f.title} className="rounded-lg border border-[#1e1e1e] p-6 hover:border-[#333] transition-colors">
             <h3 className="text-white font-semibold mb-3">{f.title}</h3>
             <p className="text-[#666] text-sm leading-relaxed">{f.body}</p>
           </div>
@@ -324,7 +324,7 @@ function Testimonials() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {quotes.map(q => (
-            <div key={q.name} className="bg-[#111] border border-[#1e1e1e] p-6 md:p-8">
+            <div key={q.name} className="rounded-lg bg-[#111] border border-[#1e1e1e] p-6 md:p-8">
               <p className="text-[#ccc] leading-relaxed mb-6 italic">&ldquo;{q.quote}&rdquo;</p>
               <div>
                 <p className="text-white font-semibold text-sm">{q.name}</p>
@@ -365,7 +365,7 @@ function Pricing({
           One Plan. Everything Included.
         </h2>
       </div>
-      <div className="max-w-md mx-auto bg-[#111] border border-[#1e1e1e] p-6 md:p-10 text-center">
+      <div className="max-w-md mx-auto rounded-lg bg-[#111] border border-[#1e1e1e] p-6 md:p-10 text-center">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">Angle Member</p>
         <div className="mb-8">
           <span className="text-white" style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(60px, 8vw, 96px)' }}>$95</span>
@@ -380,7 +380,7 @@ function Pricing({
         </ul>
         <button
           onClick={onStartTraining}
-          className="block w-full bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
+          className="block w-full rounded-[10px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
         >
           {isStartingTraining ? 'Starting...' : 'Start Training'}
         </button>
@@ -488,7 +488,7 @@ function SignIn({
               {isAdmin && (
                 <Link
                   href="/admin"
-                  className="inline-block border border-white/20 text-white text-sm font-bold tracking-widest uppercase px-6 py-3 hover:bg-white/10 transition-colors"
+                  className="inline-block rounded-lg border border-white/20 text-white text-sm font-bold tracking-widest uppercase px-6 py-3 hover:bg-white/10 transition-colors"
                 >
                   Go to Admin
                 </Link>
@@ -496,7 +496,7 @@ function SignIn({
             </div>
             <button
               onClick={onLogout}
-              className="inline-block border border-[#333] text-[#777] text-sm px-4 py-2 hover:text-white hover:border-white/20 transition-colors"
+              className="inline-block rounded-[10px] border border-[#333] text-[#777] text-sm px-4 py-2 hover:text-white hover:border-white/20 transition-colors"
             >
               Log out
             </button>
@@ -508,11 +508,11 @@ function SignIn({
               value={email}
               onChange={e => onEmailChange(e.target.value)}
               placeholder="your@email.com"
-              className="w-full bg-[#111] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555]"
+              className="w-full rounded-lg bg-[#111] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555]"
             />
             <button
               onClick={onLogin}
-              className="w-full bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
+              className="w-full rounded-[10px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
             >
               Email me a sign-in link
             </button>
