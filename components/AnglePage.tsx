@@ -281,42 +281,6 @@ function Journey() {
   )
 }
 
-// ── Inside Angle ──────────────────────────────────────────────────────────────
-function InsideAngle() {
-  const [ref, visible] = useReveal()
-  const features = [
-    { title: 'Custom Playlists', body: 'Custom playlists built for you after assessment, based on your level, goals, and next progression.' },
-    { title: 'Structured Sessions', body: 'Clear training flow so you always know what to do next.' },
-    { title: 'Progressions That Build', body: 'Train with purpose as your balance, strength, and control improve.' },
-    { title: 'Coach-Led System', body: 'Built around real coaching experience, not random drills.' },
-  ]
-
-  return (
-    <section id="inside-angle" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-      <div className="max-w-6xl mx-auto text-left mb-10 md:mb-14">
-        <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Inside Angle</p>
-        <h2
-          className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
-          style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
-        >
-          Everything You Need To Train With Clarity.
-        </h2>
-        <p className="text-[#777] max-w-xl">
-          Start with an assessment, then train through playlists built specifically for your level, goals, and next progression.
-        </p>
-      </div>
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
-        {features.map(f => (
-          <div key={f.title} className="rounded-lg border border-[#1e1e1e] p-6 hover:border-[#333] transition-colors" style={{ background: '#111110' }}>
-            <h3 className="text-white font-semibold mb-3">{f.title}</h3>
-            <p className="text-[#666] text-sm leading-relaxed">{f.body}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  )
-}
-
 // ── Testimonials ──────────────────────────────────────────────────────────────
 function Testimonials() {
   const [ref, visible] = useReveal()
@@ -682,7 +646,6 @@ export default function AnglePage() {
       <FeatureBlock isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <ClearPath />
       <Journey />
-      <InsideAngle />
       <Testimonials />
       <Pricing isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <FAQ />
