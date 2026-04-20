@@ -113,14 +113,14 @@ function Hero({
       </div>
 
       {/* Right: athlete photo — below content on mobile, right column on desktop */}
-      <div className="relative w-full aspect-[3/4] md:aspect-auto md:w-[38%] md:h-full">
+      <div className="relative w-full aspect-[3/4] md:aspect-auto md:w-[38%] md:h-full overflow-hidden">
         {/* Desktop: left-edge gradient blend */}
         <div className="hidden md:block absolute left-0 top-0 w-48 h-full bg-gradient-to-r from-[#0a0a0a] to-transparent z-10" />
         <Image
           src="/hero.png"
           alt="Handstand athlete"
           fill
-          className="object-contain object-center md:object-right"
+          className="object-contain object-center md:object-right scale-[1.15] md:scale-[1.35] origin-center md:origin-right transition-transform"
           priority
           sizes="(max-width: 768px) 100vw, 38vw"
         />
