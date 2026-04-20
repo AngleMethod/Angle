@@ -118,7 +118,7 @@ function Hero({
           src="/hero.png"
           alt="Handstand athlete"
           fill
-          className="object-contain object-center md:object-right scale-[1.15] md:scale-[1.45] origin-center md:origin-right transition-transform"
+          className="object-contain object-center md:object-right origin-center md:origin-right"
           priority
           sizes="(max-width: 768px) 100vw, 38vw"
         />
