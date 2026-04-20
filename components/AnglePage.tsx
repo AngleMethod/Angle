@@ -68,9 +68,9 @@ function Hero({
   onStartTraining: () => void
 }) {
   return (
-    <section id="hero" className="relative h-screen flex overflow-hidden bg-[#0a0a0a]">
+    <section id="hero" className="bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen overflow-hidden">
       {/* Left: content */}
-      <div className="relative z-10 flex flex-col justify-center px-6 pt-20 md:pt-0 md:pl-16 md:pr-8 w-full md:w-[52%]">
+      <div className="relative z-10 flex flex-col justify-center px-6 pt-20 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[62%]">
         {/* Accent line — desktop only */}
         <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-36 bg-white" />
 
@@ -110,10 +110,8 @@ function Hero({
         </p>
       </div>
 
-      {/* Right: athlete photo — full bleed background on mobile, right half on desktop */}
-      <div className="absolute inset-0 md:inset-auto md:right-0 md:top-0 w-full md:w-[45%] h-full overflow-hidden">
-        {/* Mobile: dark overlay so text stays readable */}
-        <div className="absolute inset-0 bg-black/65 md:hidden z-10" />
+      {/* Right: athlete photo — below content on mobile, right column on desktop */}
+      <div className="relative w-full aspect-[4/3] md:aspect-auto md:w-[38%] overflow-hidden">
         {/* Desktop: left-edge gradient blend */}
         <div className="hidden md:block absolute left-0 top-0 w-48 h-full bg-gradient-to-r from-[#0a0a0a] to-transparent z-10" />
         <Image
@@ -122,7 +120,7 @@ function Hero({
           fill
           className="object-cover object-center"
           priority
-          sizes="(max-width: 768px) 100vw, 45vw"
+          sizes="(max-width: 768px) 100vw, 38vw"
         />
       </div>
     </section>
