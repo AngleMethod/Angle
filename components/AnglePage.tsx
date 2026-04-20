@@ -253,7 +253,7 @@ function Journey() {
                 <Image src={row.img} alt={row.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
               </div>
               <div className="w-full md:w-1/2">
-                <span className={`text-xs px-3 py-1 rounded-full font-medium mb-4 inline-block ${row.eyebrowBorder}`} style={{ backgroundColor: row.eyebrowBg, color: row.eyebrowText }}>{row.eyebrow}</span>
+                <span className={`text-xs px-3 py-1 rounded-full font-medium mb-4 md:mb-6 inline-block ${row.eyebrowBorder}`} style={{ backgroundColor: row.eyebrowBg, color: row.eyebrowText }}>{row.eyebrow}</span>
                 <h3 className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6" style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(28px, 3.5vw, 48px)' }}>{row.title}</h3>
                 <p className="text-[#777] leading-relaxed">{row.body}</p>
               </div>
