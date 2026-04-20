@@ -8,7 +8,7 @@ import { supabase } from '@/lib/supabase'
 const ADMIN_EMAIL = 'josh@notecreativestudios.com'
 
 // ── Utility: scroll-reveal hook ───────────────────────────────────────────────
-function useReveal(): [RefObject<HTMLElement>, boolean] {
+function useReveal(): [RefObject<HTMLElement | null>, boolean] {
   const ref = useRef<HTMLElement>(null)
   const [visible, setVisible] = useState(false)
   useEffect(() => {
