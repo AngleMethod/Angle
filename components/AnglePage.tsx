@@ -251,7 +251,7 @@ function Journey() {
         <div className="divide-y divide-[#1a1a1a]">
           {rows.map(row => (
             <div key={row.num} className={`flex flex-col gap-6 py-10 md:py-16 md:gap-12 md:items-center ${row.reverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
-              <div className="relative w-full md:w-1/2 aspect-[4/3] overflow-hidden flex-shrink-0">
+              <div className="relative w-full md:w-1/2 aspect-[4/3] overflow-hidden flex-shrink-0" style={{ background: '#111110' }}>
                 <Image src={row.img} alt={row.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
               </div>
               <div className="w-full md:w-1/2">
@@ -395,10 +395,16 @@ function FAQ() {
   const [ref, visible] = useReveal()
   const [open, setOpen] = useState<number | null>(null)
   const items = [
-    { q: 'Do I need any equipment?', a: 'No equipment needed. All programs are designed for floor-based handstand training.' },
-    { q: "What if I'm a complete beginner?", a: 'Perfect. The assessment is designed to meet you exactly where you are, no matter your starting point.' },
+    { q: "What if I've never done a handstand before?", a: "That's exactly where most people start. You'll begin at your current level and follow a clear progression from the wall to your first freestanding hold." },
+    { q: "What if I'm already training but not progressing?", a: "Most people stall because they're guessing. Angle removes that guesswork and gives you a structured path so you always know what to do next." },
+    { q: 'What happens in the 30-minute assessment?', a: 'We evaluate your current level, identify your limiting factors, and map out the exact next steps for your training so you can start progressing immediately.' },
+    { q: 'How much time do I need to train?', a: 'Most members train 3–5 times per week. Sessions are designed to be focused and efficient so you can make consistent progress without wasting time.' },
+    { q: 'Do I need any equipment?', a: "You can get started with just a wall. Optional tools like parallettes can help, but aren't required." },
+    { q: "Is this safe if I've had wrist or shoulder issues?", a: 'We start with an assessment that accounts for any limitations. Most members with wrist or shoulder history train successfully — we adjust your starting point and progressions accordingly.' },
+    { q: 'How is this different from YouTube tutorials?', a: "YouTube gives you exercises. Angle gives you a system — what to do, when to do it, and how to progress — so you don't waste months figuring it out yourself." },
+    { q: 'Is the program actually personalized?', a: "Yes. Your training is based on your current level and evolves as you improve, so you're always working on the right things at the right time." },
     { q: 'How long until I see results?', a: 'Most members notice real improvements within 4–6 weeks of consistent training.' },
-    { q: 'Can I pause or cancel anytime?', a: 'Yes. Pause or cancel your subscription at any time, no questions asked.' },
+    { q: 'Can I pause or cancel anytime?', a: 'Yes. You can pause or cancel whenever you want.' },
   ]
 
   return (
