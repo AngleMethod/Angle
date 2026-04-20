@@ -88,18 +88,6 @@ function Hero({
 
   return (
     <section id="hero" className="relative bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen md:px-12 overflow-hidden">
-      {/* Animated dot lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none z-0" aria-hidden="true" preserveAspectRatio="none">
-        {/* Outer frame */}
-        <rect x="1%" y="2%" width="98%" height="96%" fill="none" stroke="#222" strokeWidth="0.5" pathLength="1" strokeDasharray="0.002 0.006" style={{ strokeDashoffset: 1, animation: 'hero-draw 2.5s ease-out 0.1s both' }} />
-        {/* Inner frame */}
-        <rect x="5%" y="7%" width="90%" height="86%" fill="none" stroke="#1a1a1a" strokeWidth="0.5" pathLength="1" strokeDasharray="0.002 0.006" style={{ strokeDashoffset: 1, animation: 'hero-draw 2.5s ease-out 0.5s both' }} />
-        {/* Center vertical */}
-        <line x1="50%" y1="2%" x2="50%" y2="98%" stroke="#1e1e1e" strokeWidth="0.5" pathLength="1" strokeDasharray="0.002 0.006" style={{ strokeDashoffset: 1, animation: 'hero-draw 2s ease-out 1s both' }} />
-        {/* Center horizontal */}
-        <line x1="1%" y1="50%" x2="99%" y2="50%" stroke="#1e1e1e" strokeWidth="0.5" pathLength="1" strokeDasharray="0.002 0.006" style={{ strokeDashoffset: 1, animation: 'hero-draw 2s ease-out 1.3s both' }} />
-      </svg>
-
       {/* Left: content */}
       <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[50%]">
 
