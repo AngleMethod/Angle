@@ -74,16 +74,33 @@ function Hero({
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
+  const heroPills = [
+    { label: 'Assessment',    border: 'border border-purple-900', bg: 'oklch(0.18 0.06 290)', text: 'oklch(0.65 0.14 290)' },
+    { label: 'Built for you', border: 'border border-green-900',  bg: 'oklch(0.18 0.06 155)', text: 'oklch(0.68 0.14 155)' },
+    { label: 'Progressions',  border: 'border border-orange-900', bg: 'oklch(0.18 0.06 50)',  text: 'oklch(0.72 0.14 50)'  },
+    { label: 'Coach-led',     border: 'border border-blue-900',   bg: 'oklch(0.18 0.06 240)', text: 'oklch(0.65 0.14 240)' },
+  ]
+  const [activePill, setActivePill] = useState(0)
+  useEffect(() => {
+    const interval = setInterval(() => setActivePill(prev => (prev + 1) % heroPills.length), 2200)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <section id="hero" className="bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen md:px-12 overflow-hidden">
       {/* Left: content */}
       <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[50%]">
 
-        <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
-          <span className="text-xs px-3 py-1 rounded-full font-medium border border-purple-900" style={{ backgroundColor: 'oklch(0.18 0.06 290)', color: 'oklch(0.65 0.14 290)' }}>Assessment</span>
-          <span className="text-xs px-3 py-1 rounded-full font-medium border border-green-900" style={{ backgroundColor: 'oklch(0.18 0.06 155)', color: 'oklch(0.68 0.14 155)' }}>Built for you</span>
-          <span className="text-xs px-3 py-1 rounded-full font-medium border border-orange-900" style={{ backgroundColor: 'oklch(0.18 0.06 50)', color: 'oklch(0.72 0.14 50)' }}>Progressions</span>
-          <span className="text-xs px-3 py-1 rounded-full font-medium border border-blue-900" style={{ backgroundColor: 'oklch(0.18 0.06 240)', color: 'oklch(0.65 0.14 240)' }}>Coach-led</span>
+        <div className="relative h-7 mb-4 md:mb-6">
+          {heroPills.map((pill, i) => (
+            <span
+              key={pill.label}
+              className={`absolute text-xs px-3 py-1 rounded-full font-medium transition-opacity duration-500 ${pill.border} ${i === activePill ? 'opacity-100' : 'opacity-0'}`}
+              style={{ backgroundColor: pill.bg, color: pill.text }}
+            >
+              {pill.label}
+            </span>
+          ))}
         </div>
 
         <h1
