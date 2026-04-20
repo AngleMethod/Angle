@@ -115,7 +115,7 @@ function Hero({
 
         {/* Scroll indicator — desktop only */}
         <button
-          onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+          onClick={() => document.getElementById('start-now')?.scrollIntoView({ behavior: 'smooth' })}
           className={`hidden md:flex absolute bottom-8 left-16 text-[#444] text-xs tracking-widest uppercase items-center gap-2 hover:text-[#666] transition-all duration-500 ${scrollVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
         >
           <span className="w-6 h-px bg-current" />
@@ -147,7 +147,7 @@ function Hero({
 function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTraining: boolean; onStartTraining: () => void }) {
   const [ref, visible] = useReveal()
   return (
-    <section ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+    <section id="start-now" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-7xl mx-auto overflow-hidden rounded-2xl border border-[#222] bg-[#0a0a0a]">
         <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
 
