@@ -78,8 +78,6 @@ function Hero({
     <section id="hero" className="bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen md:px-12 overflow-hidden">
       {/* Left: content */}
       <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[50%]">
-        {/* Accent line — desktop only */}
-        <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-16 bg-white" />
 
         <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
           <span className="text-xs px-3 py-1 rounded-full font-medium border border-purple-900" style={{ backgroundColor: 'oklch(0.18 0.06 290)', color: 'oklch(0.65 0.14 290)' }}>Assessment</span>
