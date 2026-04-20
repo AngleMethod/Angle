@@ -67,6 +67,13 @@ function Hero({
   isStartingTraining: boolean
   onStartTraining: () => void
 }) {
+  const [scrollVisible, setScrollVisible] = useState(true)
+  useEffect(() => {
+    const fn = () => setScrollVisible(window.scrollY < 60)
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
+  }, [])
+
   return (
     <section id="hero" className="bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen md:px-12 overflow-hidden">
       {/* Left: content */}
@@ -107,9 +114,16 @@ function Hero({
         </div>
 
         {/* Scroll indicator — desktop only */}
-        <p className="hidden md:flex absolute bottom-8 left-16 text-[#444] text-xs tracking-widest uppercase items-center gap-2">
-          <span className="w-6 h-px bg-[#444]" /> Scroll
-        </p>
+        <button
+          onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}
+          className={`hidden md:flex absolute bottom-8 left-16 text-[#444] text-xs tracking-widest uppercase items-center gap-2 hover:text-[#666] transition-all duration-500 ${scrollVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        >
+          <span className="w-6 h-px bg-current" />
+          Scroll
+          <svg className="w-3 h-3 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
       </div>
 
       {/* Right: athlete photo — below content on mobile, right column on desktop */}
