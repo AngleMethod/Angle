@@ -348,10 +348,10 @@ function Pricing({
 }) {
   const [ref, visible] = useReveal()
   const features = [
-    'Custom training program',
-    'Live assessment call',
-    'Progress-based progressions',
-    'Coach-curated video library',
+    'A plan built for your exact level',
+    'A 30-minute assessment to identify what\'s holding you back',
+    'Step-by-step progressions so you always know what to do next',
+    'A complete video library so you can train with confidence',
   ]
 
   return (
@@ -364,27 +364,30 @@ function Pricing({
         >
           One Plan. Everything Included.
         </h2>
+        <p className="text-[#777] mt-4">Built for your level. Designed to take you from your current ability to your next handstand.</p>
       </div>
       <div className="max-w-xl mx-auto rounded-lg bg-[#111] border border-[#1e1e1e] p-6 md:p-10 text-center">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">Angle Member</p>
+        <p className="text-[#777] text-sm mb-4">Most members see progress within 4–6 weeks.</p>
         <div className="mb-8">
           <span className="text-white" style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(60px, 8vw, 96px)' }}>$95</span>
           <span className="text-[#666] text-lg">/mo</span>
         </div>
-        <ul className="space-y-3 mb-10 text-left">
+        <ul className="space-y-3 mb-4 text-left">
           {features.map(f => (
             <li key={f} className="flex items-center gap-3 text-[#ccc] text-sm">
               <span className="text-green-500">✓</span> {f}
             </li>
           ))}
         </ul>
+        <p className="text-[#777] text-sm text-left mb-10">No guesswork. No wasted time.</p>
         <button
           onClick={onStartTraining}
           className="block w-full rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
         >
-          {isStartingTraining ? 'Starting...' : 'Start Training'}
+          {isStartingTraining ? 'Starting...' : 'Start Your Assessment'}
         </button>
-        <p className="text-[#444] text-xs mt-4">Pause or cancel your subscription anytime.</p>
+        <p className="text-[#444] text-xs mt-4">Pause or cancel anytime. No commitment.</p>
       </div>
     </section>
   )
