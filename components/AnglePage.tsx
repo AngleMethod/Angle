@@ -51,7 +51,7 @@ function Nav({
       </div>
       <button
         onClick={onStartTraining}
-        className="bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e8673a] hover:text-white transition-colors"
+        className="bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e0e0e0] transition-colors"
       >
         {isStartingTraining ? 'Starting...' : 'Start Training'}
       </button>
@@ -72,19 +72,19 @@ function Hero({
       {/* Left: content */}
       <div className="relative z-10 flex flex-col justify-center px-6 pt-20 md:pt-0 md:pl-16 md:pr-8 w-full md:w-[52%]">
         {/* Accent line — desktop only */}
-        <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-36 bg-[#e8673a]" />
+        <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-36 bg-white" />
 
         <p className="text-[#888] text-[11px] tracking-[0.2em] uppercase mb-4 md:mb-6">
           Structured. Progressive. Coach-Led.
         </p>
 
         <h1
-          className="text-white uppercase leading-[0.88] mb-4 md:mb-6"
+          className="text-white uppercase leading-[0.9] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(48px, 11vw, 120px)' }}
         >
           Master<br />
           Handstands<br />
-          <em className="text-[#e8673a] italic">With A Real System</em>
+          <em className="text-[#c0c0c0] italic">With A Real System</em>
         </h1>
 
         <p className="text-[#aaa] text-base md:text-lg leading-relaxed max-w-md mb-8 md:mb-10">
@@ -94,7 +94,7 @@ function Hero({
         <div>
           <button
             onClick={onStartTraining}
-            className="inline-block bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 md:px-10 hover:bg-[#e8673a] hover:text-white transition-colors"
+            className="inline-block bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 md:px-10 hover:bg-[#e0e0e0] transition-colors"
           >
             {isStartingTraining ? 'Starting...' : 'Start Training'}
           </button>
@@ -111,7 +111,7 @@ function Hero({
       </div>
 
       {/* Right: athlete photo — full bleed background on mobile, right half on desktop */}
-      <div className="absolute inset-0 md:inset-auto md:right-0 md:top-0 w-full md:w-[55%] h-full overflow-hidden">
+      <div className="absolute inset-0 md:inset-auto md:right-0 md:top-0 w-full md:w-[45%] h-full overflow-hidden">
         {/* Mobile: dark overlay so text stays readable */}
         <div className="absolute inset-0 bg-black/65 md:hidden z-10" />
         {/* Desktop: left-edge gradient blend */}
@@ -122,7 +122,7 @@ function Hero({
           fill
           className="object-cover object-center"
           priority
-          sizes="(max-width: 768px) 100vw, 55vw"
+          sizes="(max-width: 768px) 100vw, 45vw"
         />
       </div>
     </section>
@@ -138,7 +138,7 @@ function FeatureBlock() {
         <div>
           <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Start Now</p>
           <h2
-            className="text-white uppercase leading-none mb-6"
+            className="text-white uppercase leading-[0.95] tracking-wide mb-6"
             style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 5vw, 72px)' }}
           >
             Train With More Structure.<br />
@@ -193,7 +193,7 @@ function ClearPath() {
       <div className="max-w-6xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— How It Works</p>
         <h2
-          className="text-white uppercase leading-none mb-4"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-4"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 64px)' }}
         >
           A Clear Path To Your First —<br />Or Next — Handstand.
@@ -205,7 +205,7 @@ function ClearPath() {
           {steps.map(s => (
             <div key={s.num} className="border border-[#222] p-6 md:p-8 hover:border-[#333] transition-colors">
               <span className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-white text-xs font-bold mb-5 md:mb-6 ${s.color}`}>{s.num}</span>
-              <h3 className="text-white text-2xl uppercase mb-3" style={{ fontFamily: 'var(--font-bebas)' }}>{s.title}</h3>
+              <h3 className="text-white text-2xl uppercase tracking-wide mb-3" style={{ fontFamily: 'var(--font-bebas)' }}>{s.title}</h3>
               <p className="text-[#777] text-sm leading-relaxed">{s.body}</p>
             </div>
           ))}
@@ -229,7 +229,7 @@ function Journey() {
       <div className="max-w-6xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— The Journey</p>
         <h2
-          className="text-white uppercase leading-none mb-4"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-4"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 64px)' }}
         >
           A System That Grows With You.
@@ -246,7 +246,7 @@ function Journey() {
               </div>
               <div className="w-full md:w-1/2">
                 <span className="text-[#444] text-xs font-bold tracking-widest">{row.num}</span>
-                <h3 className="text-white uppercase text-4xl mt-2 mb-3 md:mb-4" style={{ fontFamily: 'var(--font-bebas)' }}>{row.title}</h3>
+                <h3 className="text-white uppercase text-4xl tracking-wide mt-2 mb-3 md:mb-4" style={{ fontFamily: 'var(--font-bebas)' }}>{row.title}</h3>
                 <p className="text-[#777] leading-relaxed">{row.body}</p>
               </div>
             </div>
@@ -272,7 +272,7 @@ function InsideAngle() {
       <div className="max-w-6xl mx-auto text-center mb-10 md:mb-14">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Inside Angle</p>
         <h2
-          className="text-white uppercase leading-none mb-4"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-4"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
           Everything You Need To Train With Clarity.
@@ -307,7 +307,7 @@ function Testimonials() {
       <div className="max-w-6xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— What People Say</p>
         <h2
-          className="text-white uppercase leading-none mb-10 md:mb-14"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-10 md:mb-14"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
           Built For People Serious<br />About Their Practice.
@@ -349,7 +349,7 @@ function Pricing({
       <div className="max-w-6xl mx-auto text-center mb-10 md:mb-14">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Pricing</p>
         <h2
-          className="text-white uppercase leading-none"
+          className="text-white uppercase leading-[0.95] tracking-wide"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
           One Plan. Everything Included.
@@ -364,13 +364,13 @@ function Pricing({
         <ul className="space-y-3 mb-10 text-left">
           {features.map(f => (
             <li key={f} className="flex items-center gap-3 text-[#ccc] text-sm">
-              <span className="text-[#e8673a]">✓</span> {f}
+              <span className="text-[#999]">✓</span> {f}
             </li>
           ))}
         </ul>
         <button
           onClick={onStartTraining}
-          className="block w-full bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e8673a] hover:text-white transition-colors"
+          className="block w-full bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
         >
           {isStartingTraining ? 'Starting...' : 'Start Training'}
         </button>
@@ -396,7 +396,7 @@ function FAQ() {
       <div className="max-w-3xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— FAQ</p>
         <h2
-          className="text-white uppercase leading-none mb-10 md:mb-14"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-10 md:mb-14"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
           Common Questions.
@@ -409,7 +409,7 @@ function FAQ() {
                 className="w-full flex items-center justify-between text-left"
               >
                 <span className="text-white font-medium text-sm md:text-base">{item.q}</span>
-                <span className="text-[#e8673a] text-xl ml-4 flex-shrink-0">{open === i ? '−' : '+'}</span>
+                <span className="text-white text-xl ml-4 flex-shrink-0">{open === i ? '−' : '+'}</span>
               </button>
               {open === i && (
                 <p className="mt-4 text-[#777] leading-relaxed text-sm">{item.a}</p>
@@ -449,7 +449,7 @@ function SignIn({
       <div className="max-w-md mx-auto text-center">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Sign In</p>
         <h2
-          className="text-white uppercase leading-none mb-4"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-4"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(32px, 4vw, 52px)' }}
         >
           Access Your Training Dashboard
@@ -471,7 +471,7 @@ function SignIn({
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/dashboard"
-                className="inline-block bg-white text-black font-bold text-sm tracking-widest uppercase px-6 py-3 hover:bg-[#e8673a] hover:text-white transition-colors"
+                className="inline-block bg-white text-black font-bold text-sm tracking-widest uppercase px-6 py-3 hover:bg-[#e0e0e0] transition-colors"
               >
                 Go to Dashboard
               </Link>
@@ -498,11 +498,11 @@ function SignIn({
               value={email}
               onChange={e => onEmailChange(e.target.value)}
               placeholder="your@email.com"
-              className="w-full bg-[#111] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#e8673a]"
+              className="w-full bg-[#111] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555]"
             />
             <button
               onClick={onLogin}
-              className="w-full bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e8673a] hover:text-white transition-colors"
+              className="w-full bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
             >
               Email me a sign-in link
             </button>

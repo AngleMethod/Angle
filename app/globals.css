@@ -6,7 +6,6 @@ html {
 
 @theme inline {
   --font-sans: var(--font-inter);
-  --color-accent: #e8673a;
 }
 
 body {
