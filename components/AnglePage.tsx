@@ -111,7 +111,7 @@ function Hero({
       </div>
 
       {/* Right: athlete photo — below content on mobile, right column on desktop */}
-      <div className="relative w-full aspect-[4/3] md:aspect-auto md:w-[38%] overflow-hidden">
+      <div className="relative w-full aspect-[4/3] md:aspect-auto md:w-[38%] md:h-full overflow-hidden">
         {/* Desktop: left-edge gradient blend */}
         <div className="hidden md:block absolute left-0 top-0 w-48 h-full bg-gradient-to-r from-[#0a0a0a] to-transparent z-10" />
         <Image
@@ -131,7 +131,7 @@ function Hero({
 function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTraining: boolean; onStartTraining: () => void }) {
   const [ref, visible] = useReveal()
   return (
-    <section ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-8 md:py-12 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+    <section ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-7xl mx-auto overflow-hidden rounded-2xl border border-[#222] bg-[#0a0a0a]">
         <div className="grid grid-cols-1 md:grid-cols-2 items-stretch">
 
@@ -201,7 +201,7 @@ function ClearPath() {
       <div className="max-w-6xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— How It Works</p>
         <h2
-          className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 64px)' }}
         >
           A Clear Path To Your First —<br />Or Next — Handstand.
@@ -237,12 +237,12 @@ function Journey() {
       <div className="max-w-6xl mx-auto">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— The Journey</p>
         <h2
-          className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 64px)' }}
         >
           A System That Grows With You.
         </h2>
-        <p className="text-[#777] max-w-xl mb-10 md:mb-16">
+        <p className="text-[#777] max-w-xl mb-10 md:mb-14">
           Start where you are, build real control, and progress toward advanced handstand training — all within one system.
         </p>
 
@@ -280,7 +280,7 @@ function InsideAngle() {
       <div className="max-w-6xl mx-auto text-left mb-10 md:mb-14">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Inside Angle</p>
         <h2
-          className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
           Everything You Need To Train With Clarity.
@@ -289,7 +289,7 @@ function InsideAngle() {
           Start with an assessment, then train through playlists built specifically for your level, goals, and next progression.
         </p>
       </div>
-      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
         {features.map(f => (
           <div key={f.title} className="rounded-lg border border-[#1e1e1e] p-6 hover:border-[#333] transition-colors" style={{ background: '#111110' }}>
             <h3 className="text-white font-semibold mb-3">{f.title}</h3>
@@ -357,12 +357,12 @@ function Pricing({
       <div className="max-w-6xl mx-auto text-center mb-10 md:mb-14">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Pricing</p>
         <h2
-          className="text-white uppercase leading-[0.95] tracking-wide"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
           One Plan. Everything Included.
         </h2>
-        <p className="text-[#777] mt-4">Built for your level. Designed to take you from your current ability to your next handstand.</p>
+        <p className="text-[#777]">Built for your level. Designed to take you from your current ability to your next handstand.</p>
       </div>
       <div className="max-w-xl mx-auto rounded-lg bg-[#111] border border-[#1e1e1e] p-6 md:p-10 text-center">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">Angle Member</p>
@@ -420,7 +420,7 @@ function FAQ() {
         </h2>
         <div className="divide-y divide-[#1a1a1a] border-t border-b border-[#1a1a1a]">
           {items.map((item, i) => (
-            <div key={i} className="py-5">
+            <div key={i} className="py-6 md:py-7">
               <button
                 onClick={() => setOpen(open === i ? null : i)}
                 className="w-full flex items-center justify-between text-left"
@@ -467,7 +467,7 @@ function SignIn({
         <div className="rounded-lg border border-[#1e1e1e] p-8 md:p-12" style={{ background: '#111110' }}>
         <p className="text-left text-[#666] text-xs tracking-widest uppercase mb-4">— Sign In</p>
         <h2
-          className="text-left text-white uppercase leading-[0.95] tracking-wide mb-4"
+          className="text-left text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(32px, 4vw, 52px)' }}
         >
           Access Your Training Dashboard
