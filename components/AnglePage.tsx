@@ -208,6 +208,7 @@ function ClearPath() {
     { num: '01', border: 'border border-purple-950', bg: 'oklch(0.18 0.06 290)', text: 'oklch(0.65 0.14 290)', title: 'Assessment', body: 'We identify your current level, limitations, and next progression so your training starts exactly where it should.' },
     { num: '02', border: 'border border-green-950',  bg: 'oklch(0.18 0.06 155)', text: 'oklch(0.68 0.14 155)', title: 'Built For You', body: 'Get a training plan built for your level, goals, and what you need next — no guesswork, no wasted time.' },
     { num: '03', border: 'border border-orange-950', bg: 'oklch(0.18 0.06 50)',  text: 'oklch(0.72 0.14 50)',  title: 'Progress With Intent', body: 'As you improve, your training evolves with you so you keep progressing without ever losing direction.' },
+    { num: '04', border: 'border border-blue-900',   bg: 'oklch(0.18 0.06 240)', text: 'oklch(0.65 0.14 240)', title: 'Coach-Led', body: 'Meet Josh and Morgan Lee, having achieved handstand mastery they are now sharing their knowledge with people around the world.' },
   ]
 
   return (
@@ -223,7 +224,7 @@ function ClearPath() {
         <p className="text-[#777] max-w-xl mb-10 md:mb-14">
           Angle gives you structured training built around your current level, so you can stop guessing and start progressing.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {steps.map(s => (
             <div key={s.num} className="rounded-lg border border-[#222] p-6 md:p-8 hover:border-[#333] transition-colors">
               <span className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-xs font-bold mb-5 md:mb-6 ${s.border}`} style={{ backgroundColor: s.bg, color: s.text }}>{s.num}</span>
