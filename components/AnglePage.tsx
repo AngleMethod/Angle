@@ -146,10 +146,10 @@ function FeatureBlock() {
           </h2>
           <div className="flex flex-wrap gap-2 mb-6">
             {[
-              { label: 'Assessment first', color: 'bg-purple-900 text-purple-300' },
-              { label: 'Built for you', color: 'bg-green-900 text-green-300' },
-              { label: 'Progressions', color: 'bg-orange-900 text-orange-300' },
-              { label: 'Coach-led', color: 'bg-blue-900 text-blue-300' },
+              { label: 'Assessment first', color: 'bg-purple-900 text-purple-300 border border-purple-950' },
+              { label: 'Built for you', color: 'bg-green-900 text-green-300 border border-green-950' },
+              { label: 'Progressions', color: 'bg-orange-900 text-orange-300 border border-orange-950' },
+              { label: 'Coach-led', color: 'bg-blue-900 text-blue-300 border border-blue-950' },
             ].map(tag => (
               <span key={tag.label} className={`text-xs px-3 py-1 rounded-full font-medium ${tag.color}`}>{tag.label}</span>
             ))}
@@ -183,9 +183,9 @@ function FeatureBlock() {
 function ClearPath() {
   const [ref, visible] = useReveal()
   const steps = [
-    { num: '01', color: 'bg-purple-600', title: 'Assessment', body: 'We identify your current level, limitations, and next progression so your training starts exactly where it should.' },
-    { num: '02', color: 'bg-green-600', title: 'Custom Playlist', body: 'Get a training plan built for your level, goals, and what you need next — no guesswork, no wasted time.' },
-    { num: '03', color: 'bg-orange-500', title: 'Progress With Intent', body: 'As you improve, your training evolves with you so you keep progressing without ever losing direction.' },
+    { num: '01', color: 'bg-purple-900 text-purple-300 border border-purple-950', title: 'Assessment', body: 'We identify your current level, limitations, and next progression so your training starts exactly where it should.' },
+    { num: '02', color: 'bg-green-900 text-green-300 border border-green-950', title: 'Custom Playlist', body: 'Get a training plan built for your level, goals, and what you need next — no guesswork, no wasted time.' },
+    { num: '03', color: 'bg-orange-900 text-orange-300 border border-orange-950', title: 'Progress With Intent', body: 'As you improve, your training evolves with you so you keep progressing without ever losing direction.' },
   ]
 
   return (
@@ -204,7 +204,7 @@ function ClearPath() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {steps.map(s => (
             <div key={s.num} className="border border-[#222] p-6 md:p-8 hover:border-[#333] transition-colors">
-              <span className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-white text-xs font-bold mb-5 md:mb-6 ${s.color}`}>{s.num}</span>
+              <span className={`inline-flex items-center justify-center w-9 h-9 rounded-full text-xs font-bold mb-5 md:mb-6 ${s.color}`}>{s.num}</span>
               <h3 className="text-white text-2xl uppercase tracking-wide mb-3" style={{ fontFamily: 'var(--font-bebas)' }}>{s.title}</h3>
               <p className="text-[#777] text-sm leading-relaxed">{s.body}</p>
             </div>
