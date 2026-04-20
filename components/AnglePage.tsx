@@ -42,7 +42,7 @@ function Nav({
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-10 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
       <a href="#hero" className="flex-shrink-0">
-        <Image src="/angle-logo-white.svg" alt="Angle" width={83} height={24} priority />
+        <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} priority />
       </a>
       <div className="hidden md:flex items-center gap-8">
         <a href="#how-it-works" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">How It Works</a>
@@ -51,7 +51,7 @@ function Nav({
       </div>
       <button
         onClick={onStartTraining}
-        className="rounded-[10px] bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e0e0e0] transition-colors"
+        className="rounded-[4px] bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e0e0e0] transition-colors"
       >
         {isStartingTraining ? 'Starting...' : 'Start Training'}
       </button>
@@ -94,7 +94,7 @@ function Hero({
         <div>
           <button
             onClick={onStartTraining}
-            className="inline-block rounded-[10px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 md:px-10 hover:bg-[#e0e0e0] transition-colors"
+            className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 md:px-10 hover:bg-[#e0e0e0] transition-colors"
           >
             {isStartingTraining ? 'Starting...' : 'Start Training'}
           </button>
@@ -160,26 +160,26 @@ function FeatureBlock() {
             <p className="text-[#888] leading-relaxed mb-8 max-w-md">
               Start with an assessment, then train with a custom playlist built for your level, goals, and next progression.
             </p>
-            <a href="#signin" className="self-start inline-block rounded-[10px] border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
+            <a href="#signin" className="self-start inline-block rounded-[4px] border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
               Start Training
             </a>
           </div>
 
           {/* Right: image grid — desktop */}
           <div className="hidden md:grid grid-cols-2 gap-2 min-h-[480px] pt-12 pr-12 pb-12" style={{ background: '#0a0a0a' }}>
-            <div className="relative col-span-1 row-span-2" style={{ backgroundColor: '#111110' }}>
+            <div className="relative col-span-1 row-span-2 rounded-lg overflow-hidden" style={{ backgroundColor: '#111110' }}>
               <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
-            <div className="relative" style={{ backgroundColor: '#111110' }}>
+            <div className="relative rounded-lg overflow-hidden" style={{ backgroundColor: '#111110' }}>
               <Image src="/angle-1.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
-            <div className="relative" style={{ backgroundColor: '#111110' }}>
+            <div className="relative rounded-lg overflow-hidden" style={{ backgroundColor: '#111110' }}>
               <Image src="/angle-3.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
           </div>
 
           {/* Right: single image — mobile */}
-          <div className="block md:hidden relative w-full aspect-[4/3]" style={{ backgroundColor: '#111110' }}>
+          <div className="block md:hidden relative w-full aspect-[4/3] rounded-lg overflow-hidden" style={{ backgroundColor: '#111110' }}>
             <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="100vw" />
           </div>
 
@@ -380,7 +380,7 @@ function Pricing({
         </ul>
         <button
           onClick={onStartTraining}
-          className="block w-full rounded-[10px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
+          className="block w-full rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
         >
           {isStartingTraining ? 'Starting...' : 'Start Training'}
         </button>
@@ -457,6 +457,7 @@ function SignIn({
   return (
     <section id="signin" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-md mx-auto text-center">
+        <div className="rounded-lg border border-[#1e1e1e] p-8 md:p-12" style={{ background: '#111110' }}>
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Sign In</p>
         <h2
           className="text-white uppercase leading-[0.95] tracking-wide mb-4"
@@ -488,7 +489,7 @@ function SignIn({
               {isAdmin && (
                 <Link
                   href="/admin"
-                  className="inline-block rounded-lg border border-white/20 text-white text-sm font-bold tracking-widest uppercase px-6 py-3 hover:bg-white/10 transition-colors"
+                  className="inline-block rounded-[4px] border border-white/20 text-white text-sm font-bold tracking-widest uppercase px-6 py-3 hover:bg-white/10 transition-colors"
                 >
                   Go to Admin
                 </Link>
@@ -496,7 +497,7 @@ function SignIn({
             </div>
             <button
               onClick={onLogout}
-              className="inline-block rounded-[10px] border border-[#333] text-[#777] text-sm px-4 py-2 hover:text-white hover:border-white/20 transition-colors"
+              className="inline-block rounded-[4px] border border-[#333] text-[#777] text-sm px-4 py-2 hover:text-white hover:border-white/20 transition-colors"
             >
               Log out
             </button>
@@ -512,7 +513,7 @@ function SignIn({
             />
             <button
               onClick={onLogin}
-              className="w-full rounded-[10px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
+              className="w-full rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
             >
               Email me a sign-in link
             </button>
@@ -525,6 +526,7 @@ function SignIn({
         {message && (
           <p className="mt-4 text-sm text-[#777]">{message}</p>
         )}
+        </div>
       </div>
     </section>
   )
@@ -533,16 +535,16 @@ function SignIn({
 // ── Footer ────────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="bg-[#080808] border-t border-[#111] py-8 md:py-10 px-6 md:px-12">
+    <footer className="bg-white border-t border-[#e5e5e5] py-8 md:py-10 px-6 md:px-12">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-6 md:justify-between">
-        <Image src="/angle-logo-white.svg" alt="Angle" width={80} height={24} />
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8 text-[#555] text-xs tracking-widest uppercase">
-          <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
-          <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-          <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
-          <a href="#signin" className="hover:text-white transition-colors">Sign In</a>
+        <Image src="/angle-logo-footer-black.svg" alt="Angle" width={80} height={24} />
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8 text-black text-xs tracking-widest uppercase">
+          <a href="#how-it-works" className="hover:text-[#444] transition-colors">How It Works</a>
+          <a href="#pricing" className="hover:text-[#444] transition-colors">Pricing</a>
+          <a href="#faq" className="hover:text-[#444] transition-colors">FAQ</a>
+          <a href="#signin" className="hover:text-[#444] transition-colors">Sign In</a>
         </div>
-        <p className="text-[#333] text-xs">© 2025 Angle. All rights reserved.</p>
+        <p className="text-black text-xs">© 2025 Angle. All rights reserved.</p>
       </div>
     </footer>
   )
