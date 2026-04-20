@@ -166,7 +166,7 @@ function FeatureBlock() {
           </div>
 
           {/* Right: image grid — desktop */}
-          <div className="hidden md:grid grid-cols-2 gap-2 min-h-[480px] pt-2 pr-2 pb-2" style={{ background: '#111110' }}>
+          <div className="hidden md:grid grid-cols-2 gap-2 min-h-[480px] pt-2 pr-2 pb-2" style={{ background: '#0a0a0a' }}>
             <div className="relative col-span-1 row-span-2" style={{ backgroundColor: '#111110' }}>
               <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
