@@ -160,7 +160,7 @@ function FeatureBlock() {
             <p className="text-[#888] leading-relaxed mb-8 max-w-md">
               Start with an assessment, then train with a custom playlist built for your level, goals, and next progression.
             </p>
-            <a href="#signin" className="inline-block border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
+            <a href="#signin" className="self-start inline-block border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
               Start Training
             </a>
           </div>
