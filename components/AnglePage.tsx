@@ -94,11 +94,11 @@ function Hero({
         >
           Master<br />
           Handstands<br />
-          <em className="text-[#c0c0c0] italic">With A Real System</em>
+          <em className="text-[#c0c0c0] italic">With Real Structure</em>
         </h1>
 
         <p className="text-[#aaa] text-base md:text-lg leading-relaxed max-w-md mb-8 md:mb-10">
-          Start with a 30-minute assessment. Then follow a plan built for you.
+          A personalized handstand training system built for your level.
         </p>
 
         <div>
