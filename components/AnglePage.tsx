@@ -70,7 +70,7 @@ function Hero({
   return (
     <section id="hero" className="bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen overflow-hidden">
       {/* Left: content */}
-      <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[62%]">
+      <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[50%]">
         {/* Accent line — desktop only */}
         <div className="hidden md:block absolute left-10 top-1/2 -translate-y-1/2 w-[3px] h-36 bg-white" />
 
@@ -113,7 +113,7 @@ function Hero({
       </div>
 
       {/* Right: athlete photo — below content on mobile, right column on desktop */}
-      <div className="relative w-full aspect-[3/4] md:aspect-auto md:w-[38%] md:h-full overflow-hidden">
+      <div className="relative w-full aspect-[3/4] md:aspect-auto md:w-[50%] md:h-full overflow-hidden">
         <Image
           src="/hero.png"
           alt="Handstand athlete"
