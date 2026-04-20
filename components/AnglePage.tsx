@@ -130,7 +130,7 @@ function Hero({
 }
 
 // ── Feature Block ─────────────────────────────────────────────────────────────
-function FeatureBlock() {
+function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTraining: boolean; onStartTraining: () => void }) {
   const [ref, visible] = useReveal()
   return (
     <section ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-8 md:py-12 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
@@ -160,9 +160,9 @@ function FeatureBlock() {
             <p className="text-[#888] leading-relaxed mb-8 max-w-md">
               Start with an assessment, then train with a custom playlist built for your level, goals, and next progression.
             </p>
-            <a href="#signin" className="self-start inline-block rounded-[4px] border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
-              Start Training
-            </a>
+            <button onClick={onStartTraining} className="self-start inline-block rounded-[4px] border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
+              {isStartingTraining ? 'Starting...' : 'Start Training'}
+            </button>
           </div>
 
           {/* Right: image grid — desktop */}
@@ -665,7 +665,7 @@ export default function AnglePage() {
     <main className="bg-[#0a0a0a] text-white overflow-x-hidden">
       <Nav isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <Hero isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
-      <FeatureBlock />
+      <FeatureBlock isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <ClearPath />
       <Journey />
       <InsideAngle />
