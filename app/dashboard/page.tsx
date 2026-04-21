@@ -242,7 +242,13 @@ export default function Dashboard() {
                 >
                   Your Training
                 </h1>
-                <p className="text-[#777]">Your current workout playlist</p>
+                <p className="text-[#777]">
+                  {onboardingStatus === "not_booked"
+                    ? "Your training starts with a short setup call."
+                    : onboardingStatus === "booked"
+                    ? "Your setup call is booked. We'll build your plan next."
+                    : "Your current workout playlist."}
+                </p>
                 {userEmail ? (
                   <p className="mt-2 text-sm text-[#555]">Signed in as {userEmail}</p>
                 ) : null}
