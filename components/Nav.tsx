@@ -115,7 +115,7 @@ export default function Nav({
           className={`md:hidden fixed inset-0 z-[60] bg-[#0a0a0a] transition-all duration-300 ${menuOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}`}
           aria-hidden={!menuOpen}
         >
-          <div className="flex items-center justify-between px-6 py-3">
+          <div className="flex items-center justify-between px-6 py-4">
             <a href="#hero" onClick={() => setMenuOpen(false)} className="flex-shrink-0">
               <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} className="w-[43px] h-auto" />
             </a>
