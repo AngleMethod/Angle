@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, RefObject } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import Nav from './Nav'
+import Button from './ui/Button'
 
 const ADMIN_EMAIL = 'josh@notecreativestudios.com'
 
@@ -22,172 +24,6 @@ function useReveal(): [RefObject<HTMLElement | null>, boolean] {
     return () => obs.disconnect()
   }, [])
   return [ref, visible]
-}
-
-// ── Nav ───────────────────────────────────────────────────────────────────────
-function Nav({
-  isStartingTraining,
-  onStartTraining,
-  isLoggedIn,
-  authReady,
-}: {
-  isStartingTraining: boolean
-  onStartTraining: () => void
-  isLoggedIn: boolean
-  authReady: boolean
-}) {
-  const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-
-  useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', fn, { passive: true })
-    return () => window.removeEventListener('scroll', fn)
-  }, [])
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : ''
-    return () => { document.body.style.overflow = '' }
-  }, [menuOpen])
-
-  const mobileLinks = [
-    { href: '#how-it-works', label: 'How It Works' },
-    { href: '#pricing',      label: 'Pricing' },
-  ]
-
-  const handleMobileCTA = () => {
-    setMenuOpen(false)
-    onStartTraining()
-  }
-
-  const UserIcon = (
-    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-    </svg>
-  )
-
-  return (
-    <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-28 py-3 md:py-4 border-b border-[#222] transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
-        <a href="#hero" className="flex-shrink-0">
-          <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} priority className="w-[43px] md:w-[68px] h-auto" />
-        </a>
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#how-it-works" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">How It Works</a>
-          <a href="#pricing" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">Pricing</a>
-          <a href="#signin" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">Sign In</a>
-        </div>
-        <div className="hidden md:flex items-center gap-5">
-          {authReady && (
-            isLoggedIn ? (
-              <Link href="/dashboard" aria-label="Dashboard" className="text-[#999] hover:text-white transition-colors">
-                {UserIcon}
-              </Link>
-            ) : (
-              <a href="#signin" aria-label="Sign in" className="text-[#999] hover:text-white transition-colors">
-                {UserIcon}
-              </a>
-            )
-          )}
-          <button
-            onClick={onStartTraining}
-            className="rounded-[4px] bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e0e0e0] transition-colors"
-          >
-            {isStartingTraining ? 'Starting...' : 'Start Training'}
-          </button>
-        </div>
-
-        {/* Mobile: user icon + hamburger */}
-        <div className="md:hidden flex items-center gap-4">
-          {authReady && (
-            isLoggedIn ? (
-              <Link href="/dashboard" aria-label="Dashboard" className="text-[#999] hover:text-white transition-colors p-1 -m-1">
-                {UserIcon}
-              </Link>
-            ) : (
-              <a href="#signin" aria-label="Sign in" className="text-[#999] hover:text-white transition-colors p-1 -m-1">
-                {UserIcon}
-              </a>
-            )
-          )}
-          <button
-            onClick={() => setMenuOpen(true)}
-            className="flex flex-col gap-[5px] p-2 -mr-2"
-            aria-label="Open menu"
-          >
-            <span className="block w-6 h-px bg-white" />
-            <span className="block w-6 h-px bg-white" />
-            <span className="block w-6 h-px bg-white" />
-          </button>
-        </div>
-      </nav>
-
-      {/* Mobile overlay menu */}
-      <div
-        className={`md:hidden fixed inset-0 z-[60] bg-[#0a0a0a] transition-all duration-300 ${menuOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}`}
-        aria-hidden={!menuOpen}
-      >
-        <div className="flex items-center justify-between px-4 py-4">
-          <a href="#hero" onClick={() => setMenuOpen(false)} className="flex-shrink-0">
-            <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} className="w-[43px] h-auto" />
-          </a>
-          <button
-            onClick={() => setMenuOpen(false)}
-            className="p-2 -mr-2"
-            aria-label="Close menu"
-          >
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="flex flex-col justify-between h-[calc(100%-64px)] px-6 pt-8 pb-10">
-          <nav className="flex flex-col gap-8">
-            {mobileLinks.map(link => (
-              <a
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                className="text-white uppercase tracking-wide leading-none hover:text-[#aaa] transition-colors"
-                style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 11vw, 64px)' }}
-              >
-                {link.label}
-              </a>
-            ))}
-            {authReady && (
-              isLoggedIn ? (
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-white uppercase tracking-wide leading-none hover:text-[#aaa] transition-colors"
-                  style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 11vw, 64px)' }}
-                >
-                  Dashboard
-                </Link>
-              ) : (
-                <a
-                  href="#signin"
-                  onClick={() => setMenuOpen(false)}
-                  className="text-white uppercase tracking-wide leading-none hover:text-[#aaa] transition-colors"
-                  style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 11vw, 64px)' }}
-                >
-                  Sign In
-                </a>
-              )
-            )}
-          </nav>
-
-          <button
-            onClick={handleMobileCTA}
-            className="w-full rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
-          >
-            {isStartingTraining ? 'Starting...' : 'Start Training'}
-          </button>
-        </div>
-      </div>
-    </>
-  )
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
@@ -247,12 +83,9 @@ function Hero({
         </p>
 
         <div>
-          <button
-            onClick={onStartTraining}
-            className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 md:px-10 hover:bg-[#e0e0e0] transition-colors"
-          >
+          <Button onClick={onStartTraining} className="md:px-10">
             {isStartingTraining ? 'Starting...' : 'Start Training'}
-          </button>
+          </Button>
           <p className="mt-4 text-sm text-[#555]">
             Already a member?{' '}
             <a href="#signin" className="text-[#888] underline hover:text-white transition-colors">Sign in</a>
@@ -506,12 +339,9 @@ function Pricing({
           ))}
         </ul>
         <p className="text-[#777] text-sm text-left mb-10">No guesswork. No wasted time.</p>
-        <button
-          onClick={onStartTraining}
-          className="block w-full rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
-        >
+        <Button onClick={onStartTraining} fullWidth>
           {isStartingTraining ? 'Starting...' : 'Start Training'}
-        </button>
+        </Button>
         <p className="text-[#444] text-xs mt-4">Pause or cancel anytime. No commitment.</p>
       </div>
     </section>
@@ -645,12 +475,9 @@ function SignIn({
               placeholder="your@email.com"
               className="w-full rounded-lg bg-[#111] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555]"
             />
-            <button
-              onClick={onLogin}
-              className="w-full rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
-            >
+            <Button onClick={onLogin} fullWidth>
               Email me a sign-in link
-            </button>
+            </Button>
             <p className="text-[#444] text-xs">
               We&apos;ll remember your email on this browser so signing in is faster next time.
             </p>

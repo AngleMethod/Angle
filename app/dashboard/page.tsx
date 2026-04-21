@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import BookedRedirectHandler from "@/components/BookedRedirectHandler";
+import Nav from "@/components/Nav";
+import Button from "@/components/ui/Button";
 
 type WorkoutStep = {
   title: string;
@@ -128,19 +130,6 @@ export default function Dashboard() {
     };
   }, [router]);
 
-  if (!isLoaded) {
-    return (
-      <main className="min-h-screen bg-black p-8 text-white">
-        <div className="mx-auto max-w-5xl">
-          <h1 className="mb-2 text-3xl font-bold">Your Training</h1>
-          <p className="text-gray-400">
-            {authStatus === "redirecting" ? "Redirecting..." : "Checking login..."}
-          </p>
-        </div>
-      </main>
-    );
-  }
-
   async function handleUpgrade() {
     if (!userId) {
       setUpgradeError("Session not found. Please sign in again.");
@@ -170,126 +159,198 @@ export default function Dashboard() {
     }
   }
 
+  const DashboardNav = (
+    <Nav variant="minimal" isLoggedIn={!!userEmail} authReady={isLoaded} />
+  );
+
+  if (!isLoaded) {
+    return (
+      <>
+        {DashboardNav}
+        <main className="min-h-screen bg-[#0a0a0a] text-white">
+          <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
+            <div className="mx-auto max-w-6xl">
+              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Training</p>
+              <h1
+                className="text-white uppercase leading-[0.95] tracking-wide mb-6"
+                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
+              >
+                Your Training
+              </h1>
+              <p className="text-[#777]">
+                {authStatus === "redirecting" ? "Redirecting..." : "Checking login..."}
+              </p>
+            </div>
+          </section>
+        </main>
+      </>
+    );
+  }
+
   if (!hasAccess) {
     return (
-      <main className="min-h-screen bg-black p-8 text-white">
-        <div className="mx-auto max-w-xl text-center">
-          <h1 className="mb-4 text-3xl font-bold">Upgrade Required</h1>
-          <p className="mb-6 text-gray-400">
-            This training program is part of the paid Angle membership.
-          </p>
-          <button
-            onClick={handleUpgrade}
-            disabled={isUpgrading}
-            className="inline-block rounded-none bg-white px-6 py-3 font-semibold text-black transition hover:bg-gray-200 disabled:opacity-50"
-          >
-            {isUpgrading ? "Redirecting..." : "Upgrade to Access"}
-          </button>
-          {upgradeError ? (
-            <p className="mt-4 text-sm text-red-400">{upgradeError}</p>
-          ) : null}
-        </div>
-      </main>
+      <>
+        {DashboardNav}
+        <main className="min-h-screen bg-[#0a0a0a] text-white">
+          <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
+            <div className="mx-auto max-w-xl text-center">
+              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Membership</p>
+              <h1
+                className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
+                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 60px)" }}
+              >
+                Upgrade Required
+              </h1>
+              <p className="text-[#777] mb-10 md:mb-14">
+                This training program is part of the paid Angle membership.
+              </p>
+              <Button onClick={handleUpgrade} disabled={isUpgrading}>
+                {isUpgrading ? "Redirecting..." : "Upgrade to Access"}
+              </Button>
+              {upgradeError ? (
+                <p className="mt-4 text-sm text-[#dc2626]">{upgradeError}</p>
+              ) : null}
+            </div>
+          </section>
+        </main>
+      </>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black p-8 text-white">
-      <div className="mx-auto max-w-5xl">
-        <Suspense fallback={null}>
-          <BookedRedirectHandler onBooked={() => setShowBookedBanner(true)} />
-        </Suspense>
-        {showBookedBanner && (
-          <div className="mb-6 rounded-lg bg-zinc-800 px-6 py-4 text-sm text-white">
-            You&apos;re scheduled ✅ — we&apos;ll prepare your program after your call.
-          </div>
-        )}
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <div>
-            <h1 className="mb-2 text-3xl font-bold">Your Training</h1>
-            <p className="text-gray-400">Your current workout playlist</p>
-            {userEmail ? (
-              <p className="mt-2 text-sm text-gray-500">Signed in as {userEmail}</p>
-            ) : null}
-          </div>
-          {userEmail === ADMIN_EMAIL ? (
-            <Link href="/admin" className="rounded-lg bg-zinc-800 px-4 py-2 text-sm font-medium">
-              Open Admin
-            </Link>
-          ) : null}
-        </div>
+    <>
+      {DashboardNav}
+      <main className="min-h-screen bg-[#0a0a0a] text-white">
+        <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
+          <div className="mx-auto max-w-6xl">
+            <Suspense fallback={null}>
+              <BookedRedirectHandler onBooked={() => setShowBookedBanner(true)} />
+            </Suspense>
 
-        {onboardingStatus === "not_booked" && (
-          <div className="rounded-lg bg-zinc-900 p-8 text-center">
-            <h2 className="mb-2 text-2xl font-semibold">Book your setup call</h2>
-            <p className="mb-6 text-gray-400">
-              Your first step is a short call so we can understand your current level and build your custom program.
-            </p>
-            <a
-              href={CALENDLY_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block rounded-none bg-white px-8 py-4 font-semibold text-black transition hover:bg-gray-200"
-            >
-              Book Your Call
-            </a>
-          </div>
-        )}
-
-        {onboardingStatus === "booked" && (
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center">
-            <h2 className="mb-3 text-2xl font-semibold">Your setup call is booked</h2>
-            <p className="mb-6 text-zinc-400">
-              We&apos;ll use your call to understand your current level and build your custom training plan.
-            </p>
-            <div className="inline-flex items-center gap-2 text-sm text-zinc-500">
-              <span className="h-2 w-2 rounded-full bg-green-500" />
-              You&apos;re scheduled
-            </div>
-          </div>
-        )}
-
-        {onboardingStatus === "completed" && (
-          <>
-            {!workoutLoaded ? (
-              <p className="text-gray-400">Loading your workout...</p>
-            ) : workout.length === 0 ? (
-              <div className="rounded-lg bg-zinc-900 p-8 text-center">
-                <h2 className="mb-2 text-xl font-semibold">Your workout is being prepared</h2>
-                <p className="text-gray-400">
-                  Your custom training program will appear here once it&apos;s been assigned to your account.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-6">
-                {workout.map((step, i) => {
-                  const videoId = getVideoId(step);
-                  return (
-                  <div key={`${videoId}-${i}`} className="rounded-lg bg-zinc-900 p-4">
-                    <h2 className="mb-4 text-xl font-semibold">
-                      Step {i + 1}: {step.title}
-                    </h2>
-                    {videoId && (
-                      <div className="aspect-video w-full overflow-hidden rounded">
-                        <iframe
-                          className="h-full w-full"
-                          src={`https://www.youtube.com/embed/${videoId}?rel=0`}
-                          title={step.title}
-                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                          referrerPolicy="strict-origin-when-cross-origin"
-                          allowFullScreen
-                        />
-                      </div>
-                    )}
-                    <p className="mt-2 text-gray-400">{step.description}</p>
-                  </div>
-                  );
-                })}
+            {showBookedBanner && (
+              <div className="mb-10 rounded-lg border border-[#1e1e1e] bg-[#111110] px-6 py-4 text-sm text-[#ccc]">
+                You&apos;re scheduled ✅ — we&apos;ll prepare your program after your call.
               </div>
             )}
-          </>
-        )}
-      </div>
-    </main>
+
+            <div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+              <div>
+                <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Training</p>
+                <h1
+                  className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
+                >
+                  Your Training
+                </h1>
+                <p className="text-[#777]">Your current workout playlist</p>
+                {userEmail ? (
+                  <p className="mt-2 text-sm text-[#555]">Signed in as {userEmail}</p>
+                ) : null}
+              </div>
+              {userEmail === ADMIN_EMAIL ? (
+                <Link
+                  href="/admin"
+                  className="self-start sm:self-auto inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors"
+                >
+                  Open Admin
+                </Link>
+              ) : null}
+            </div>
+
+            {onboardingStatus === "not_booked" && (
+              <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                <h2
+                  className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
+                >
+                  Book Your Setup Call
+                </h2>
+                <p className="text-[#777] mb-8 md:mb-10 max-w-md mx-auto">
+                  Your first step is a short call so we can understand your current level and build your custom program.
+                </p>
+                <a
+                  href={CALENDLY_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors"
+                >
+                  Book Your Call
+                </a>
+              </div>
+            )}
+
+            {onboardingStatus === "booked" && (
+              <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                <h2
+                  className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
+                >
+                  Your Setup Call Is Booked
+                </h2>
+                <p className="text-[#777] mb-6 max-w-md mx-auto">
+                  We&apos;ll use your call to understand your current level and build your custom training plan.
+                </p>
+                <div
+                  className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
+                  style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "oklch(0.68 0.14 155)" }} />
+                  You&apos;re scheduled
+                </div>
+              </div>
+            )}
+
+            {onboardingStatus === "completed" && (
+              <>
+                {!workoutLoaded ? (
+                  <p className="text-[#777]">Loading your workout...</p>
+                ) : workout.length === 0 ? (
+                  <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                    <h2
+                      className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+                      style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 32px)" }}
+                    >
+                      Your Workout Is Being Prepared
+                    </h2>
+                    <p className="text-[#777] max-w-md mx-auto">
+                      Your custom training program will appear here once it&apos;s been assigned to your account.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {workout.map((step, i) => {
+                      const videoId = getVideoId(step);
+                      return (
+                        <div key={`${videoId}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                          <h2
+                            className="text-white uppercase tracking-wide mb-6"
+                            style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
+                          >
+                            Step {i + 1}: {step.title}
+                          </h2>
+                          {videoId && (
+                            <div className="aspect-video w-full overflow-hidden rounded-lg mb-6 bg-[#0a0a0a]">
+                              <iframe
+                                className="h-full w-full"
+                                src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+                                title={step.title}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                referrerPolicy="strict-origin-when-cross-origin"
+                                allowFullScreen
+                              />
+                            </div>
+                          )}
+                          <p className="text-[#aaa] leading-relaxed">{step.description}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </section>
+      </main>
+    </>
   );
 }
