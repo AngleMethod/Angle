@@ -163,6 +163,31 @@ export default function Dashboard() {
     <Nav variant="minimal" isLoggedIn={!!userEmail} authReady={isLoaded} />
   );
 
+  const eyebrowPill = (() => {
+    if (onboardingStatus === "completed") {
+      return {
+        label: "Progressing",
+        border: "border-orange-900",
+        bg: "oklch(0.18 0.06 50)",
+        text: "oklch(0.72 0.14 50)",
+      };
+    }
+    if (onboardingStatus === "booked" || (onboardingStatus === "not_booked" && showBookedBanner)) {
+      return {
+        label: "Built for You",
+        border: "border-green-900",
+        bg: "oklch(0.18 0.06 155)",
+        text: "oklch(0.68 0.14 155)",
+      };
+    }
+    return {
+      label: "Assessment",
+      border: "border-purple-900",
+      bg: "oklch(0.18 0.06 290)",
+      text: "oklch(0.65 0.14 290)",
+    };
+  })();
+
   if (!isLoaded) {
     return (
       <>
@@ -229,7 +254,14 @@ export default function Dashboard() {
 
 <div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Angle Member</p>
+                <div className="mb-4 md:mb-6">
+                  <span
+                    className={`text-xs px-3 py-1 rounded-full font-medium border ${eyebrowPill.border}`}
+                    style={{ backgroundColor: eyebrowPill.bg, color: eyebrowPill.text }}
+                  >
+                    {eyebrowPill.label}
+                  </span>
+                </div>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                   style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
