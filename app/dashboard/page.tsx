@@ -175,7 +175,7 @@ export default function Dashboard() {
         };
       }
       return {
-        label: "Building your plan",
+        label: "Built for you",
         border: "border-green-900",
         bg: "oklch(0.18 0.06 155)",
         text: "oklch(0.68 0.14 155)",
@@ -284,7 +284,9 @@ export default function Dashboard() {
                       : "Your training starts with a short setup call."
                     : onboardingStatus === "booked"
                     ? "Your setup call is booked. We'll build your plan next."
-                    : "Your current workout playlist."}
+                    : workoutLoaded && workout.length > 0
+                    ? "Your current workout playlist."
+                    : "We\u2019re working on your personalized video playlist."}
                 </p>
                 {userEmail ? (
                   <p className="mt-2 text-sm text-[#555]">Signed in as {userEmail}</p>
@@ -369,19 +371,19 @@ export default function Dashboard() {
                         className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
                         style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
                       >
-                        ● Building Your Plan
+                        ● Plan in progress
                       </div>
                     </div>
                     <h2
                       className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                       style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 32px)" }}
                     >
-                      Your Workout Is Being Prepared
+                      Your Training System Is Being Prepared
                     </h2>
                     <p className="text-[#777] max-w-md mx-auto">
                       Your custom training program will appear here once it&apos;s been assigned to your account.
                     </p>
-                    <p className="text-[#888] text-sm mt-2 max-w-md mx-auto">
+                    <p className="text-xs md:text-sm text-white/50 mt-4 max-w-md mx-auto">
                       This usually takes 1–2 hours — check back soon or refresh this page.
                     </p>
                   </div>
