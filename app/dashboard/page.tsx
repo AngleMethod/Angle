@@ -293,7 +293,7 @@ export default function Dashboard() {
                   >
                     {showBookedBanner ? "You\u2019re Booked." : "You\u2019re In."}
                   </h2>
-                  <p className="text-[#777] mb-8 md:mb-10 max-w-md mx-auto">
+                  <p className={`text-[#777] max-w-md mx-auto ${showBookedBanner ? "" : "mb-8 md:mb-10"}`}>
                     {showBookedBanner
                       ? "Your setup call is scheduled. We\u2019ll use it to map your level and build your personalized training plan."
                       : "Your assessment starts now. Book your setup call so we can understand your level and build your plan."}
