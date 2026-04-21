@@ -289,7 +289,7 @@ export default function Dashboard() {
                   You&apos;re In.
                 </h2>
                 <p className="text-[#777] mb-8 md:mb-10 max-w-md mx-auto">
-                  Your training starts now. First step: book your setup call so we can build your plan.
+                  Your assessment starts now. Book your setup call so we can understand your level and build your plan.
                 </p>
                 <a
                   href={CALENDLY_URL}
