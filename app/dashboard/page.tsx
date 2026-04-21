@@ -264,6 +264,15 @@ export default function Dashboard() {
             </div>
 
             {onboardingStatus === "not_booked" && (
+              <>
+                <div className="flex justify-center mb-4">
+                  <div
+                    className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
+                    style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                  >
+                    Payment confirmed ✓
+                  </div>
+                </div>
               <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
                 <h2
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
@@ -283,6 +292,7 @@ export default function Dashboard() {
                   Book Your Call
                 </a>
               </div>
+              </>
             )}
 
             {onboardingStatus === "booked" && (
