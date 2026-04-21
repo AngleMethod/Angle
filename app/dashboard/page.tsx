@@ -170,7 +170,7 @@ export default function Dashboard() {
         <main className="min-h-screen bg-[#0a0a0a] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
             <div className="mx-auto max-w-6xl">
-              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Training</p>
+              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Angle Member</p>
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-6"
                 style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
@@ -229,7 +229,7 @@ export default function Dashboard() {
 
 <div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Training</p>
+                <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Angle Member</p>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                   style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
