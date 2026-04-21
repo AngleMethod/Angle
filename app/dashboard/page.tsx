@@ -227,13 +227,7 @@ export default function Dashboard() {
               <BookedRedirectHandler onBooked={() => setShowBookedBanner(true)} />
             </Suspense>
 
-            {showBookedBanner && (
-              <div className="mb-10 rounded-lg border border-[#1e1e1e] bg-[#111110] px-6 py-4 text-sm text-[#ccc]">
-                You&apos;re scheduled ✅ — we&apos;ll prepare your program after your call.
-              </div>
-            )}
-
-            <div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+<div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
                 <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Training</p>
                 <h1
@@ -304,14 +298,16 @@ export default function Dashboard() {
                       ? "Your setup call is scheduled. We\u2019ll use it to map your level and build your personalized training plan."
                       : "Your assessment starts now. Book your setup call so we can understand your level and build your plan."}
                   </p>
-                  <a
-                    href={CALENDLY_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors"
-                  >
-                    {showBookedBanner ? "View / Reschedule Call" : "Book Your Call"}
-                  </a>
+                  {!showBookedBanner && (
+                    <a
+                      href={CALENDLY_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors"
+                    >
+                      Book Your Call
+                    </a>
+                  )}
                 </div>
               </>
             )}
