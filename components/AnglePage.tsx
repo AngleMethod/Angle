@@ -28,9 +28,13 @@ function useReveal(): [RefObject<HTMLElement | null>, boolean] {
 function Nav({
   isStartingTraining,
   onStartTraining,
+  isLoggedIn,
+  authReady,
 }: {
   isStartingTraining: boolean
   onStartTraining: () => void
+  isLoggedIn: boolean
+  authReady: boolean
 }) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -49,13 +53,18 @@ function Nav({
   const mobileLinks = [
     { href: '#how-it-works', label: 'How It Works' },
     { href: '#pricing',      label: 'Pricing' },
-    { href: '#signin',       label: 'Sign In' },
   ]
 
   const handleMobileCTA = () => {
     setMenuOpen(false)
     onStartTraining()
   }
+
+  const UserIcon = (
+    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+    </svg>
+  )
 
   return (
     <>
@@ -68,12 +77,25 @@ function Nav({
           <a href="#pricing" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">Pricing</a>
           <a href="#signin" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">Sign In</a>
         </div>
-        <button
-          onClick={onStartTraining}
-          className="hidden md:inline-block rounded-[4px] bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e0e0e0] transition-colors"
-        >
-          {isStartingTraining ? 'Starting...' : 'Start Training'}
-        </button>
+        <div className="hidden md:flex items-center gap-5">
+          {authReady && (
+            isLoggedIn ? (
+              <Link href="/dashboard" aria-label="Dashboard" className="text-[#999] hover:text-white transition-colors">
+                {UserIcon}
+              </Link>
+            ) : (
+              <a href="#signin" aria-label="Sign in" className="text-[#999] hover:text-white transition-colors">
+                {UserIcon}
+              </a>
+            )
+          )}
+          <button
+            onClick={onStartTraining}
+            className="rounded-[4px] bg-white text-black text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:bg-[#e0e0e0] transition-colors"
+          >
+            {isStartingTraining ? 'Starting...' : 'Start Training'}
+          </button>
+        </div>
 
         {/* Mobile hamburger */}
         <button
@@ -120,6 +142,27 @@ function Nav({
                 {link.label}
               </a>
             ))}
+            {authReady && (
+              isLoggedIn ? (
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-white uppercase tracking-wide leading-none hover:text-[#aaa] transition-colors"
+                  style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 11vw, 64px)' }}
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <a
+                  href="#signin"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-white uppercase tracking-wide leading-none hover:text-[#aaa] transition-colors"
+                  style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 11vw, 64px)' }}
+                >
+                  Sign In
+                </a>
+              )
+            )}
           </nav>
 
           <button
@@ -732,7 +775,7 @@ export default function AnglePage() {
 
   return (
     <main className="bg-[#0a0a0a] text-white overflow-x-hidden">
-      <Nav isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
+      <Nav isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} isLoggedIn={!!userEmail} authReady={authReady} />
       <Hero isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <FeatureBlock isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <ClearPath />
