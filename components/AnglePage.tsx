@@ -59,7 +59,7 @@ function Nav({
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:pl-28 md:pr-10 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-28 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
         <a href="#hero" className="flex-shrink-0">
           <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} priority className="w-[50px] md:w-[68px] h-auto" />
         </a>
