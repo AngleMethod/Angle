@@ -274,6 +274,14 @@ export default function Dashboard() {
                   </div>
                 </div>
               <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                <div className="mb-4 md:mb-6">
+                  <span
+                    className="text-xs px-3 py-1 rounded-full font-medium border border-purple-900"
+                    style={{ backgroundColor: "oklch(0.18 0.06 290)", color: "oklch(0.65 0.14 290)" }}
+                  >
+                    Assessment
+                  </span>
+                </div>
                 <h2
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                   style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
