@@ -164,8 +164,12 @@ export default function AdminPage() {
 
     let stepsToSave = workout;
     const pendingVideoId = getYoutubeId(video);
-    if (title.trim() && description.trim() && pendingVideoId) {
-      const pendingStep: WorkoutStep = { title: title.trim(), description: description.trim(), videoId: pendingVideoId };
+    if (pendingVideoId) {
+      const pendingStep: WorkoutStep = {
+        title: title.trim() || `Step ${workout.length + 1}`,
+        description: description.trim(),
+        videoId: pendingVideoId,
+      };
       const alreadyAdded = workout.some(
         (s) => s.title === pendingStep.title && s.videoId === pendingStep.videoId
       );
@@ -199,12 +203,16 @@ export default function AdminPage() {
 
   function addStep() {
     const videoId = getYoutubeId(video);
-    if (!title.trim() || !description.trim() || !videoId) {
-      setAddStepError("Please add a title, description, and YouTube link or video ID.");
+    if (!videoId) {
+      setAddStepError("Please add a YouTube link or video ID.");
       return;
     }
     setAddStepError("");
-    const newStep: WorkoutStep = { title: title.trim(), description: description.trim(), videoId };
+    const newStep: WorkoutStep = {
+      title: title.trim() || `Step ${workout.length + 1}`,
+      description: description.trim(),
+      videoId,
+    };
     setWorkout(prev => [...prev, newStep]);
     setTitle("");
     setDescription("");
@@ -369,7 +377,9 @@ export default function AdminPage() {
                         allowFullScreen
                       />
                     </div>
-                    <p className="mt-2 text-gray-400">{step.description}</p>
+                    {step.description ? (
+                      <p className="mt-2 text-gray-400">{step.description}</p>
+                    ) : null}
                   </div>
                 ))
               )}
