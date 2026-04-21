@@ -302,33 +302,14 @@ export default function Dashboard() {
 
             {onboardingStatus === "not_booked" && (
               <>
-                {!showBookedBanner && (
-                  <div className="flex justify-center mb-4">
+                <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                  <div className="flex justify-center mb-4 md:mb-6">
                     <div
                       className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
                       style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
                     >
-                      Payment confirmed ✓
+                      {showBookedBanner ? "✔ Call Booked" : "✔ Payment Confirmed"}
                     </div>
-                  </div>
-                )}
-                <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
-                  <div className="mb-4 md:mb-6">
-                    {showBookedBanner ? (
-                      <span
-                        className="text-xs px-3 py-1 rounded-full font-medium border border-green-900"
-                        style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
-                      >
-                        Built for you
-                      </span>
-                    ) : (
-                      <span
-                        className="text-xs px-3 py-1 rounded-full font-medium border border-purple-900"
-                        style={{ backgroundColor: "oklch(0.18 0.06 290)", color: "oklch(0.65 0.14 290)" }}
-                      >
-                        Assessment
-                      </span>
-                    )}
                   </div>
                   <h2
                     className="text-white uppercase leading-[0.95] tracking-wide mb-4"
@@ -357,22 +338,23 @@ export default function Dashboard() {
 
             {onboardingStatus === "booked" && (
               <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                <div className="flex justify-center mb-4 md:mb-6">
+                  <div
+                    className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
+                    style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                  >
+                    ✔ Call Booked
+                  </div>
+                </div>
                 <h2
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                   style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
                 >
                   You&apos;re Scheduled.
                 </h2>
-                <p className="text-[#777] mb-6 max-w-md mx-auto">
+                <p className="text-[#777] max-w-md mx-auto">
                   We&apos;ll use your call to understand your level and build your training plan.
                 </p>
-                <div
-                  className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
-                  style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: "oklch(0.68 0.14 155)" }} />
-                  You&apos;re scheduled
-                </div>
               </div>
             )}
 
@@ -382,6 +364,14 @@ export default function Dashboard() {
                   <p className="text-[#777]">Loading your workout...</p>
                 ) : workout.length === 0 ? (
                   <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                    <div className="flex justify-center mb-4 md:mb-6">
+                      <div
+                        className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
+                        style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                      >
+                        ● Building Your Plan
+                      </div>
+                    </div>
                     <h2
                       className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                       style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 32px)" }}
