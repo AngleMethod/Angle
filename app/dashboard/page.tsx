@@ -168,10 +168,10 @@ export default function Dashboard() {
       const playlistAssigned = workoutLoaded && workout.length > 0;
       if (playlistAssigned) {
         return {
-          label: "Progressing",
-          border: "border-orange-900",
-          bg: "oklch(0.18 0.06 50)",
-          text: "oklch(0.72 0.14 50)",
+          label: "Coach-led",
+          border: "border-blue-900",
+          bg: "oklch(0.18 0.06 240)",
+          text: "oklch(0.65 0.14 240)",
         };
       }
       return {
@@ -183,7 +183,7 @@ export default function Dashboard() {
     }
     if (onboardingStatus === "booked" || (onboardingStatus === "not_booked" && showBookedBanner)) {
       return {
-        label: "Built for You",
+        label: "Built for you",
         border: "border-green-900",
         bg: "oklch(0.18 0.06 155)",
         text: "oklch(0.68 0.14 155)",
@@ -319,7 +319,7 @@ export default function Dashboard() {
                         className="text-xs px-3 py-1 rounded-full font-medium border border-green-900"
                         style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
                       >
-                        Built for You
+                        Built for you
                       </span>
                     ) : (
                       <span

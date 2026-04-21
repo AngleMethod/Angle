@@ -107,7 +107,7 @@ function Hero({
 
       {/* Right: athlete photo — below content on mobile, right column on desktop */}
       <div className="md:w-[50%] md:flex md:items-center md:justify-center md:flex-shrink-0">
-        <div className="relative aspect-square w-[calc(100%-3rem)] mx-6 md:mx-0 md:w-[70%] overflow-hidden rounded-lg border border-[#222]" style={{ background: '#111110' }}>
+        <div className="relative aspect-square w-[calc(100%-3rem)] mx-6 md:mx-0 md:w-[70%] overflow-hidden rounded-lg border border-[#222] bg-[#111110]">
           <Image
             src="/hero.png"
             alt="Handstand athlete"
@@ -160,19 +160,19 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
 
           {/* Right: image grid — desktop */}
           <div className="hidden md:grid grid-cols-2 gap-2 min-h-[480px] pt-12 pr-12 pb-12" style={{ background: '#0a0a0a' }}>
-            <div className="relative col-span-1 row-span-2 rounded-lg overflow-hidden" style={{ backgroundColor: '#111110' }}>
+            <div className="relative col-span-1 row-span-2 rounded-lg overflow-hidden bg-[#111110]">
               <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
-            <div className="relative rounded-lg overflow-hidden" style={{ backgroundColor: '#111110' }}>
+            <div className="relative rounded-lg overflow-hidden bg-[#111110]">
               <Image src="/angle-1.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
-            <div className="relative rounded-lg overflow-hidden" style={{ backgroundColor: '#111110' }}>
+            <div className="relative rounded-lg overflow-hidden bg-[#111110]">
               <Image src="/angle-3.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
           </div>
 
           {/* Right: single image — mobile */}
-          <div className="block md:hidden relative w-full aspect-[4/3] rounded-lg overflow-hidden" style={{ backgroundColor: '#111110' }}>
+          <div className="block md:hidden relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-[#111110]">
             <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="100vw" />
           </div>
 
@@ -245,7 +245,7 @@ function Journey() {
         <div className="divide-y divide-[#1a1a1a]">
           {rows.map(row => (
             <div key={row.eyebrow} className={`flex flex-col gap-6 py-10 md:py-16 md:gap-12 md:items-center ${row.reverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
-              <div className="relative w-full md:w-1/2 aspect-[4/3] overflow-hidden flex-shrink-0" style={{ background: '#111110' }}>
+              <div className="relative w-full md:w-1/2 aspect-[4/3] overflow-hidden flex-shrink-0 bg-[#111110]">
                 <Image src={row.img} alt={row.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
               </div>
               <div className="w-full md:w-1/2">
@@ -282,7 +282,7 @@ function Testimonials() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           {quotes.map(q => (
-            <div key={q.name} className="rounded-lg bg-[#111] border border-[#1e1e1e] p-6 md:p-8">
+            <div key={q.name} className="rounded-lg bg-[#111110] border border-[#1e1e1e] p-6 md:p-8">
               <p className="text-[#ccc] leading-relaxed mb-6 italic">&ldquo;{q.quote}&rdquo;</p>
               <div>
                 <p className="text-white font-semibold text-sm">{q.name}</p>
@@ -324,7 +324,7 @@ function Pricing({
         </h2>
         <p className="text-[#777]">Built for your level. Designed to take you from your current ability to your next handstand.</p>
       </div>
-      <div className="max-w-xl mx-auto rounded-lg bg-[#111] border border-[#1e1e1e] p-6 md:p-10 text-center">
+      <div className="max-w-xl mx-auto rounded-lg bg-[#111110] border border-[#1e1e1e] p-6 md:p-10 text-center">
         <p className="text-[#666] text-xs tracking-widest uppercase mb-4">Angle Member</p>
         <p className="text-[#777] text-sm mb-4">Most members see progress within 4–6 weeks.</p>
         <div className="mb-8">
@@ -421,7 +421,7 @@ function SignIn({
   return (
     <section id="signin" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-xl mx-auto text-center">
-        <div className="rounded-lg border border-[#1e1e1e] p-8 md:p-12" style={{ background: '#111110' }}>
+        <div className="rounded-lg border border-[#1e1e1e] p-8 md:p-12 bg-[#111110]">
         <p className="text-left text-[#666] text-xs tracking-widest uppercase mb-4">— Sign In</p>
         <h2
           className="text-left text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
@@ -473,7 +473,7 @@ function SignIn({
               value={email}
               onChange={e => onEmailChange(e.target.value)}
               placeholder="your@email.com"
-              className="w-full rounded-lg bg-[#111] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555]"
+              className="w-full rounded-lg bg-[#111110] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555]"
             />
             <Button onClick={onLogin} fullWidth>
               Email me a sign-in link
