@@ -97,16 +97,29 @@ function Nav({
           </button>
         </div>
 
-        {/* Mobile hamburger */}
-        <button
-          onClick={() => setMenuOpen(true)}
-          className="md:hidden flex flex-col gap-[5px] p-2 -mr-2"
-          aria-label="Open menu"
-        >
-          <span className="block w-6 h-px bg-white" />
-          <span className="block w-6 h-px bg-white" />
-          <span className="block w-6 h-px bg-white" />
-        </button>
+        {/* Mobile: user icon + hamburger */}
+        <div className="md:hidden flex items-center gap-4">
+          {authReady && (
+            isLoggedIn ? (
+              <Link href="/dashboard" aria-label="Dashboard" className="text-[#999] hover:text-white transition-colors p-1 -m-1">
+                {UserIcon}
+              </Link>
+            ) : (
+              <a href="#signin" aria-label="Sign in" className="text-[#999] hover:text-white transition-colors p-1 -m-1">
+                {UserIcon}
+              </a>
+            )
+          )}
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="flex flex-col gap-[5px] p-2 -mr-2"
+            aria-label="Open menu"
+          >
+            <span className="block w-6 h-px bg-white" />
+            <span className="block w-6 h-px bg-white" />
+            <span className="block w-6 h-px bg-white" />
+          </button>
+        </div>
       </nav>
 
       {/* Mobile overlay menu */}
