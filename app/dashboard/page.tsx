@@ -238,7 +238,9 @@ export default function Dashboard() {
                 </h1>
                 <p className="text-[#777]">
                   {onboardingStatus === "not_booked"
-                    ? "Your training starts with a short setup call."
+                    ? showBookedBanner
+                      ? "Your setup call is booked."
+                      : "Your training starts with a short setup call."
                     : onboardingStatus === "booked"
                     ? "Your setup call is booked. We'll build your plan next."
                     : "Your current workout playlist."}
