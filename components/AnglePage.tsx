@@ -59,7 +59,7 @@ function Nav({
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 md:px-10 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-10 py-4 transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
         <a href="#hero" className="flex-shrink-0">
           <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} priority className="w-[50px] md:w-[68px] h-auto" />
         </a>
@@ -126,7 +126,7 @@ function Nav({
             onClick={handleMobileCTA}
             className="w-full rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
           >
-            {isStartingTraining ? 'Starting...' : 'Start Your Assessment'}
+            {isStartingTraining ? 'Starting...' : 'Start Training'}
           </button>
         </div>
       </div>
@@ -180,7 +180,7 @@ function Hero({
 
         <h1
           className="text-white uppercase leading-[0.9] tracking-wide mb-4 md:mb-6"
-          style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 8vw, 100px)' }}
+          style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(45px, 8vw, 100px)' }}
         >
           Master Handstands<br />
           <em className="text-[#c0c0c0] italic">With Real Structure</em>
@@ -454,7 +454,7 @@ function Pricing({
           onClick={onStartTraining}
           className="block w-full rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase py-4 hover:bg-[#e0e0e0] transition-colors"
         >
-          {isStartingTraining ? 'Starting...' : 'Start Your Assessment'}
+          {isStartingTraining ? 'Starting...' : 'Start Training'}
         </button>
         <p className="text-[#444] text-xs mt-4">Pause or cancel anytime. No commitment.</p>
       </div>
