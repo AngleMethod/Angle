@@ -269,10 +269,10 @@ export default function Dashboard() {
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                   style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
                 >
-                  Book Your Setup Call
+                  You&apos;re In.
                 </h2>
                 <p className="text-[#777] mb-8 md:mb-10 max-w-md mx-auto">
-                  Your first step is a short call so we can understand your current level and build your custom program.
+                  Your training starts now. First step: book your setup call so we can build your plan.
                 </p>
                 <a
                   href={CALENDLY_URL}
@@ -291,10 +291,10 @@ export default function Dashboard() {
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                   style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
                 >
-                  Your Setup Call Is Booked
+                  You&apos;re Scheduled.
                 </h2>
                 <p className="text-[#777] mb-6 max-w-md mx-auto">
-                  We&apos;ll use your call to understand your current level and build your custom training plan.
+                  We&apos;ll use your call to understand your level and build your training plan.
                 </p>
                 <div
                   className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
