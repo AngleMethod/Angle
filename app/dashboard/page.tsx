@@ -265,41 +265,54 @@ export default function Dashboard() {
 
             {onboardingStatus === "not_booked" && (
               <>
-                <div className="flex justify-center mb-4">
-                  <div
-                    className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
-                    style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
-                  >
-                    Payment confirmed ✓
+                {!showBookedBanner && (
+                  <div className="flex justify-center mb-4">
+                    <div
+                      className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
+                      style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                    >
+                      Payment confirmed ✓
+                    </div>
                   </div>
-                </div>
-              <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
-                <div className="mb-4 md:mb-6">
-                  <span
-                    className="text-xs px-3 py-1 rounded-full font-medium border border-purple-900"
-                    style={{ backgroundColor: "oklch(0.18 0.06 290)", color: "oklch(0.65 0.14 290)" }}
+                )}
+                <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                  <div className="mb-4 md:mb-6">
+                    {showBookedBanner ? (
+                      <span
+                        className="text-xs px-3 py-1 rounded-full font-medium border border-green-900"
+                        style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                      >
+                        Built for You
+                      </span>
+                    ) : (
+                      <span
+                        className="text-xs px-3 py-1 rounded-full font-medium border border-purple-900"
+                        style={{ backgroundColor: "oklch(0.18 0.06 290)", color: "oklch(0.65 0.14 290)" }}
+                      >
+                        Assessment
+                      </span>
+                    )}
+                  </div>
+                  <h2
+                    className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+                    style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
                   >
-                    Assessment
-                  </span>
+                    {showBookedBanner ? "You\u2019re Booked." : "You\u2019re In."}
+                  </h2>
+                  <p className="text-[#777] mb-8 md:mb-10 max-w-md mx-auto">
+                    {showBookedBanner
+                      ? "Your setup call is scheduled. We\u2019ll use it to map your level and build your personalized training plan."
+                      : "Your assessment starts now. Book your setup call so we can understand your level and build your plan."}
+                  </p>
+                  <a
+                    href={CALENDLY_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors"
+                  >
+                    {showBookedBanner ? "View / Reschedule Call" : "Book Your Call"}
+                  </a>
                 </div>
-                <h2
-                  className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
-                >
-                  You&apos;re In.
-                </h2>
-                <p className="text-[#777] mb-8 md:mb-10 max-w-md mx-auto">
-                  Your assessment starts now. Book your setup call so we can understand your level and build your plan.
-                </p>
-                <a
-                  href={CALENDLY_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors"
-                >
-                  Book Your Call
-                </a>
-              </div>
               </>
             )}
 
