@@ -165,11 +165,20 @@ export default function Dashboard() {
 
   const eyebrowPill = (() => {
     if (onboardingStatus === "completed") {
+      const playlistAssigned = workoutLoaded && workout.length > 0;
+      if (playlistAssigned) {
+        return {
+          label: "Progressing",
+          border: "border-orange-900",
+          bg: "oklch(0.18 0.06 50)",
+          text: "oklch(0.72 0.14 50)",
+        };
+      }
       return {
-        label: "Progressing",
-        border: "border-orange-900",
-        bg: "oklch(0.18 0.06 50)",
-        text: "oklch(0.72 0.14 50)",
+        label: "Building your plan",
+        border: "border-green-900",
+        bg: "oklch(0.18 0.06 155)",
+        text: "oklch(0.68 0.14 155)",
       };
     }
     if (onboardingStatus === "booked" || (onboardingStatus === "not_booked" && showBookedBanner)) {
@@ -381,6 +390,9 @@ export default function Dashboard() {
                     </h2>
                     <p className="text-[#777] max-w-md mx-auto">
                       Your custom training program will appear here once it&apos;s been assigned to your account.
+                    </p>
+                    <p className="text-[#888] text-sm mt-2 max-w-md mx-auto">
+                      This usually takes 1–2 hours — check back soon or refresh this page.
                     </p>
                   </div>
                 ) : (
