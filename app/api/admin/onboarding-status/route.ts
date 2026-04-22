@@ -76,6 +76,17 @@ function buildProgramReadyEmailHtml(): string {
 </html>`
 }
 
+function buildProgramReadyEmailText(): string {
+  return `Your training program is ready.
+
+We've built your personalized handstand training plan based on your assessment.
+
+Start here:
+${DASHBOARD_URL}
+
+— Angle`
+}
+
 async function sendProgramReadyEmail(toEmail: string): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) {
@@ -90,6 +101,7 @@ async function sendProgramReadyEmail(toEmail: string): Promise<boolean> {
     replyTo: REPLY_TO_EMAIL,
     subject: 'Your program is ready — Angle',
     html: buildProgramReadyEmailHtml(),
+    text: buildProgramReadyEmailText(),
   })
 
   if (error) {
