@@ -305,7 +305,7 @@ export default function Dashboard() {
                       className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
                       style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
                     >
-                      {showBookedBanner ? "✔ Call Booked" : "✔ Payment Confirmed"}
+                      {showBookedBanner ? "✔︎ Call Booked" : "✔︎ Payment Confirmed"}
                     </div>
                   </div>
                   <h2
@@ -340,7 +340,7 @@ export default function Dashboard() {
                     className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
                     style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
                   >
-                    ✔ Call Booked
+                    ✔︎ Call Booked
                   </div>
                 </div>
                 <h2
