@@ -48,7 +48,9 @@ export async function POST(req: NextRequest) {
 
   const event = JSON.parse(body)
   const eventType: string = event.event
-  const email: string | undefined = event.payload?.email
+  const email: string | undefined = event.payload?.email?.toLowerCase()
+
+  console.log('Calendly webhook:', eventType, email)
 
   if (!email) {
     return NextResponse.json({ received: true })
@@ -57,7 +59,7 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient()
 
   const { data: users } = await admin.auth.admin.listUsers()
-  const user = users?.users.find(u => u.email === email)
+  const user = users?.users.find(u => u.email?.toLowerCase() === email)
 
   if (!user) {
     // Booked via Calendly but not a subscriber — nothing to update
