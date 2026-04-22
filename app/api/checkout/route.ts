@@ -12,17 +12,19 @@ const stripe = new Stripe(STRIPE_SECRET_KEY)
 
 export async function POST(req: NextRequest) {
   try {
-    const { userId } = await req.json()
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User must be signed in to checkout' }, { status: 401 })
-    }
+    const body = await req.json().catch(() => ({}))
+    const userId: string | undefined = body?.userId
 
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: STRIPE_PRICE_ID, quantity: 1 }],
-      client_reference_id: userId,
+      ...(userId
+        ? {
+            client_reference_id: userId,
+            metadata: { user_id: userId },
+          }
+        : {}),
       success_url: `${NEXT_PUBLIC_SITE_URL}/dashboard`,
       cancel_url: NEXT_PUBLIC_SITE_URL,
     })

@@ -38,11 +38,40 @@ export async function POST(req: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        const userId = session.client_reference_id
 
-        if (!userId || !session.subscription) break
+        if (!session.subscription) break
 
         const subscription = await stripe.subscriptions.retrieve(session.subscription as string)
+
+        // Resolve user identity: metadata → client_reference_id → email lookup → create
+        let userId: string | null =
+          (session.metadata?.user_id as string | undefined) ??
+          session.client_reference_id ??
+          null
+
+        if (!userId) {
+          const email = session.customer_details?.email ?? session.customer_email ?? null
+          if (!email) break
+
+          const { data: usersList } = await supabase.auth.admin.listUsers()
+          const existing = usersList?.users.find(u => u.email === email)
+
+          if (existing) {
+            userId = existing.id
+          } else {
+            const { data: created, error: createErr } = await supabase.auth.admin.createUser({
+              email,
+              email_confirm: true,
+            })
+            if (createErr || !created.user) {
+              console.error('Failed to create user for email', email, createErr)
+              break
+            }
+            userId = created.user.id
+          }
+        }
+
+        if (!userId) break
 
         await supabase.from('subscriptions').upsert({
           user_id: userId,

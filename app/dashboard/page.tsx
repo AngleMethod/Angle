@@ -131,11 +131,6 @@ export default function Dashboard() {
   }, [router]);
 
   async function handleUpgrade() {
-    if (!userId) {
-      setUpgradeError("Session not found. Please sign in again.");
-      return;
-    }
-
     setIsUpgrading(true);
     setUpgradeError("");
 
@@ -143,7 +138,7 @@ export default function Dashboard() {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
+        body: JSON.stringify(userId ? { userId } : {}),
       });
       const data = await res.json();
 

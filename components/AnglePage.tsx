@@ -577,8 +577,18 @@ export default function AnglePage() {
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session?.user) {
-        setIsStartingTraining(false)
-        document.getElementById('signin')?.scrollIntoView({ behavior: 'smooth' })
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        })
+        const data = await res.json()
+        if (data?.url) {
+          window.location.href = data.url
+        } else {
+          setIsStartingTraining(false)
+          setMessage('Unable to start checkout. Please try again.')
+        }
         return
       }
 
