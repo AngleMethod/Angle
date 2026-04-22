@@ -49,7 +49,7 @@ function Hero({
   ]
   const [activePill, setActivePill] = useState(0)
   useEffect(() => {
-    const interval = setInterval(() => setActivePill(prev => (prev + 1) % heroPills.length), 1000)
+    const interval = setInterval(() => setActivePill(prev => (prev + 1) % heroPills.length), 1500)
     return () => clearInterval(interval)
   }, [])
 
