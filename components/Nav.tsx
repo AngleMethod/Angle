@@ -112,7 +112,7 @@ export default function Nav({
 
       {!isMinimal && (
         <div
-          className={`md:hidden fixed inset-0 z-[60] bg-[#0a0a0a] transition-all duration-300 ${menuOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}`}
+          className={`md:hidden fixed inset-x-0 top-0 h-[100dvh] z-[60] bg-[#0a0a0a] transition-all duration-300 ${menuOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 -translate-y-2 pointer-events-none'}`}
           aria-hidden={!menuOpen}
         >
           <div className="flex items-center justify-between px-6 py-4">

@@ -300,9 +300,9 @@ export default function Dashboard() {
             {onboardingStatus === "not_booked" && (
               <>
                 <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
-                  <div className="flex justify-center mb-4 md:mb-6">
+                  <div className="flex justify-center mb-6">
                     <div
-                      className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
+                      className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
                       style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
                     >
                       {showBookedBanner ? "✔ Call Booked" : "✔ Payment Confirmed"}
@@ -335,9 +335,9 @@ export default function Dashboard() {
 
             {onboardingStatus === "booked" && (
               <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
-                <div className="flex justify-center mb-4 md:mb-6">
+                <div className="flex justify-center mb-6">
                   <div
-                    className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
+                    className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
                     style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
                   >
                     ✔ Call Booked
@@ -361,9 +361,9 @@ export default function Dashboard() {
                   <p className="text-[#777]">Loading your workout...</p>
                 ) : workout.length === 0 ? (
                   <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
-                    <div className="flex justify-center mb-4 md:mb-6">
+                    <div className="flex justify-center mb-6">
                       <div
-                        className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
+                        className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
                         style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
                       >
                         ● Plan in progress
