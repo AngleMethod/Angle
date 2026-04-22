@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
   const eventType: string = event.event
   const email: string | undefined = event.payload?.email?.toLowerCase()
 
-  console.log('Calendly webhook:', eventType, email)
+  console.error('Calendly webhook:', eventType, email)
 
   if (!email) {
     return NextResponse.json({ received: true })
