@@ -145,7 +145,7 @@ export default function AdminPage() {
     setUpdatingStatus(true);
 
     const token = await getAccessToken();
-    await fetch("/api/admin/onboarding-status", {
+    const res = await fetch("/api/admin/onboarding-status", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -153,6 +153,8 @@ export default function AdminPage() {
       },
       body: JSON.stringify({ userId: assignedUserId, status }),
     });
+    const result = await res.json().catch(() => null);
+    console.log("Status update result:", result);
 
     setAssignedOnboardingStatus(status);
     setUpdatingStatus(false);

@@ -76,11 +76,11 @@ function buildProgramReadyEmailHtml(): string {
 </html>`
 }
 
-async function sendProgramReadyEmail(toEmail: string): Promise<void> {
+async function sendProgramReadyEmail(toEmail: string): Promise<boolean> {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) {
     console.error('Resend send skipped: RESEND_API_KEY not set')
-    return
+    return false
   }
 
   const resend = new Resend(apiKey)
@@ -94,8 +94,16 @@ async function sendProgramReadyEmail(toEmail: string): Promise<void> {
 
   if (error) {
     console.error('Resend send failed:', error)
+    return false
   }
+
+  console.log('Program-ready email sent:', toEmail)
+  return true
 }
+
+type EmailResult =
+  | { attempted: false; sent: false; reason: 'not_completed' | 'already_completed' | 'missing_email' }
+  | { attempted: true; sent: boolean }
 
 export async function POST(req: NextRequest) {
   if (!await isAdmin(req)) {
@@ -126,19 +134,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to update status' }, { status: 500 })
   }
 
-  if (status === 'completed' && previousStatus !== 'completed') {
+  let emailResult: EmailResult
+
+  if (status !== 'completed') {
+    emailResult = { attempted: false, sent: false, reason: 'not_completed' }
+  } else if (previousStatus === 'completed') {
+    emailResult = { attempted: false, sent: false, reason: 'already_completed' }
+  } else {
+    let recipientEmail: string | null = null
     try {
       const { data: userResult } = await admin.auth.admin.getUserById(userId)
-      const recipientEmail = userResult?.user?.email
-      if (recipientEmail) {
-        await sendProgramReadyEmail(recipientEmail)
-      } else {
-        console.error('Program-ready email skipped: no email for user', userId)
-      }
+      recipientEmail = userResult?.user?.email ?? null
     } catch (err) {
       console.error('Program-ready email error:', err)
     }
+
+    if (!recipientEmail) {
+      console.error('Program-ready email skipped: no email for user', userId)
+      emailResult = { attempted: false, sent: false, reason: 'missing_email' }
+    } else {
+      const sent = await sendProgramReadyEmail(recipientEmail)
+      emailResult = { attempted: true, sent }
+    }
   }
 
-  return NextResponse.json({ success: true })
+  return NextResponse.json({ success: true, email: emailResult })
 }
