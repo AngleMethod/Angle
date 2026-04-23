@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import BookedRedirectHandler from "@/components/BookedRedirectHandler";
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
+import VideoPlayer from "@/components/VideoPlayer";
 
 type WorkoutStep = {
   title: string;
@@ -414,6 +415,15 @@ export default function Dashboard() {
                 )}
               </>
             )}
+
+            {userEmail === ADMIN_EMAIL ? (
+              <div className="mt-10 md:mt-14">
+                <VideoPlayer
+                  playbackId="DS00Spx1CV902MCtPj5WknGlR102V5HFkDe"
+                  title="Test Video"
+                />
+              </div>
+            ) : null}
           </div>
         </section>
       </main>
