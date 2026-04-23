@@ -13,7 +13,6 @@ export default function VideoPlayer({ playbackId, title }: Props) {
       <div className="aspect-video w-full overflow-hidden rounded-lg border border-[#1e1e1e] bg-[#111110]">
         <MuxPlayer
           playbackId={playbackId}
-          controls
           accentColor="#ffffff"
           className="block h-full w-full"
           style={{ display: "block", width: "100%", height: "100%" }}
