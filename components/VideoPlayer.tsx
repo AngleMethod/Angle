@@ -15,12 +15,13 @@ export default function VideoPlayer({ playbackId, title }: Props) {
           playbackId={playbackId}
           controls
           accentColor="#ffffff"
-          style={{ width: "100%", height: "100%" }}
+          className="block h-full w-full"
+          style={{ display: "block", width: "100%", height: "100%" }}
         />
       </div>
-      {title && (
+      {title ? (
         <p className="mt-3 text-sm text-[#aaa]">{title}</p>
-      )}
+      ) : null}
     </div>
   );
 }
