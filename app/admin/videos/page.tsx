@@ -125,13 +125,22 @@ export default function AdminVideosPage() {
 
     const token = await getAccessToken();
 
-    const createRes = await fetch("/api/admin/videos/upload", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    let createRes: Response;
+    try {
+      createRes = await fetch("/api/admin/videos/upload", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setUploadError(`Network error creating upload: ${msg}`);
+      setUploadStage("error");
+      return;
+    }
 
     if (!createRes.ok) {
-      setUploadError("Failed to create upload. Try again.");
+      const data = await createRes.json().catch(() => ({} as { error?: string }));
+      setUploadError(data?.error || `Failed to create upload (HTTP ${createRes.status})`);
       setUploadStage("error");
       return;
     }
