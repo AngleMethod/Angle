@@ -32,6 +32,16 @@ function getVideoId(step: WorkoutStep): string {
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 
+type MuxVideoRecord = {
+  id: string;
+  mux_playback_id: string;
+  title: string;
+  description: string | null;
+  level: string | null;
+  category: string | null;
+  duration_seconds: number | null;
+};
+
 const ADMIN_EMAIL = "josh@notecreativestudios.com";
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 
@@ -49,6 +59,7 @@ export default function Dashboard() {
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("not_booked");
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
   const [workoutLoaded, setWorkoutLoaded] = useState(false);
+  const [muxVideoMap, setMuxVideoMap] = useState<Record<string, MuxVideoRecord>>({});
 
   useEffect(() => {
     let isMounted = true;
@@ -104,6 +115,19 @@ export default function Dashboard() {
         }
 
         setWorkoutLoaded(true);
+
+        try {
+          const lookupRes = await fetch("/api/dashboard/videos", {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          });
+          if (lookupRes.ok) {
+            const data = await lookupRes.json();
+            if (!isMounted) return;
+            setMuxVideoMap((data.videos ?? {}) as Record<string, MuxVideoRecord>);
+          }
+        } catch (err) {
+          console.error("Mux video lookup failed:", err);
+        }
       }
 
       setIsLoaded(true);
@@ -392,27 +416,33 @@ export default function Dashboard() {
                 ) : (
                   <div className="space-y-6">
                     {workout.map((step, i) => {
-                      const videoId = getVideoId(step);
+                      const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
+                      const youtubeId = muxVideo ? "" : getVideoId(step);
+                      const key = muxVideo ? `${muxVideo.id}-${i}` : `${youtubeId}-${i}`;
                       return (
-                        <div key={`${videoId}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                        <div key={key} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
                           <h2
                             className="text-white uppercase tracking-wide mb-6"
                             style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
                           >
                             Step {i + 1}: {step.title}
                           </h2>
-                          {videoId && (
+                          {muxVideo ? (
+                            <div className="mb-6">
+                              <VideoPlayer playbackId={muxVideo.mux_playback_id} />
+                            </div>
+                          ) : youtubeId ? (
                             <div className="aspect-video w-full overflow-hidden rounded-lg mb-6 bg-[#0a0a0a]">
                               <iframe
                                 className="h-full w-full"
-                                src={`https://www.youtube.com/embed/${videoId}?rel=0`}
+                                src={`https://www.youtube.com/embed/${youtubeId}?rel=0`}
                                 title={step.title}
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                 referrerPolicy="strict-origin-when-cross-origin"
                                 allowFullScreen
                               />
                             </div>
-                          )}
+                          ) : null}
                           <p className="text-[#aaa] leading-relaxed">{step.description}</p>
                         </div>
                       );
