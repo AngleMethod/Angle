@@ -256,7 +256,7 @@ export default function AdminPage() {
         {MinimalNav}
         <main className="min-h-screen bg-[#0a0a0a] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
-            <div className="mx-auto max-w-5xl">
+            <div className="mx-auto max-w-6xl">
               <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Admin</p>
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-6"
