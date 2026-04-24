@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import Nav from "@/components/Nav";
+import Button from "@/components/ui/Button";
 
 type WorkoutStep = {
   title: string;
@@ -239,172 +241,249 @@ export default function AdminPage() {
     setWorkout(updated);
   }
 
+  const MinimalNav = (
+    <Nav variant="minimal" isLoggedIn={!!userEmail} authReady={isLoaded} />
+  );
+
+  const inputClass = "w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40";
+  const sectionTitleClass = "text-white uppercase tracking-wide";
+  const sectionTitleStyle = { fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" };
+  const secondaryLinkClass = "inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors";
+
   if (!isLoaded) {
     return (
-      <main className="min-h-screen bg-black p-8 text-white">
-        <div className="mx-auto max-w-5xl">
-          <h1 className="mb-2 text-3xl font-bold">Admin Builder</h1>
-          <p className="text-gray-400">
-            {authChecked ? "Redirecting..." : "Checking login..."}
-          </p>
-        </div>
-      </main>
+      <>
+        {MinimalNav}
+        <main className="min-h-screen bg-[#0a0a0a] text-white">
+          <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
+            <div className="mx-auto max-w-5xl">
+              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Admin</p>
+              <h1
+                className="text-white uppercase leading-[0.95] tracking-wide mb-6"
+                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
+              >
+                Builder
+              </h1>
+              <p className="text-[#777]">
+                {authChecked ? "Redirecting..." : "Checking login..."}
+              </p>
+            </div>
+          </section>
+        </main>
+      </>
     );
   }
 
   return (
-    <main className="min-h-screen bg-black p-8 text-white">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-8 flex items-center justify-between gap-4">
-          <div>
-            <h1 className="mb-2 text-3xl font-bold">Admin Builder</h1>
-            <p className="text-gray-400">Assign workouts to users</p>
-            {userEmail ? (
-              <p className="mt-2 text-sm text-gray-500">Signed in as {userEmail}</p>
-            ) : null}
-          </div>
-          <Link href="/dashboard" className="rounded-lg bg-zinc-800 px-4 py-2 text-sm font-medium">
-            View Dashboard
-          </Link>
-        </div>
-
-        {/* User Lookup */}
-        <div className="mb-8 space-y-4 rounded-xl bg-zinc-900 p-6">
-          <h2 className="text-2xl font-semibold">Assign to User</h2>
-          <div className="flex gap-3">
-            <input
-              value={lookupEmail}
-              onChange={(e) => setLookupEmail(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleLookupUser()}
-              placeholder="User email"
-              className="flex-1 rounded-lg bg-zinc-800 px-4 py-3 text-white outline-none"
-            />
-            <button
-              onClick={handleLookupUser}
-              disabled={lookupStatus === "loading"}
-              className="rounded-lg bg-white px-6 py-3 font-semibold text-black disabled:opacity-50"
-            >
-              {lookupStatus === "loading" ? "Loading..." : "Load User"}
-            </button>
-          </div>
-          {lookupStatus === "not-found" && (
-            <p className="text-sm text-red-400">No user found with that email.</p>
-          )}
-          {lookupStatus === "found" && assignedUserEmail && (
-            <p className="text-sm text-green-400">
-              Editing: <span className="font-medium">{assignedUserEmail}</span>
-            </p>
-          )}
-        </div>
-
-        {assignedUserId ? (
-          <>
-            {/* Onboarding Status */}
-            <div className="mb-8 rounded-xl bg-zinc-900 p-6">
-              <h2 className="mb-4 text-2xl font-semibold">Onboarding Status</h2>
-              <div className="flex gap-3">
-                {(["not_booked", "booked", "completed"] as const).map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => handleUpdateStatus(s)}
-                    disabled={updatingStatus}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition disabled:opacity-50 ${
-                      assignedOnboardingStatus === s
-                        ? "bg-white text-black"
-                        : "bg-zinc-800 text-white hover:bg-zinc-700"
-                    }`}
-                  >
-                    {STATUS_LABELS[s]}
-                  </button>
-                ))}
+    <>
+      {MinimalNav}
+      <main className="min-h-screen bg-[#0a0a0a] text-white">
+        <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
+          <div className="mx-auto max-w-5xl">
+            {/* Page header */}
+            <div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+              <div>
+                <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Admin</p>
+                <h1
+                  className="text-white uppercase leading-[0.95] tracking-wide mb-4"
+                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
+                >
+                  Builder
+                </h1>
+                <p className="text-[#777]">Assign workouts to users.</p>
+                {userEmail ? (
+                  <p className="mt-2 text-sm text-[#555]">Signed in as {userEmail}</p>
+                ) : null}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Link href="/dashboard" className={secondaryLinkClass}>
+                  View Dashboard
+                </Link>
+                <Link href="/admin/videos" className={secondaryLinkClass}>
+                  Video Library
+                </Link>
               </div>
             </div>
 
-            {/* Workout Editor */}
-            <div className="mb-8 space-y-4 rounded-xl bg-zinc-900 p-6">
-              <h2 className="text-2xl font-semibold">Add Step</h2>
-              <input
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Step title"
-                className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-white outline-none"
-              />
-              <input
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Step description"
-                className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-white outline-none"
-              />
-              <input
-                value={video}
-                onChange={(e) => setVideo(e.target.value)}
-                placeholder="YouTube link or video ID"
-                className="w-full rounded-lg bg-zinc-800 px-4 py-3 text-white outline-none"
-              />
-              {addStepError ? (
-                <p className="text-sm text-red-400">{addStepError}</p>
-              ) : null}
-              <button
-                type="button"
-                onClick={addStep}
-                className="rounded-lg bg-white px-6 py-3 font-semibold text-black"
-              >
-                Add Step
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {workout.length === 0 ? (
-                <p className="text-gray-500">No steps yet. Add the first step above.</p>
-              ) : (
-                workout.map((step, i) => (
-                  <div key={`${step.videoId}-${i}`} className="rounded-lg bg-zinc-900 p-4">
-                    <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                      <h2 className="text-xl font-semibold">
-                        Step {i + 1}: {step.title}
-                      </h2>
-                      <div className="flex gap-2">
-                        <button onClick={() => moveStepUp(i)} className="rounded-lg bg-zinc-800 px-4 py-2 text-sm">Up</button>
-                        <button onClick={() => moveStepDown(i)} className="rounded-lg bg-zinc-800 px-4 py-2 text-sm">Down</button>
-                        <button onClick={() => removeStep(i)} className="rounded-lg bg-red-600 px-4 py-2 text-sm">Remove</button>
-                      </div>
-                    </div>
-                    <div className="aspect-video w-full overflow-hidden rounded">
-                      <iframe
-                        className="h-full w-full"
-                        src={`https://www.youtube.com/embed/${step.videoId}?rel=0`}
-                        title={step.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                      />
-                    </div>
-                    {step.description ? (
-                      <p className="mt-2 text-gray-400">{step.description}</p>
-                    ) : null}
-                  </div>
-                ))
+            {/* Assign to User */}
+            <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+              <h2 className={`${sectionTitleClass} mb-6`} style={sectionTitleStyle}>
+                Assign To User
+              </h2>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  value={lookupEmail}
+                  onChange={(e) => setLookupEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleLookupUser()}
+                  placeholder="User email"
+                  className={`flex-1 ${inputClass}`}
+                />
+                <Button
+                  onClick={handleLookupUser}
+                  disabled={lookupStatus === "loading"}
+                  size="md"
+                >
+                  {lookupStatus === "loading" ? "Loading..." : "Load User"}
+                </Button>
+              </div>
+              {lookupStatus === "not-found" && (
+                <p className="mt-4 text-sm text-[#dc2626]">No user found with that email.</p>
+              )}
+              {lookupStatus === "found" && assignedUserEmail && (
+                <p className="mt-4 text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>
+                  Editing: <span className="font-medium">{assignedUserEmail}</span>
+                </p>
               )}
             </div>
 
-            <div className="mt-8">
-              <button
-                onClick={handleSaveWorkout}
-                disabled={saveStatus === "saving"}
-                className="rounded-lg bg-white px-8 py-4 font-semibold text-black disabled:opacity-50"
-              >
-                {saveStatus === "saving"
-                  ? "Saving..."
-                  : saveStatus === "saved"
-                  ? "Saved!"
-                  : saveStatus === "error"
-                  ? "Error — try again"
-                  : "Save Workout"}
-              </button>
-            </div>
-          </>
-        ) : null}
-      </div>
-    </main>
+            {assignedUserId ? (
+              <>
+                {/* Onboarding Status */}
+                <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                  <h2 className={`${sectionTitleClass} mb-6`} style={sectionTitleStyle}>
+                    Onboarding Status
+                  </h2>
+                  <div className="flex flex-wrap gap-3">
+                    {(["not_booked", "booked", "completed"] as const).map((s) => {
+                      const active = assignedOnboardingStatus === s;
+                      return (
+                        <button
+                          key={s}
+                          onClick={() => handleUpdateStatus(s)}
+                          disabled={updatingStatus}
+                          className={`rounded-[4px] px-4 py-2 text-xs font-bold tracking-widest uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed border ${
+                            active
+                              ? "border-white text-white"
+                              : "border-[#222] text-[#777] hover:border-[#444] hover:text-[#aaa]"
+                          }`}
+                        >
+                          {STATUS_LABELS[s]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Add Step */}
+                <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                  <h2 className={`${sectionTitleClass} mb-6`} style={sectionTitleStyle}>
+                    Add Step
+                  </h2>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Step title</label>
+                      <input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Optional"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Step description</label>
+                      <input
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="Optional"
+                        className={inputClass}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">YouTube link or video ID</label>
+                      <input
+                        value={video}
+                        onChange={(e) => setVideo(e.target.value)}
+                        placeholder="Required"
+                        className={inputClass}
+                      />
+                    </div>
+                    {addStepError ? (
+                      <p className="text-sm text-[#dc2626]">{addStepError}</p>
+                    ) : null}
+                    <div className="pt-2">
+                      <Button onClick={addStep} size="md">
+                        Add Step
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Steps list */}
+                <div className="mb-8 space-y-4 md:space-y-6">
+                  {workout.length === 0 ? (
+                    <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8 text-center">
+                      <p className="text-[#777] text-sm">No steps yet. Add the first step above.</p>
+                    </div>
+                  ) : (
+                    workout.map((step, i) => (
+                      <div
+                        key={`${step.videoId}-${i}`}
+                        className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
+                      >
+                        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                          <h3 className="text-white uppercase tracking-wide" style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(20px, 2vw, 24px)" }}>
+                            Step {i + 1}: {step.title}
+                          </h3>
+                          <div className="flex flex-wrap gap-2">
+                            <button
+                              onClick={() => moveStepUp(i)}
+                              className="rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#444] transition-colors"
+                            >
+                              Up
+                            </button>
+                            <button
+                              onClick={() => moveStepDown(i)}
+                              className="rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#444] transition-colors"
+                            >
+                              Down
+                            </button>
+                            <button
+                              onClick={() => removeStep(i)}
+                              className="rounded-[4px] border border-[#dc2626] text-[#dc2626] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:bg-[#dc2626] hover:text-white transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                        <div className="aspect-video w-full overflow-hidden rounded-lg bg-[#0a0a0a]">
+                          <iframe
+                            className="h-full w-full"
+                            src={`https://www.youtube.com/embed/${step.videoId}?rel=0`}
+                            title={step.title}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            referrerPolicy="strict-origin-when-cross-origin"
+                            allowFullScreen
+                          />
+                        </div>
+                        {step.description ? (
+                          <p className="mt-4 text-[#aaa] text-sm leading-relaxed">{step.description}</p>
+                        ) : null}
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Save Workout */}
+                <div className="mt-10 md:mt-14">
+                  <Button
+                    onClick={handleSaveWorkout}
+                    disabled={saveStatus === "saving"}
+                    size="md"
+                  >
+                    {saveStatus === "saving"
+                      ? "Saving..."
+                      : saveStatus === "saved"
+                      ? "Saved!"
+                      : saveStatus === "error"
+                      ? "Error — try again"
+                      : "Save Workout"}
+                  </Button>
+                </div>
+              </>
+            ) : null}
+          </div>
+        </section>
+      </main>
+    </>
   );
 }
