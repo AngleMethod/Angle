@@ -13,22 +13,7 @@ type WorkoutStep = {
   title: string;
   description: string;
   videoId?: string;
-  video?: string;
-  videoUrl?: string;
 };
-
-function extractYouTubeId(input: string): string {
-  const t = input.trim();
-  if (!t) return "";
-  if (t.includes("youtube.com/watch?v=")) return t.split("v=")[1]?.split("&")[0] ?? "";
-  if (t.includes("youtu.be/")) return t.split("youtu.be/")[1]?.split("?")[0] ?? "";
-  if (t.includes("youtube.com/embed/")) return t.split("embed/")[1]?.split("?")[0] ?? "";
-  return t;
-}
-
-function getVideoId(step: WorkoutStep): string {
-  return extractYouTubeId(step.videoId || step.video || step.videoUrl || "");
-}
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 
@@ -411,10 +396,8 @@ export default function Dashboard() {
                   <div className="space-y-6">
                     {workout.map((step, i) => {
                       const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
-                      const youtubeId = muxVideo ? "" : getVideoId(step);
-                      const key = muxVideo ? `${muxVideo.id}-${i}` : `${youtubeId}-${i}`;
                       return (
-                        <div key={key} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                        <div key={`${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
                           <h2
                             className="text-white uppercase tracking-wide mb-6"
                             style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
@@ -425,18 +408,11 @@ export default function Dashboard() {
                             <div className="mb-6">
                               <VideoPlayer playbackId={muxVideo.mux_playback_id} />
                             </div>
-                          ) : youtubeId ? (
-                            <div className="aspect-video w-full overflow-hidden rounded-lg mb-6 bg-[#0a0a0a]">
-                              <iframe
-                                className="h-full w-full"
-                                src={`https://www.youtube.com/embed/${youtubeId}?rel=0`}
-                                title={step.title}
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                referrerPolicy="strict-origin-when-cross-origin"
-                                allowFullScreen
-                              />
+                          ) : (
+                            <div className="aspect-video w-full mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
+                              <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
                             </div>
-                          ) : null}
+                          )}
                           <p className="text-[#aaa] leading-relaxed">{step.description}</p>
                         </div>
                       );

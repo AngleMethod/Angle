@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
+import VideoPlayer from "@/components/VideoPlayer";
 
 type WorkoutStep = {
   title: string;
@@ -15,6 +16,7 @@ type WorkoutStep = {
 
 type VideoOption = {
   id: string;
+  mux_playback_id: string;
   title: string;
   level: string | null;
   category: string | null;
@@ -29,21 +31,6 @@ const STATUS_LABELS: Record<OnboardingStatus, string> = {
   booked: "Booked",
   completed: "Completed",
 };
-
-function getYoutubeId(input: string): string {
-  const trimmed = input.trim();
-  if (!trimmed) return "";
-  if (trimmed.includes("youtube.com/watch?v=")) {
-    return trimmed.split("v=")[1]?.split("&")[0] ?? "";
-  }
-  if (trimmed.includes("youtu.be/")) {
-    return trimmed.split("youtu.be/")[1]?.split("?")[0] ?? "";
-  }
-  if (trimmed.includes("youtube.com/embed/")) {
-    return trimmed.split("embed/")[1]?.split("?")[0] ?? "";
-  }
-  return trimmed;
-}
 
 export default function AdminPage() {
   const router = useRouter();
@@ -165,10 +152,10 @@ export default function AdminPage() {
     setAssignedUserId(userId);
     setAssignedUserEmail(lookupEmail.trim());
     setAssignedOnboardingStatus(onboardingStatus ?? "not_booked");
-    setWorkout((workoutData.steps ?? []).map((s: WorkoutStep & { video?: string }) => ({
+    setWorkout((workoutData.steps ?? []).map((s: WorkoutStep) => ({
       title: s.title,
       description: s.description,
-      videoId: s.videoId ?? getYoutubeId(s.video ?? ""),
+      videoId: s.videoId ?? "",
     })));
     setLookupStatus("found");
   }
@@ -198,7 +185,7 @@ export default function AdminPage() {
     setSaveStatus("saving");
 
     let stepsToSave = workout;
-    const pendingVideoId = getYoutubeId(video);
+    const pendingVideoId = video.trim();
     if (pendingVideoId) {
       const pendingStep: WorkoutStep = {
         title: title.trim() || `Step ${workout.length + 1}`,
@@ -238,7 +225,7 @@ export default function AdminPage() {
   }
 
   function addStep() {
-    const videoId = getYoutubeId(video);
+    const videoId = video.trim();
     if (!videoId) {
       setAddStepError("Please select a video first.");
       return;
@@ -509,7 +496,9 @@ export default function AdminPage() {
                       <p className="text-[#777] text-sm">No steps yet. Add the first step above.</p>
                     </div>
                   ) : (
-                    workout.map((step, i) => (
+                    workout.map((step, i) => {
+                      const video = videoLibrary.find(v => v.id === step.videoId) ?? null;
+                      return (
                       <div
                         key={`${step.videoId}-${i}`}
                         className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
@@ -539,21 +528,24 @@ export default function AdminPage() {
                             </button>
                           </div>
                         </div>
-                        <div className="aspect-video w-full overflow-hidden rounded-lg bg-[#0a0a0a]">
-                          <iframe
-                            className="h-full w-full"
-                            src={`https://www.youtube.com/embed/${step.videoId}?rel=0`}
-                            title={step.title}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            referrerPolicy="strict-origin-when-cross-origin"
-                            allowFullScreen
-                          />
-                        </div>
+                        {video ? (
+                          <>
+                            <VideoPlayer playbackId={video.mux_playback_id} />
+                            <p className="mt-3 text-[#666] text-xs tracking-widest uppercase">
+                              {(video.level || "—")} · {(video.category || "—")}
+                            </p>
+                          </>
+                        ) : (
+                          <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
+                            <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
+                          </div>
+                        )}
                         {step.description ? (
                           <p className="mt-4 text-[#aaa] text-sm leading-relaxed">{step.description}</p>
                         ) : null}
                       </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
 
