@@ -322,12 +322,6 @@ export default function Dashboard() {
               ) : null}
             </div>
 
-            <div className="mb-10 md:mb-14">
-              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">Video System Test</p>
-              <p className="text-[#777] mb-6">Testing video playback</p>
-              <VideoPlayer playbackId="DS00Spx1CV902MCtPj5WknGlR102V5HFkDe" />
-            </div>
-
             {onboardingStatus === "not_booked" && (
               <>
                 <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
