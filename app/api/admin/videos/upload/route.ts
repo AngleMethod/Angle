@@ -12,6 +12,12 @@ if (!MUX_TOKEN_ID || !MUX_TOKEN_SECRET) {
 
 const mux = new Mux({ tokenId: MUX_TOKEN_ID, tokenSecret: MUX_TOKEN_SECRET })
 
+function describeError(err: unknown): string {
+  if (err instanceof Error) return err.message
+  if (typeof err === 'string') return err
+  try { return JSON.stringify(err) } catch { return String(err) }
+}
+
 async function isAdmin(req: NextRequest): Promise<boolean> {
   const token = req.headers.get('authorization')?.replace('Bearer ', '')
   if (!token) return false
@@ -25,23 +31,29 @@ async function isAdmin(req: NextRequest): Promise<boolean> {
 
 export async function POST(req: NextRequest) {
   if (!await isAdmin(req)) {
+    console.error('[videos/upload POST] Unauthorized')
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
   try {
+    console.log('[videos/upload POST] Creating Mux direct upload')
     const upload = await mux.video.uploads.create({
       cors_origin: '*',
       new_asset_settings: {
         playback_policy: ['public'],
       },
     })
+    console.log('[videos/upload POST] Mux upload created:', { id: upload.id })
 
     return NextResponse.json({
       uploadId: upload.id,
       uploadUrl: upload.url,
     })
   } catch (err) {
-    console.error('Mux upload create error:', err)
-    return NextResponse.json({ error: 'Failed to create upload' }, { status: 500 })
+    console.error('[videos/upload POST] Mux upload create failed:', describeError(err))
+    return NextResponse.json(
+      { error: `Failed to create upload: ${describeError(err)}` },
+      { status: 500 }
+    )
   }
 }

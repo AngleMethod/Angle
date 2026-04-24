@@ -160,24 +160,37 @@ export default function AdminVideosPage() {
     upload.on("success", async () => {
       setUploadStage("saving");
 
-      const saveRes = await fetch("/api/admin/videos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          uploadId,
-          title: title.trim(),
-          description: description.trim(),
-          level: level.trim(),
-          category: category.trim(),
-        }),
-      });
+      let saveRes: Response;
+      try {
+        saveRes = await fetch("/api/admin/videos", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            uploadId,
+            title: title.trim(),
+            description: description.trim(),
+            level: level.trim(),
+            category: category.trim(),
+          }),
+        });
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error("[admin/videos] Save fetch threw:", err);
+        setUploadError(`Network error contacting save endpoint: ${msg}`);
+        setUploadStage("error");
+        return;
+      }
 
       if (!saveRes.ok) {
         const data = await saveRes.json().catch(() => ({} as { error?: string }));
-        setUploadError(data?.error || "Failed to save video.");
+        const apiError = data?.error;
+        const fallback = `Save failed (HTTP ${saveRes.status})`;
+        const message = apiError ? apiError : fallback;
+        console.error("[admin/videos] Save error response:", { status: saveRes.status, body: data });
+        setUploadError(message);
         setUploadStage("error");
         return;
       }
@@ -272,7 +285,7 @@ export default function AdminVideosPage() {
                     <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video file</label>
                     <input
                       type="file"
-                      accept="video/*"
+                      accept="video/mp4,video/quicktime,video/mov,.mov,.mp4,video/*"
                       onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                       disabled={uploadStage === "uploading" || uploadStage === "saving"}
                       className="block w-full text-sm text-[#aaa] file:mr-4 file:py-2 file:px-4 file:rounded-[4px] file:border-0 file:bg-[#222] file:text-white file:text-xs file:font-bold file:tracking-widest file:uppercase file:cursor-pointer disabled:opacity-40"
