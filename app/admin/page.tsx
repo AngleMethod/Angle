@@ -13,6 +13,13 @@ type WorkoutStep = {
   videoId: string;
 };
 
+type VideoOption = {
+  id: string;
+  title: string;
+  level: string | null;
+  category: string | null;
+};
+
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 
 const ADMIN_EMAIL = "josh@notecreativestudios.com";
@@ -60,6 +67,10 @@ export default function AdminPage() {
   const [video, setVideo] = useState("");
   const [addStepError, setAddStepError] = useState("");
 
+  const [videoLibrary, setVideoLibrary] = useState<VideoOption[]>([]);
+  const [videoLibraryLoaded, setVideoLibraryLoaded] = useState(false);
+  const [videoSearch, setVideoSearch] = useState("");
+
   useEffect(() => {
     let isMounted = true;
 
@@ -101,6 +112,26 @@ export default function AdminPage() {
     const { data: { session } } = await supabase.auth.getSession();
     return session?.access_token ?? null;
   }
+
+  useEffect(() => {
+    if (!isLoaded) return;
+
+    let cancelled = false;
+    const loadLibrary = async () => {
+      const token = await getAccessToken();
+      const res = await fetch("/api/admin/videos", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (cancelled) return;
+      setVideoLibrary(data.videos ?? []);
+      setVideoLibraryLoaded(true);
+    };
+
+    loadLibrary();
+    return () => { cancelled = true; };
+  }, [isLoaded]);
 
   async function handleLookupUser() {
     if (!lookupEmail.trim()) return;
@@ -183,6 +214,7 @@ export default function AdminPage() {
         setTitle("");
         setDescription("");
         setVideo("");
+        setVideoSearch("");
       }
     }
 
@@ -208,7 +240,7 @@ export default function AdminPage() {
   function addStep() {
     const videoId = getYoutubeId(video);
     if (!videoId) {
-      setAddStepError("Please add a YouTube link or video ID.");
+      setAddStepError("Please select a video first.");
       return;
     }
     setAddStepError("");
@@ -221,6 +253,7 @@ export default function AdminPage() {
     setTitle("");
     setDescription("");
     setVideo("");
+    setVideoSearch("");
   }
 
   function removeStep(index: number) {
@@ -389,13 +422,74 @@ export default function AdminPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">YouTube link or video ID</label>
-                      <input
-                        value={video}
-                        onChange={(e) => setVideo(e.target.value)}
-                        placeholder="Required"
-                        className={inputClass}
-                      />
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video</label>
+                      {(() => {
+                        const selected = videoLibrary.find(v => v.id === video) ?? null;
+                        if (selected) {
+                          return (
+                            <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-3 flex items-center justify-between gap-4">
+                              <div className="min-w-0">
+                                <p className="text-white text-sm truncate">{selected.title}</p>
+                                <p className="text-[#666] text-xs tracking-widest uppercase mt-1">
+                                  {(selected.level || "—")} · {(selected.category || "—")}
+                                </p>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => { setVideo(""); setVideoSearch(""); }}
+                                className="flex-shrink-0 text-[#777] text-xs tracking-widest uppercase hover:text-white transition-colors"
+                              >
+                                Change
+                              </button>
+                            </div>
+                          );
+                        }
+
+                        const term = videoSearch.trim().toLowerCase();
+                        const filtered = term
+                          ? videoLibrary.filter(v =>
+                              v.title.toLowerCase().includes(term) ||
+                              (v.level ?? "").toLowerCase().includes(term) ||
+                              (v.category ?? "").toLowerCase().includes(term)
+                            )
+                          : videoLibrary;
+
+                        return (
+                          <>
+                            <input
+                              type="text"
+                              value={videoSearch}
+                              onChange={(e) => setVideoSearch(e.target.value)}
+                              placeholder={videoLibraryLoaded ? `Search ${videoLibrary.length} video${videoLibrary.length === 1 ? "" : "s"}...` : "Loading library..."}
+                              disabled={!videoLibraryLoaded}
+                              className={`${inputClass} mb-2`}
+                            />
+                            <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] max-h-60 overflow-y-auto">
+                              {!videoLibraryLoaded ? (
+                                <p className="px-4 py-3 text-[#777] text-sm">Loading library...</p>
+                              ) : videoLibrary.length === 0 ? (
+                                <p className="px-4 py-3 text-[#777] text-sm">No videos in library yet. Upload one in Video Library.</p>
+                              ) : filtered.length === 0 ? (
+                                <p className="px-4 py-3 text-[#777] text-sm">No videos match your search.</p>
+                              ) : (
+                                filtered.map((v) => (
+                                  <button
+                                    key={v.id}
+                                    type="button"
+                                    onClick={() => { setVideo(v.id); setVideoSearch(""); }}
+                                    className="w-full text-left px-4 py-3 border-b border-[#1e1e1e] last:border-b-0 hover:bg-[#111110] transition-colors"
+                                  >
+                                    <p className="text-white text-sm truncate">{v.title}</p>
+                                    <p className="text-[#666] text-xs tracking-widest uppercase mt-1">
+                                      {(v.level || "—")} · {(v.category || "—")}
+                                    </p>
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          </>
+                        );
+                      })()}
                     </div>
                     {addStepError ? (
                       <p className="text-sm text-[#dc2626]">{addStepError}</p>

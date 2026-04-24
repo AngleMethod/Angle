@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import * as UpChunk from "@mux/upchunk";
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
+import VideoPlayer from "@/components/VideoPlayer";
 
 const ADMIN_EMAIL = "josh@notecreativestudios.com";
 
@@ -397,6 +398,7 @@ export default function AdminVideosPage() {
               <table className="w-full">
                 <thead className="bg-[#111110] border-b border-[#1e1e1e]">
                   <tr>
+                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium w-[180px]">Preview</th>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Title</th>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Level</th>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Category</th>
@@ -406,15 +408,20 @@ export default function AdminVideosPage() {
                 <tbody>
                   {loadingVideos ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-6 text-[#777] text-sm">Loading videos...</td>
+                      <td colSpan={5} className="px-6 py-6 text-[#777] text-sm">Loading videos...</td>
                     </tr>
                   ) : videos.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-6 py-6 text-[#777] text-sm">No videos yet. Upload your first one.</td>
+                      <td colSpan={5} className="px-6 py-6 text-[#777] text-sm">No videos yet. Upload your first one.</td>
                     </tr>
                   ) : (
                     videos.map((v) => (
-                      <tr key={v.id} className="border-b border-[#1e1e1e] last:border-b-0 hover:bg-[#111110] transition-colors">
+                      <tr key={v.id} className="border-b border-[#1e1e1e] last:border-b-0 hover:bg-[#111110] transition-colors align-middle">
+                        <td className="px-6 py-4">
+                          <div className="w-[160px]">
+                            <VideoPlayer playbackId={v.mux_playback_id} />
+                          </div>
+                        </td>
                         <td className="px-6 py-4 text-white text-sm">{v.title}</td>
                         <td className="px-6 py-4 text-[#aaa] text-sm">{v.level || "—"}</td>
                         <td className="px-6 py-4 text-[#aaa] text-sm">{v.category || "—"}</td>
