@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import * as UpChunk from "@mux/upchunk";
@@ -232,11 +233,25 @@ export default function AdminVideosPage() {
                 </h1>
                 <p className="text-[#777]">Manage the master video library.</p>
               </div>
-              {!uploadOpen ? (
-                <Button onClick={() => setUploadOpen(true)} size="sm">
-                  Upload Video
-                </Button>
-              ) : null}
+              <div className="flex flex-wrap items-end gap-2">
+                <Link
+                  href="/dashboard"
+                  className="inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors"
+                >
+                  View Dashboard
+                </Link>
+                <Link
+                  href="/admin"
+                  className="inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors"
+                >
+                  Admin Builder
+                </Link>
+                {!uploadOpen ? (
+                  <Button onClick={() => setUploadOpen(true)} size="sm">
+                    Upload Video
+                  </Button>
+                ) : null}
+              </div>
             </div>
 
             {uploadOpen ? (
