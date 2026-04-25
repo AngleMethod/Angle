@@ -152,11 +152,7 @@ export default function AdminPage() {
     setAssignedUserId(userId);
     setAssignedUserEmail(lookupEmail.trim());
     setAssignedOnboardingStatus(onboardingStatus ?? "not_booked");
-    setWorkout((workoutData.steps ?? []).map((s: WorkoutStep) => ({
-      title: s.title,
-      description: s.description,
-      videoId: s.videoId ?? "",
-    })));
+    setWorkout((workoutData.steps ?? []).map((s: WorkoutStep) => ({ ...s, videoId: s.videoId ?? "" })));
     setLookupStatus("found");
   }
 
@@ -497,7 +493,7 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     workout.map((step, i) => {
-                      const video = videoLibrary.find(v => v.id === step.videoId) ?? null;
+                      const stepVideo = videoLibrary.find(v => v.id === step.videoId) ?? null;
                       return (
                       <div
                         key={`${step.videoId}-${i}`}
@@ -528,11 +524,11 @@ export default function AdminPage() {
                             </button>
                           </div>
                         </div>
-                        {video ? (
+                        {stepVideo ? (
                           <>
-                            <VideoPlayer playbackId={video.mux_playback_id} />
+                            <VideoPlayer playbackId={stepVideo.mux_playback_id} />
                             <p className="mt-3 text-[#666] text-xs tracking-widest uppercase">
-                              {(video.level || "—")} · {(video.category || "—")}
+                              {(stepVideo.level || "—")} · {(stepVideo.category || "—")}
                             </p>
                           </>
                         ) : (
