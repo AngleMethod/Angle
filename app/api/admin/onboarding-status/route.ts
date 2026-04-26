@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase'
 
-const ADMIN_EMAIL = 'josh@notecreativestudios.com'
+const ADMIN_EMAIL = 'josh@anglemethod.com'
 const VALID_STATUSES = ['not_booked', 'booked', 'completed']
 
 const FROM_EMAIL = 'Angle <hello@angle.coach>'

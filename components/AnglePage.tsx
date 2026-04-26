@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase'
 import Nav from './Nav'
 import Button from './ui/Button'
 
-const ADMIN_EMAIL = 'josh@notecreativestudios.com'
+const ADMIN_EMAIL = 'josh@anglemethod.com'
 
 // ── Utility: scroll-reveal hook ───────────────────────────────────────────────
 function useReveal(): [RefObject<HTMLElement | null>, boolean] {

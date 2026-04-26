@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import Mux from '@mux/mux-node'
 import { createAdminClient } from '@/lib/supabase'
 
-const ADMIN_EMAIL = 'josh@notecreativestudios.com'
+const ADMIN_EMAIL = 'josh@anglemethod.com'
 
 const { MUX_TOKEN_ID, MUX_TOKEN_SECRET } = process.env
 

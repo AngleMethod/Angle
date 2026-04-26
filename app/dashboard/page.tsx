@@ -27,7 +27,7 @@ type MuxVideoRecord = {
   duration_seconds: number | null;
 };
 
-const ADMIN_EMAIL = "josh@notecreativestudios.com";
+const ADMIN_EMAIL = "josh@anglemethod.com";
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 
 export default function Dashboard() {

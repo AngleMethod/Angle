@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase'
 
-const ADMIN_EMAIL = 'josh@notecreativestudios.com'
+const ADMIN_EMAIL = 'josh@anglemethod.com'
 
 async function isAdmin(req: NextRequest): Promise<boolean> {
   const token = req.headers.get('authorization')?.replace('Bearer ', '')

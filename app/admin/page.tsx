@@ -24,7 +24,7 @@ type VideoOption = {
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 
-const ADMIN_EMAIL = "josh@notecreativestudios.com";
+const ADMIN_EMAIL = "josh@anglemethod.com";
 
 const STATUS_LABELS: Record<OnboardingStatus, string> = {
   not_booked: "Not Booked",

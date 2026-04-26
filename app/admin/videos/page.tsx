@@ -9,7 +9,7 @@ import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
 import VideoPlayer from "@/components/VideoPlayer";
 
-const ADMIN_EMAIL = "josh@notecreativestudios.com";
+const ADMIN_EMAIL = "josh@anglemethod.com";
 
 type Video = {
   id: string;
