@@ -167,7 +167,7 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
               <Image src="/angle-1.jpeg" alt="Athlete" fill className="object-cover" sizes="(max-width: 768px) 100vw, 20vw" quality={100} />
             </div>
             <div className="relative rounded-lg overflow-hidden bg-[#111110]">
-              <Image src="/angle-3.jpeg" alt="Athlete" fill className="object-cover object-[center_20%]" sizes="(max-width: 768px) 100vw, 20vw" quality={100} />
+              <Image src="/angle-3.jpeg" alt="Athlete" fill className="object-cover object-[center_5%]" sizes="(max-width: 768px) 100vw, 20vw" quality={100} />
             </div>
           </div>
 
