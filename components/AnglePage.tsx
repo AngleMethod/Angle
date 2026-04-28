@@ -161,13 +161,13 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
           {/* Right: image grid — desktop */}
           <div className="hidden md:grid grid-cols-2 gap-2 min-h-[480px] pt-12 pr-12 pb-12" style={{ background: '#0a0a0a' }}>
             <div className="relative col-span-1 row-span-2 rounded-lg overflow-hidden bg-[#111110]">
-              <Image src="/angle-6.jpeg" alt="Athlete" fill className="object-cover" sizes="25vw" />
+              <Image src="/angle-6.jpeg" alt="Athlete" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" quality={100} />
             </div>
             <div className="relative rounded-lg overflow-hidden bg-[#111110]">
-              <Image src="/angle-1.jpeg" alt="Athlete" fill className="object-cover" sizes="25vw" />
+              <Image src="/angle-1.jpeg" alt="Athlete" fill className="object-cover" sizes="(max-width: 768px) 100vw, 20vw" quality={100} />
             </div>
             <div className="relative rounded-lg overflow-hidden bg-[#111110]">
-              <Image src="/angle-3.jpeg" alt="Athlete" fill className="object-cover object-[center_20%]" sizes="25vw" />
+              <Image src="/angle-3.jpeg" alt="Athlete" fill className="object-cover object-[center_20%]" sizes="(max-width: 768px) 100vw, 20vw" quality={100} />
             </div>
           </div>
 
@@ -245,7 +245,7 @@ function Journey() {
         <div className="divide-y divide-[#1a1a1a]">
           {rows.map(row => (
             <div key={row.eyebrow} className={`flex flex-col gap-6 py-10 md:py-16 md:gap-12 md:items-center ${row.reverse ? 'md:flex-row-reverse' : 'md:flex-row'}`}>
-              <div className="relative w-full md:w-1/2 aspect-[4/3] overflow-hidden flex-shrink-0 bg-[#111110]">
+              <div className="relative w-full md:w-1/2 aspect-[4/3] overflow-hidden flex-shrink-0 rounded-lg bg-[#111110]">
                 <Image src={row.img} alt={row.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
               </div>
               <div className="w-full md:w-1/2">
