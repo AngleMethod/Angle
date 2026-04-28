@@ -161,7 +161,7 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
           {/* Right: image grid — desktop */}
           <div className="hidden md:grid grid-cols-2 gap-2 min-h-[480px] pt-12 pr-12 pb-12" style={{ background: '#0a0a0a' }}>
             <div className="relative col-span-1 row-span-2 rounded-lg overflow-hidden bg-[#111110]">
-              <Image src="/angle-6.jpeg" alt="Athlete" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" quality={100} />
+              <Image src="/angle-8.jpeg" alt="Athlete" fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" quality={100} />
             </div>
             <div className="relative rounded-lg overflow-hidden bg-[#111110]">
               <Image src="/angle-1.jpeg" alt="Athlete" fill className="object-cover" sizes="(max-width: 768px) 100vw, 20vw" quality={100} />
