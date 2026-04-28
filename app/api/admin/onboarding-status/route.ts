@@ -3,7 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase'
 
-const ADMIN_EMAIL = 'josh@anglemethod.com'
+const ADMIN_EMAILS = [
+  'josh@anglemethod.com',
+  'morgan@anglemethod.com',
+]
 const VALID_STATUSES = ['not_booked', 'booked', 'completed']
 
 const FROM_EMAIL = 'Angle <hello@angle.coach>'
@@ -18,7 +21,7 @@ async function isAdmin(req: NextRequest): Promise<boolean> {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
   const { data: { user } } = await supabase.auth.getUser(token)
-  return user?.email === ADMIN_EMAIL
+  return !!user?.email && ADMIN_EMAILS.includes(user.email)
 }
 
 function buildProgramReadyEmailHtml(): string {

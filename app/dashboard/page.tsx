@@ -27,7 +27,10 @@ type MuxVideoRecord = {
   duration_seconds: number | null;
 };
 
-const ADMIN_EMAIL = "josh@anglemethod.com";
+const ADMIN_EMAILS = [
+  "josh@anglemethod.com",
+  "morgan@anglemethod.com",
+];
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 
 export default function Dashboard() {
@@ -297,7 +300,7 @@ export default function Dashboard() {
                   <p className="mt-2 text-sm text-[#555]">Signed in as {userEmail}</p>
                 ) : null}
               </div>
-              {userEmail === ADMIN_EMAIL ? (
+              {userEmail && ADMIN_EMAILS.includes(userEmail) ? (
                 <Link
                   href="/admin"
                   className="self-start sm:self-auto inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors"

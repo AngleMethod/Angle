@@ -7,7 +7,10 @@ import { supabase } from '@/lib/supabase'
 import Nav from './Nav'
 import Button from './ui/Button'
 
-const ADMIN_EMAIL = 'josh@anglemethod.com'
+const ADMIN_EMAILS = [
+  'josh@anglemethod.com',
+  'morgan@anglemethod.com',
+]
 
 // ── Utility: scroll-reveal hook ───────────────────────────────────────────────
 function useReveal(): [RefObject<HTMLElement | null>, boolean] {
@@ -638,7 +641,7 @@ export default function AnglePage() {
         userEmail={userEmail}
         email={email}
         message={message}
-        isAdmin={userEmail === ADMIN_EMAIL}
+        isAdmin={!!userEmail && ADMIN_EMAILS.includes(userEmail)}
         onEmailChange={setEmail}
         onLogin={handleLogin}
         onLogout={handleLogout}

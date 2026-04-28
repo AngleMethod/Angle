@@ -24,7 +24,10 @@ type VideoOption = {
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 
-const ADMIN_EMAIL = "josh@anglemethod.com";
+const ADMIN_EMAILS = [
+  "josh@anglemethod.com",
+  "morgan@anglemethod.com",
+];
 
 const STATUS_LABELS: Record<OnboardingStatus, string> = {
   not_booked: "Not Booked",
@@ -66,7 +69,7 @@ export default function AdminPage() {
       if (!isMounted) return;
 
       const email = session?.user?.email ?? null;
-      if (!email || email !== ADMIN_EMAIL) {
+      if (!email || !ADMIN_EMAILS.includes(email)) {
         router.replace("/");
         return;
       }

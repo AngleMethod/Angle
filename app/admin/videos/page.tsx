@@ -9,7 +9,10 @@ import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
 import VideoPlayer from "@/components/VideoPlayer";
 
-const ADMIN_EMAIL = "josh@anglemethod.com";
+const ADMIN_EMAILS = [
+  "josh@anglemethod.com",
+  "morgan@anglemethod.com",
+];
 
 type Video = {
   id: string;
@@ -51,7 +54,7 @@ export default function AdminVideosPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!isMounted) return;
       const email = session?.user?.email ?? null;
-      if (!email || email !== ADMIN_EMAIL) {
+      if (!email || !ADMIN_EMAILS.includes(email)) {
         router.replace("/");
         return;
       }

@@ -3,7 +3,10 @@ import { createClient } from '@supabase/supabase-js'
 import Mux from '@mux/mux-node'
 import { createAdminClient } from '@/lib/supabase'
 
-const ADMIN_EMAIL = 'josh@anglemethod.com'
+const ADMIN_EMAILS = [
+  'josh@anglemethod.com',
+  'morgan@anglemethod.com',
+]
 
 const { MUX_TOKEN_ID, MUX_TOKEN_SECRET } = process.env
 
@@ -27,7 +30,7 @@ async function getAuthedAdminUser(req: NextRequest): Promise<{ id: string; email
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
   const { data: { user } } = await supabase.auth.getUser(token)
-  if (!user || user.email !== ADMIN_EMAIL) return null
+  if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) return null
   return { id: user.id, email: user.email }
 }
 

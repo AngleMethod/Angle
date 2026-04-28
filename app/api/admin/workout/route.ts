@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase'
 
-const ADMIN_EMAIL = 'josh@anglemethod.com'
+const ADMIN_EMAILS = [
+  'josh@anglemethod.com',
+  'morgan@anglemethod.com',
+]
 
 async function isAdmin(req: NextRequest): Promise<boolean> {
   const token = req.headers.get('authorization')?.replace('Bearer ', '')
@@ -12,7 +15,7 @@ async function isAdmin(req: NextRequest): Promise<boolean> {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
   const { data: { user } } = await supabase.auth.getUser(token)
-  return user?.email === ADMIN_EMAIL
+  return !!user?.email && ADMIN_EMAILS.includes(user.email)
 }
 
 export async function GET(req: NextRequest) {
