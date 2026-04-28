@@ -7,19 +7,20 @@ const ADMIN_EMAILS = [
   'morgan@anglemethod.com',
 ]
 
-async function isAdmin(req: NextRequest): Promise<boolean> {
+async function getAdminEmail(req: NextRequest): Promise<string | null> {
   const token = req.headers.get('authorization')?.replace('Bearer ', '')
-  if (!token) return false
+  if (!token) return null
   const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
   const { data: { user } } = await supabase.auth.getUser(token)
-  return !!user?.email && ADMIN_EMAILS.includes(user.email)
+  if (!user?.email || !ADMIN_EMAILS.includes(user.email)) return null
+  return user.email
 }
 
 export async function GET(req: NextRequest) {
-  if (!await isAdmin(req)) {
+  if (!await getAdminEmail(req)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
@@ -39,7 +40,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  if (!await isAdmin(req)) {
+  const adminEmail = await getAdminEmail(req)
+  if (!adminEmail) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
@@ -54,6 +56,7 @@ export async function POST(req: NextRequest) {
     .upsert({
       user_id: userId,
       steps,
+      assigned_by_email: adminEmail,
       updated_at: new Date().toISOString(),
     }, { onConflict: 'user_id' })
 
