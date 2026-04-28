@@ -206,7 +206,7 @@ function ClearPath() {
           A Clear Path To Your First —<br />Or Next — Handstand.
         </h2>
         <p className="text-[#777] max-w-xl mb-10 md:mb-14">
-          Angle gives you structured training built around your current level, so you can stop guessing and start progressing.
+          The Angle Method gives you structured training built around your current level, so you can stop guessing and start progressing.
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {steps.map(s => (
