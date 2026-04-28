@@ -109,7 +109,7 @@ function Hero({
       <div className="md:w-[50%] md:flex md:items-center md:justify-center md:flex-shrink-0">
         <div className="relative aspect-square w-[calc(100%-3rem)] mx-6 md:mx-0 md:w-[70%] overflow-hidden rounded-lg border border-[#222] bg-[#111110]">
           <Image
-            src="/hero.png"
+            src="/angle-5.jpeg"
             alt="Handstand athlete"
             fill
             className="object-contain object-center origin-center"
@@ -161,19 +161,19 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
           {/* Right: image grid — desktop */}
           <div className="hidden md:grid grid-cols-2 gap-2 min-h-[480px] pt-12 pr-12 pb-12" style={{ background: '#0a0a0a' }}>
             <div className="relative col-span-1 row-span-2 rounded-lg overflow-hidden bg-[#111110]">
-              <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
+              <Image src="/angle-1.jpeg" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
             <div className="relative rounded-lg overflow-hidden bg-[#111110]">
-              <Image src="/angle-1.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
+              <Image src="/angle-2.jpeg" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
             <div className="relative rounded-lg overflow-hidden bg-[#111110]">
-              <Image src="/angle-3.png" alt="Athlete" fill className="object-cover" sizes="25vw" />
+              <Image src="/angle-3.jpeg" alt="Athlete" fill className="object-cover" sizes="25vw" />
             </div>
           </div>
 
           {/* Right: single image — mobile */}
           <div className="block md:hidden relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-[#111110]">
-            <Image src="/angle-2.png" alt="Athlete" fill className="object-cover" sizes="100vw" />
+            <Image src="/angle-1.jpeg" alt="Athlete" fill className="object-cover" sizes="100vw" />
           </div>
 
         </div>
@@ -223,9 +223,9 @@ function ClearPath() {
 function Journey() {
   const [ref, visible] = useReveal()
   const rows = [
-    { img: '/angle-2.png', eyebrow: 'Assessment',   eyebrowBorder: 'border border-purple-900', eyebrowBg: 'oklch(0.18 0.06 290)', eyebrowText: 'oklch(0.65 0.14 290)', title: 'Start At Your Exact Level',          body: 'Begin with a 30-minute assessment to identify where you are right now. Your training plan is built specifically for you — so you always know what to do next.',                              reverse: false },
-    { img: '/angle-1.png', eyebrow: 'Progressions',  eyebrowBorder: 'border border-orange-900', eyebrowBg: 'oklch(0.18 0.06 50)',  eyebrowText: 'oklch(0.72 0.14 50)',  title: 'Build Control, Step By Step',          body: "Follow structured progressions that develop strength, balance, and alignment over time. Each phase builds on the last — so you're always improving with purpose.",                         reverse: true  },
-    { img: '/angle-3.png', eyebrow: 'Coach-led',     eyebrowBorder: 'border border-blue-900',   eyebrowBg: 'oklch(0.18 0.06 240)', eyebrowText: 'oklch(0.65 0.14 240)', title: 'Train With Guidance, Not Guesswork',   body: "Get clear instruction, demonstrations, and direction at every stage. You're not figuring it out alone — the system guides you forward.",                                               reverse: false },
+    { img: '/angle-4.jpeg', eyebrow: 'Assessment',   eyebrowBorder: 'border border-purple-900', eyebrowBg: 'oklch(0.18 0.06 290)', eyebrowText: 'oklch(0.65 0.14 290)', title: 'Start At Your Exact Level',          body: 'Begin with a 30-minute assessment to identify where you are right now. Your training plan is built specifically for you — so you always know what to do next.',                              reverse: false },
+    { img: '/angle-2.jpeg', eyebrow: 'Progressions',  eyebrowBorder: 'border border-orange-900', eyebrowBg: 'oklch(0.18 0.06 50)',  eyebrowText: 'oklch(0.72 0.14 50)',  title: 'Build Control, Step By Step',          body: "Follow structured progressions that develop strength, balance, and alignment over time. Each phase builds on the last — so you're always improving with purpose.",                         reverse: true  },
+    { img: '/angle-3.jpeg', eyebrow: 'Coach-led',     eyebrowBorder: 'border border-blue-900',   eyebrowBg: 'oklch(0.18 0.06 240)', eyebrowText: 'oklch(0.65 0.14 240)', title: 'Train With Guidance, Not Guesswork',   body: "Get clear instruction, demonstrations, and direction at every stage. You're not figuring it out alone — the system guides you forward.",                                               reverse: false },
   ]
 
   return (
