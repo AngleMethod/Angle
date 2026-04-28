@@ -82,7 +82,7 @@ function Hero({
         </h1>
 
         <p className="text-[#aaa] text-base md:text-lg leading-relaxed max-w-md mb-8 md:mb-10">
-          A personalized handstand training system built for your level.
+          A personalized handstand training plan built for you.
         </p>
 
         <div>
