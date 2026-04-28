@@ -78,7 +78,7 @@ function Hero({
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(45px, 8vw, 100px)' }}
         >
           Master Handstands<br />
-          <em className="text-[#c0c0c0] italic">With Real Structure</em>
+          <em className="text-[#c0c0c0] italic">With A Proven System</em>
         </h1>
 
         <p className="text-[#aaa] text-base md:text-lg leading-relaxed max-w-md mb-8 md:mb-10">
@@ -140,8 +140,8 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
               className="text-white uppercase leading-[0.95] tracking-wide mb-6"
               style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 5vw, 72px)' }}
             >
-              Train With A Proven System.<br />
-              <em className="text-[#aaa] italic">Progress With More Intent.</em>
+              Train Like You're In Ukraine.<br />
+              <em className="text-[#aaa] italic">Circus School Brought To You.</em>
             </h2>
             <div className="flex flex-wrap gap-2 mb-6">
               {[
@@ -154,7 +154,7 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
               ))}
             </div>
             <p className="text-[#888] leading-relaxed mb-8 max-w-md">
-              Start with an assessment, then train with a custom playlist built for your level, goals, and next progression.
+              Start with an assessment, then train with a custom program built for your body, level, and goals.
             </p>
             <button onClick={onStartTraining} className="self-start inline-block rounded-[4px] border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
               {isStartingTraining ? 'Starting...' : 'Start Training'}

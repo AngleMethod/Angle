@@ -18,7 +18,7 @@ const geist = Geist({
 export const metadata: Metadata = {
   title: "Angle — Handstand Training",
   description:
-    "Master handstands with a real training system. Start with an assessment, then follow a custom playlist built for your level.",
+    "Master handstands with a real training system. Start with an assessment, then follow a custom program built for your body, level, and goals.",
 };
 
 export default function RootLayout({
