@@ -13,6 +13,8 @@ type WorkoutStep = {
   title: string;
   description: string;
   videoId?: string;
+  sets?: string;
+  repsOrHoldTime?: string;
 };
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
@@ -416,6 +418,16 @@ export default function Dashboard() {
                               <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
                             </div>
                           )}
+                          {(step.sets || step.repsOrHoldTime) ? (
+                            <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
+                              {step.sets ? (
+                                <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
+                              ) : null}
+                              {step.repsOrHoldTime ? (
+                                <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
+                              ) : null}
+                            </div>
+                          ) : null}
                           <p className="text-[#aaa] leading-relaxed">{step.description}</p>
                         </div>
                       );

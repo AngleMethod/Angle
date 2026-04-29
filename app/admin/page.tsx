@@ -12,6 +12,8 @@ type WorkoutStep = {
   title: string;
   description: string;
   videoId: string;
+  sets?: string;
+  repsOrHoldTime?: string;
 };
 
 type VideoOption = {
@@ -55,6 +57,8 @@ export default function AdminPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [video, setVideo] = useState("");
+  const [sets, setSets] = useState("");
+  const [repsOrHoldTime, setRepsOrHoldTime] = useState("");
   const [addStepError, setAddStepError] = useState("");
 
   const [videoLibrary, setVideoLibrary] = useState<VideoOption[]>([]);
@@ -155,7 +159,12 @@ export default function AdminPage() {
     setAssignedUserId(userId);
     setAssignedUserEmail(lookupEmail.trim());
     setAssignedOnboardingStatus(onboardingStatus ?? "not_booked");
-    setWorkout((workoutData.steps ?? []).map((s: WorkoutStep) => ({ ...s, videoId: s.videoId ?? "" })));
+    setWorkout((workoutData.steps ?? []).map((s: WorkoutStep) => ({
+      ...s,
+      videoId: s.videoId ?? "",
+      sets: s.sets ?? "",
+      repsOrHoldTime: s.repsOrHoldTime ?? "",
+    })));
     setLookupStatus("found");
   }
 
@@ -190,6 +199,8 @@ export default function AdminPage() {
         title: title.trim() || `Step ${workout.length + 1}`,
         description: description.trim(),
         videoId: pendingVideoId,
+        sets: sets.trim(),
+        repsOrHoldTime: repsOrHoldTime.trim(),
       };
       const alreadyAdded = workout.some(
         (s) => s.title === pendingStep.title && s.videoId === pendingStep.videoId
@@ -201,6 +212,8 @@ export default function AdminPage() {
         setDescription("");
         setVideo("");
         setVideoSearch("");
+        setSets("");
+        setRepsOrHoldTime("");
       }
     }
 
@@ -234,12 +247,16 @@ export default function AdminPage() {
       title: title.trim() || `Step ${workout.length + 1}`,
       description: description.trim(),
       videoId,
+      sets: sets.trim(),
+      repsOrHoldTime: repsOrHoldTime.trim(),
     };
     setWorkout(prev => [...prev, newStep]);
     setTitle("");
     setDescription("");
     setVideo("");
     setVideoSearch("");
+    setSets("");
+    setRepsOrHoldTime("");
   }
 
   function removeStep(index: number) {
@@ -407,6 +424,26 @@ export default function AdminPage() {
                         className={inputClass}
                       />
                     </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Sets</label>
+                        <input
+                          value={sets}
+                          onChange={(e) => setSets(e.target.value)}
+                          placeholder="e.g. 3"
+                          className={inputClass}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Reps / Hold Time</label>
+                        <input
+                          value={repsOrHoldTime}
+                          onChange={(e) => setRepsOrHoldTime(e.target.value)}
+                          placeholder="e.g. 30–45 sec"
+                          className={inputClass}
+                        />
+                      </div>
+                    </div>
                     <div>
                       <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video</label>
                       {(() => {
@@ -539,6 +576,16 @@ export default function AdminPage() {
                             <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
                           </div>
                         )}
+                        {(step.sets || step.repsOrHoldTime) ? (
+                          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
+                            {step.sets ? (
+                              <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
+                            ) : null}
+                            {step.repsOrHoldTime ? (
+                              <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
+                            ) : null}
+                          </div>
+                        ) : null}
                         {step.description ? (
                           <p className="mt-4 text-[#aaa] text-sm leading-relaxed">{step.description}</p>
                         ) : null}
