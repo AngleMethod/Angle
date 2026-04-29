@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import Nav from './Nav'
 import Button from './ui/Button'
+import VideoPlayer from './VideoPlayer'
 
 const ADMIN_EMAILS = [
   'josh@anglemethod.com',
@@ -265,35 +266,98 @@ function Journey() {
   )
 }
 
-// ── Testimonials ──────────────────────────────────────────────────────────────
-function Testimonials() {
+// ── Proof ─────────────────────────────────────────────────────────────────────
+type ProofItem = {
+  name: string
+  instagram?: string
+  timeframe: string
+  outcome: string
+  quote?: string
+  playbackId: string
+}
+
+function Proof() {
   const [ref, visible] = useReveal()
-  const quotes = [
-    { quote: "After years of kicking up and hoping for the best, I finally have a real system. Eight weeks in and I'm holding a 5-second freestanding handstand for the first time.", name: 'Sarah M.', tag: '6 months in' },
-    { quote: "The assessment alone changed everything. I thought my wrists were the problem — turns out it was shoulder mobility. The program addressed it immediately.", name: 'James T.', tag: 'Intermediate, 3 months in' },
-    { quote: "I've tried three other programs. Angle is the only one that felt like it was actually designed for me. The progressions are exactly right — not too easy, not impossible.", name: 'Mia R.', tag: 'Yoga teacher, 2 months in' },
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  // Paste real Mux playbackIds into the `playbackId` fields below.
+  const proofItems: ProofItem[] = [
+    { name: 'Sam Alvarez', instagram: '', timeframe: '3 months in', outcome: 'First 5-second one arm handstand', playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY' },
+    { name: 'James T.', instagram: '', timeframe: '3 months in', outcome: 'Holding a clean tuck handstand',   playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY' },
+    { name: 'Mia R.',   instagram: '', timeframe: '2 months in', outcome: 'Locked-in chest-to-wall hold',     playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY' },
   ]
 
   return (
     <section ref={ref as RefObject<HTMLElement>} className={`bg-[#0e0e0d] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       <div className="max-w-6xl mx-auto">
-        <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— What People Say</p>
+        <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Real Progress</p>
         <h2
-          className="text-white uppercase leading-[0.95] tracking-wide mb-10 md:mb-14"
+          className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
-          Built For People Serious<br />About Their Practice.
+          Proof You Can See.
         </h2>
+        <p className="text-[#777] max-w-xl mb-10 md:mb-14">
+          Real students. Real training. Visible progress from following a structured handstand system.
+        </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-          {quotes.map(q => (
-            <div key={q.name} className="rounded-lg bg-[#111110] border border-[#1e1e1e] p-6 md:p-8">
-              <p className="text-[#ccc] leading-relaxed mb-6 italic">&ldquo;{q.quote}&rdquo;</p>
-              <div>
-                <p className="text-white font-semibold text-sm">{q.name}</p>
-                <p className="text-[#555] text-xs mt-1">{q.tag}</p>
+          {proofItems.map(item => {
+            const cardKey = `${item.name}-${item.timeframe}`
+            const isActive = !!item.playbackId && activeId === cardKey
+            const thumbUrl = item.playbackId ? `https://image.mux.com/${item.playbackId}/thumbnail.png?width=720&height=900&time=0` : null
+
+            return (
+              <div key={cardKey} className="rounded-lg bg-[#111110] border border-[#1e1e1e] overflow-hidden">
+                <div className="relative aspect-[4/5] w-full bg-[#0a0a0a]">
+                  {isActive ? (
+                    <VideoPlayer playbackId={item.playbackId} aspect="4/5" autoPlay poster={thumbUrl ?? undefined} />
+                  ) : thumbUrl ? (
+                    <button
+                      type="button"
+                      onClick={() => setActiveId(cardKey)}
+                      className="group absolute inset-0 w-full h-full"
+                      aria-label={`Play ${item.name}'s progress video`}
+                    >
+                      <Image
+                        src={thumbUrl}
+                        alt={`${item.name} — ${item.outcome}`}
+                        fill
+                        className="object-cover object-center"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        unoptimized
+                      />
+                      <span aria-hidden className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors" />
+                      <span aria-hidden className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-full bg-white/95 group-hover:bg-white transition-colors">
+                        <span className="block ml-1 w-0 h-0 border-y-[10px] border-y-transparent border-l-[16px] border-l-black" />
+                      </span>
+                    </button>
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <p className="text-[#555] text-xs tracking-widest uppercase">Video coming soon</p>
+                    </div>
+                  )}
+                </div>
+                <div className="p-6 md:p-8">
+                  {item.quote ? (
+                    <p className="text-[#ccc] text-sm leading-relaxed mb-4 italic">&ldquo;{item.quote}&rdquo;</p>
+                  ) : null}
+                  <p className="text-white font-semibold text-sm">{item.name}</p>
+                  {item.instagram ? (
+                    <a
+                      href={`https://instagram.com/${item.instagram}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block text-[#666] text-xs mt-0.5 hover:text-[#aaa] transition-colors"
+                    >
+                      @{item.instagram}
+                    </a>
+                  ) : null}
+                  <p className="text-[#777] text-xs mt-1">{item.timeframe}</p>
+                  <p className="text-[#aaa] text-sm mt-3 leading-relaxed">{item.outcome}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </section>
@@ -634,7 +698,7 @@ export default function AnglePage() {
       <FeatureBlock isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <ClearPath />
       <Journey />
-      <Testimonials />
+      <Proof />
       <Pricing isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
       <FAQ />
       <SignIn
