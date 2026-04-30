@@ -285,7 +285,7 @@ function Proof() {
   // Paste real Mux playbackIds into the `playbackId` fields below.
   const proofItems: ProofItem[] = [
     { name: 'Sam Alvarez', instagram: '', timeframe: '3 months in', outcome: 'First 5-second one arm handstand', playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY', imagePosition: '50% 75%' },
-    { name: 'Piero Battelli', instagram: '', timeframe: '8 months in', outcome: 'Learning one arm saves', playbackId: 'w4Ee6Ee00W1v00NNRmJo02mPHW74ja1yoNSANr8dQGq01gs', thumbTime: 7 },
+    { name: 'Piero Battelli', instagram: '', timeframe: '8 months in', outcome: 'Learning one arm saves', playbackId: 'w4Ee6Ee00W1v00NNRmJo02mPHW74ja1yoNSANr8dQGq01gs', thumbTime: 7, imagePosition: '50% 0%' },
     { name: 'Mia R.',   instagram: '', timeframe: '2 months in', outcome: 'Locked-in chest-to-wall hold',     playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY' },
   ]
 
@@ -302,7 +302,7 @@ function Proof() {
         <p className="text-[#777] max-w-xl mb-10 md:mb-14">
           Real students. Real training. Visible progress from following a structured handstand system.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-6">
           {proofItems.map(item => {
             const cardKey = `${item.name}-${item.timeframe}`
             const isActive = !!item.playbackId && activeId === cardKey
