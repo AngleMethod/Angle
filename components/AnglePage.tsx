@@ -274,6 +274,7 @@ type ProofItem = {
   outcome: string
   quote?: string
   playbackId: string
+  imagePosition?: string
 }
 
 function Proof() {
@@ -282,8 +283,8 @@ function Proof() {
 
   // Paste real Mux playbackIds into the `playbackId` fields below.
   const proofItems: ProofItem[] = [
-    { name: 'Sam Alvarez', instagram: '', timeframe: '3 months in', outcome: 'First 5-second one arm handstand', playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY' },
-    { name: 'James T.', instagram: '', timeframe: '3 months in', outcome: 'Holding a clean tuck handstand',   playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY' },
+    { name: 'Sam Alvarez', instagram: '', timeframe: '3 months in', outcome: 'First 5-second one arm handstand', playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY', imagePosition: '50% 75%' },
+    { name: 'Piero Battelli', instagram: '', timeframe: '8 months in', outcome: 'Learning one arm saves', playbackId: 'w4Ee6Ee00W1v00NNRmJo02mPHW74ja1yoNSANr8dQGq01gs' },
     { name: 'Mia R.',   instagram: '', timeframe: '2 months in', outcome: 'Locked-in chest-to-wall hold',     playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY' },
   ]
 
@@ -304,7 +305,7 @@ function Proof() {
           {proofItems.map(item => {
             const cardKey = `${item.name}-${item.timeframe}`
             const isActive = !!item.playbackId && activeId === cardKey
-            const thumbUrl = item.playbackId ? `https://image.mux.com/${item.playbackId}/thumbnail.png?width=720&height=900&time=0` : null
+            const thumbUrl = item.playbackId ? `https://image.mux.com/${item.playbackId}/thumbnail.png?width=720&time=0` : null
 
             return (
               <div key={cardKey} className="rounded-lg bg-[#111110] border border-[#1e1e1e] overflow-hidden">
@@ -322,7 +323,8 @@ function Proof() {
                         src={thumbUrl}
                         alt={`${item.name} — ${item.outcome}`}
                         fill
-                        className="object-cover object-center"
+                        className="object-cover"
+                        style={{ objectPosition: item.imagePosition ?? '50% 50%' }}
                         sizes="(max-width: 768px) 100vw, 33vw"
                         unoptimized
                       />
