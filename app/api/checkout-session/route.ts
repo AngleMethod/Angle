@@ -24,7 +24,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Session not paid' }, { status: 404 })
     }
 
-    const email = session.customer_details?.email ?? session.customer_email ?? null
+    const rawEmail = session.customer_details?.email ?? session.customer_email ?? null
+    const email = rawEmail?.trim().toLowerCase() ?? null
     if (!email) {
       return NextResponse.json({ error: 'Email not found on session' }, { status: 404 })
     }

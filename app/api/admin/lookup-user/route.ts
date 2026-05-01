@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, findUserByEmail } from '@/lib/supabase'
 
 const ADMIN_EMAILS = [
   'josh@anglemethod.com',
@@ -23,19 +23,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
   }
 
-  const { email } = await req.json()
+  const { email: rawEmail } = await req.json()
+  const email = typeof rawEmail === 'string' ? rawEmail.trim().toLowerCase() : ''
   if (!email) {
     return NextResponse.json({ error: 'Email required' }, { status: 400 })
   }
 
   const admin = createAdminClient()
-  const { data, error } = await admin.auth.admin.listUsers()
-
-  if (error) {
-    return NextResponse.json({ error: 'Failed to look up users' }, { status: 500 })
-  }
-
-  const user = data.users.find(u => u.email === email)
+  const user = await findUserByEmail(admin, email)
 
   if (!user) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 })

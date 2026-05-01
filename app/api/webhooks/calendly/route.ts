@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, findUserByEmail } from '@/lib/supabase'
 
 const SIGNING_KEY = process.env.CALENDLY_WEBHOOK_SIGNING_KEY
 
@@ -58,8 +58,7 @@ export async function POST(req: NextRequest) {
 
   const admin = createAdminClient()
 
-  const { data: users } = await admin.auth.admin.listUsers()
-  const user = users?.users.find(u => u.email?.toLowerCase() === email)
+  const user = await findUserByEmail(admin, email)
 
   if (!user) {
     // Booked via Calendly but not a subscriber — nothing to update

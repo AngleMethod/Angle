@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { createAdminClient } from '@/lib/supabase'
+import { createAdminClient, findUserByEmail } from '@/lib/supabase'
 
 const { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } = process.env
 
@@ -50,11 +50,11 @@ export async function POST(req: NextRequest) {
           null
 
         if (!userId) {
-          const email = session.customer_details?.email ?? session.customer_email ?? null
+          const rawEmail = session.customer_details?.email ?? session.customer_email ?? null
+          const email = rawEmail?.trim().toLowerCase() ?? null
           if (!email) break
 
-          const { data: usersList } = await supabase.auth.admin.listUsers()
-          const existing = usersList?.users.find(u => u.email === email)
+          const existing = await findUserByEmail(supabase, email)
 
           if (existing) {
             userId = existing.id
