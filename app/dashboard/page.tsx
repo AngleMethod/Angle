@@ -70,6 +70,7 @@ export default function Dashboard() {
 
       setUserId(session.user.id);
       setUserEmail(session.user.email ?? null);
+      const isAdmin = ADMIN_EMAILS.includes((session.user.email ?? "").toLowerCase());
 
       const { data: subscription } = await supabase
         .from("subscriptions")
@@ -79,7 +80,7 @@ export default function Dashboard() {
 
       if (!isMounted) return;
 
-      if (!subscription || subscription.status !== "active") {
+      if (!isAdmin && (!subscription || subscription.status !== "active")) {
         setHasAccess(false);
         setIsLoaded(true);
         setAuthStatus("authenticated");
@@ -88,7 +89,7 @@ export default function Dashboard() {
 
       setHasAccess(true);
 
-      const status: OnboardingStatus = subscription.onboarding_status ?? "not_booked";
+      const status: OnboardingStatus = subscription?.onboarding_status ?? "not_booked";
       setOnboardingStatus(status);
 
       if (status === "completed") {
