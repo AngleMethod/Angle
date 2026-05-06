@@ -286,7 +286,7 @@ function Proof() {
   const proofItems: ProofItem[] = [
     { name: 'Sam Alvarez', instagram: '', timeframe: '3 months in', outcome: 'First 5-second one arm handstand', playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY', imagePosition: '50% 75%' },
     { name: 'Piero Battelli', instagram: '', timeframe: '8 months in', outcome: 'Learning one arm saves', playbackId: 'w4Ee6Ee00W1v00NNRmJo02mPHW74ja1yoNSANr8dQGq01gs', thumbTime: 7, imagePosition: '50% 0%' },
-    { name: 'Mia R.',   instagram: '', timeframe: '2 months in', outcome: 'Locked-in chest-to-wall hold',     playbackId: 'TrxyBlYe2UYUAFE2K4021lVrI2Q7BzV5jd6wlOrKnDrY' },
+    { name: 'Jordan R.', instagram: '', timeframe: '8 months in', outcome: 'Locked-in 5 finger support hold', playbackId: 'cqwJA01YDRzRGP1PuSICbrLw4LKgEPY00lv98YvlirCiE' },
   ]
 
   return (
