@@ -4,6 +4,11 @@ import { createAdminClient } from '@/lib/supabase'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+const ADMIN_EMAILS = [
+  'josh@anglemethod.com',
+  'morgan@anglemethod.com',
+]
+
 type Step = { videoId?: string }
 
 type VideoRecord = {
@@ -32,6 +37,24 @@ export async function GET(req: NextRequest) {
   }
 
   const admin = createAdminClient()
+  const isAdmin = !!user.email && ADMIN_EMAILS.includes(user.email.toLowerCase())
+
+  if (!isAdmin) {
+    const { data: subscription, error: subscriptionErr } = await admin
+      .from('subscriptions')
+      .select('status')
+      .eq('user_id', user.id)
+      .single()
+
+    if (subscriptionErr && subscriptionErr.code !== 'PGRST116') {
+      console.error('[dashboard/videos GET] Failed to load subscription:', subscriptionErr)
+      return NextResponse.json({ error: 'Unable to verify subscription' }, { status: 500 })
+    }
+
+    if (subscription?.status !== 'active') {
+      return NextResponse.json({ error: 'Active subscription required' }, { status: 403 })
+    }
+  }
 
   // Pull the user's workout steps from the legacy JSON column.
   const { data: workoutRow, error: workoutErr } = await admin
