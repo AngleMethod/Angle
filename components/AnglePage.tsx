@@ -312,7 +312,7 @@ function Proof() {
               <div key={cardKey} className="rounded-lg bg-[#111110] border border-[#1e1e1e] overflow-hidden">
                 <div className="relative aspect-[4/5] w-full bg-[#0a0a0a]">
                   {isActive ? (
-                    <VideoPlayer playbackId={item.playbackId} aspect="4/5" autoPlay poster={thumbUrl ?? undefined} />
+                    <VideoPlayer playbackId={item.playbackId} aspect="4/5" autoPlay poster={thumbUrl ?? undefined} objectFit="cover" />
                   ) : thumbUrl ? (
                     <button
                       type="button"
