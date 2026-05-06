@@ -377,10 +377,13 @@ function Pricing({
 }) {
   const [ref, visible] = useReveal()
   const features = [
-    'A plan built for your exact level',
-    'A 30-minute assessment to identify what\'s holding you back',
+    'A personalized plan built for your exact level',
     'Step-by-step progressions so you always know what to do next',
-    'A complete video library so you can train with confidence',
+    'Full access to the complete Angle video library',
+    'Coach-guided structure designed for long-term progress',
+    'Personalized onboarding and assessment process',
+    'New programming as your level evolves',
+    'Train with a proven system instead of random drills',
   ]
 
   return (
