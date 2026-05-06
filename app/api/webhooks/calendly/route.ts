@@ -66,19 +66,29 @@ export async function POST(req: NextRequest) {
   }
 
   if (eventType === 'invitee.created') {
-    await admin
+    const { error } = await admin
       .from('subscriptions')
       .update({ onboarding_status: 'booked' })
       .eq('user_id', user.id)
       .eq('status', 'active')
+
+    if (error) {
+      console.error('Failed to update subscription from Calendly created webhook:', error)
+      return NextResponse.json({ error: 'Failed to update booking status' }, { status: 500 })
+    }
   } else if (eventType === 'invitee.canceled') {
     // Only reset if currently booked — don't touch completed users
-    await admin
+    const { error } = await admin
       .from('subscriptions')
       .update({ onboarding_status: 'not_booked' })
       .eq('user_id', user.id)
       .eq('status', 'active')
       .eq('onboarding_status', 'booked')
+
+    if (error) {
+      console.error('Failed to update subscription from Calendly canceled webhook:', error)
+      return NextResponse.json({ error: 'Failed to update booking status' }, { status: 500 })
+    }
   }
 
   return NextResponse.json({ received: true })

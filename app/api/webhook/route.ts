@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
 
         if (!userId) break
 
-        await supabase.from('subscriptions').upsert({
+        const { error: upsertErr } = await supabase.from('subscriptions').upsert({
           user_id: userId,
           status: subscription.status,
           stripe_customer_id: session.customer as string,
@@ -81,6 +81,11 @@ export async function POST(req: NextRequest) {
           price_id: subscription.items.data[0]?.price.id ?? null,
           current_period_end: toPeriodEnd(subscription),
         }, { onConflict: 'user_id' })
+
+        if (upsertErr) {
+          console.error('Failed to upsert subscription from Stripe webhook:', upsertErr)
+          return NextResponse.json({ error: 'Failed to write subscription' }, { status: 500 })
+        }
         break
       }
 
@@ -88,12 +93,17 @@ export async function POST(req: NextRequest) {
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
 
-        await supabase.from('subscriptions')
+        const { error: updateErr } = await supabase.from('subscriptions')
           .update({
             status: subscription.status,
             current_period_end: toPeriodEnd(subscription),
           })
           .eq('stripe_subscription_id', subscription.id)
+
+        if (updateErr) {
+          console.error('Failed to update subscription from Stripe webhook:', updateErr)
+          return NextResponse.json({ error: 'Failed to update subscription' }, { status: 500 })
+        }
         break
       }
     }
