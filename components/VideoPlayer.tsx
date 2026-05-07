@@ -1,7 +1,7 @@
 "use client";
 
 import MuxPlayer from "@mux/mux-player-react";
-import type { MuxPlayerCSSProperties } from "@mux/mux-player-react";
+import type { MuxPlayerCSSProperties, MuxPlayerProps } from "@mux/mux-player-react";
 
 type Props = {
   playbackId: string;
@@ -9,9 +9,10 @@ type Props = {
   autoPlay?: boolean;
   poster?: string;
   objectFit?: "contain" | "cover";
+  tokens?: MuxPlayerProps["tokens"];
 };
 
-export default function VideoPlayer({ playbackId, aspect = "16/9", autoPlay = false, poster, objectFit = "contain" }: Props) {
+export default function VideoPlayer({ playbackId, aspect = "16/9", autoPlay = false, poster, objectFit = "contain", tokens }: Props) {
   const aspectClass = aspect === "4/5" ? "aspect-[4/5]" : "aspect-video";
   const playerStyle = {
     display: "block",
@@ -28,6 +29,7 @@ export default function VideoPlayer({ playbackId, aspect = "16/9", autoPlay = fa
           accentColor="#ffffff"
           autoPlay={autoPlay}
           poster={poster}
+          tokens={tokens}
           className="block h-full w-full"
           style={playerStyle}
         />

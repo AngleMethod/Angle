@@ -338,6 +338,9 @@ export default function AdminPage() {
                 <Link href="/admin/videos" className={secondaryLinkClass}>
                   Video Library
                 </Link>
+                <Link href="/admin/reviews" className={secondaryLinkClass}>
+                  Coach Reviews
+                </Link>
               </div>
             </div>
 

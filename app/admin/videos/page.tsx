@@ -272,6 +272,12 @@ export default function AdminVideosPage() {
                 >
                   Admin Builder
                 </Link>
+                <Link
+                  href="/admin/reviews"
+                  className="inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors"
+                >
+                  Coach Reviews
+                </Link>
                 {!uploadOpen ? (
                   <Button onClick={() => setUploadOpen(true)} size="sm">
                     Upload Video

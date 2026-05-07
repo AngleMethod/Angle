@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import * as UpChunk from "@mux/upchunk";
 import BookedRedirectHandler from "@/components/BookedRedirectHandler";
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
@@ -18,6 +19,32 @@ type WorkoutStep = {
 };
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
+type ReviewUploadStage = "idle" | "uploading" | "saving" | "success" | "error";
+type ReviewSubmissionStatus = "uploading" | "processing" | "submitted" | "reviewed" | "error";
+
+type ReviewPlaybackTokens = {
+  playback?: string;
+  thumbnail?: string;
+  storyboard?: string;
+};
+
+type ReviewSubmission = {
+  id: string;
+  note: string;
+  status: ReviewSubmissionStatus;
+  playbackId: string | null;
+  playbackTokens: ReviewPlaybackTokens | null;
+  durationSeconds: number | null;
+  fileName: string | null;
+  fileSizeBytes: number | null;
+  mimeType: string | null;
+  submittedAt: string | null;
+  coachNote: string | null;
+  reviewedAt: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
 
 type MuxVideoRecord = {
   id: string;
@@ -34,6 +61,7 @@ const ADMIN_EMAILS = [
   "morgan@anglemethod.com",
 ];
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
+const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
 
 export default function Dashboard() {
   const router = useRouter();
@@ -50,6 +78,13 @@ export default function Dashboard() {
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
   const [workoutLoaded, setWorkoutLoaded] = useState(false);
   const [muxVideoMap, setMuxVideoMap] = useState<Record<string, MuxVideoRecord>>({});
+  const [reviewSubmissions, setReviewSubmissions] = useState<ReviewSubmission[]>([]);
+  const [reviewsLoaded, setReviewsLoaded] = useState(false);
+  const [reviewFile, setReviewFile] = useState<File | null>(null);
+  const [reviewNote, setReviewNote] = useState("");
+  const [reviewUploadStage, setReviewUploadStage] = useState<ReviewUploadStage>("idle");
+  const [reviewUploadProgress, setReviewUploadProgress] = useState(0);
+  const [reviewUploadError, setReviewUploadError] = useState("");
 
   useEffect(() => {
     let isMounted = true;
@@ -88,6 +123,8 @@ export default function Dashboard() {
       }
 
       setHasAccess(true);
+      await loadReviewSubmissions(session.access_token);
+      if (!isMounted) return;
 
       const status: OnboardingStatus = subscription?.onboarding_status ?? "not_booked";
       setOnboardingStatus(status);
@@ -145,6 +182,154 @@ export default function Dashboard() {
       authListener.subscription.unsubscribe();
     };
   }, [router]);
+
+  async function getAccessToken(): Promise<string | null> {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token ?? null;
+  }
+
+  async function loadReviewSubmissions(accessToken?: string | null) {
+    const token = accessToken ?? await getAccessToken();
+    if (!token) return;
+
+    try {
+      const res = await fetch("/api/dashboard/reviews", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        setReviewsLoaded(true);
+        return;
+      }
+
+      const data = await res.json();
+      setReviewSubmissions((data.submissions ?? []) as ReviewSubmission[]);
+      setReviewsLoaded(true);
+    } catch (err) {
+      console.error("Review submissions lookup failed:", err);
+      setReviewsLoaded(true);
+    }
+  }
+
+  function resetReviewUpload() {
+    setReviewFile(null);
+    setReviewNote("");
+    setReviewUploadProgress(0);
+    setReviewUploadError("");
+  }
+
+  async function finalizeReviewUpload(token: string, submissionId: string, uploadId: string) {
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const saveRes = await fetch("/api/dashboard/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          submissionId,
+          uploadId,
+          note: reviewNote.trim(),
+        }),
+      });
+
+      if (saveRes.ok) {
+        await loadReviewSubmissions(token);
+        setReviewUploadStage("success");
+        resetReviewUpload();
+        setTimeout(() => setReviewUploadStage("idle"), 2500);
+        return;
+      }
+
+      const data = await saveRes.json().catch(() => ({} as { error?: string }));
+      if (saveRes.status !== 409 || attempt === 5) {
+        setReviewUploadError(data?.error || "Failed to submit video for review.");
+        setReviewUploadStage("error");
+        return;
+      }
+
+      await new Promise(r => setTimeout(r, 5000));
+    }
+  }
+
+  async function handleReviewUpload() {
+    if (!reviewFile) {
+      setReviewUploadError("Pick a video file first.");
+      return;
+    }
+
+    if (reviewFile.size > MAX_REVIEW_VIDEO_SIZE_BYTES) {
+      setReviewUploadError("Video must be 500MB or smaller.");
+      return;
+    }
+
+    if (reviewNote.trim().length > 2000) {
+      setReviewUploadError("Note must be 2000 characters or fewer.");
+      return;
+    }
+
+    const token = await getAccessToken();
+    if (!token) {
+      setReviewUploadError("Sign in again before uploading.");
+      return;
+    }
+
+    setReviewUploadError("");
+    setReviewUploadStage("uploading");
+    setReviewUploadProgress(0);
+
+    let createRes: Response;
+    try {
+      createRes = await fetch("/api/dashboard/reviews/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fileName: reviewFile.name,
+          fileSizeBytes: reviewFile.size,
+          mimeType: reviewFile.type,
+        }),
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setReviewUploadError(`Network error creating upload: ${msg}`);
+      setReviewUploadStage("error");
+      return;
+    }
+
+    const createData = await createRes.json().catch(() => ({} as { error?: string; submissionId?: string; uploadId?: string; uploadUrl?: string }));
+    if (!createRes.ok || !createData.submissionId || !createData.uploadId || !createData.uploadUrl) {
+      setReviewUploadError(createData?.error || `Failed to create upload (HTTP ${createRes.status})`);
+      setReviewUploadStage("error");
+      return;
+    }
+
+    const upload = UpChunk.createUpload({
+      endpoint: createData.uploadUrl,
+      file: reviewFile,
+      chunkSize: 30720,
+    });
+
+    upload.on("progress", (event) => {
+      const percent = Number(event.detail);
+      if (!Number.isNaN(percent)) {
+        setReviewUploadProgress(Math.round(percent));
+      }
+    });
+
+    upload.on("error", (event) => {
+      const detail = event.detail as { message?: string } | undefined;
+      setReviewUploadError(`Upload error: ${detail?.message ?? "unknown"}`);
+      setReviewUploadStage("error");
+    });
+
+    upload.on("success", async () => {
+      setReviewUploadStage("saving");
+      await finalizeReviewUpload(token, createData.submissionId as string, createData.uploadId as string);
+    });
+  }
 
   async function handleUpgrade() {
     setIsUpgrading(true);
@@ -207,6 +392,22 @@ export default function Dashboard() {
       text: "oklch(0.65 0.14 290)",
     };
   })();
+
+  const reviewStatusStyles: Record<ReviewSubmissionStatus, string> = {
+    uploading: "border-[#333] text-[#777]",
+    processing: "border-blue-900 text-blue-300",
+    submitted: "border-green-900 text-green-300",
+    reviewed: "border-white text-white",
+    error: "border-[#dc2626] text-[#dc2626]",
+  };
+
+  const reviewStatusLabels: Record<ReviewSubmissionStatus, string> = {
+    uploading: "Uploading",
+    processing: "Processing",
+    submitted: "Submitted",
+    reviewed: "Reviewed",
+    error: "Error",
+  };
 
   if (!isLoaded) {
     return (
@@ -437,6 +638,147 @@ export default function Dashboard() {
                 )}
               </>
             )}
+
+            <div className="mt-10 md:mt-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+              <div className="mb-6 md:mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <p className="text-[#666] text-xs tracking-widest uppercase mb-3">Coach Review</p>
+                  <h2
+                    className="text-white uppercase tracking-wide mb-2"
+                    style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 34px)" }}
+                  >
+                    Submit A Progress Video
+                  </h2>
+                  <p className="text-[#777] text-sm md:text-base">
+                    Upload a short clip and tell us what you want feedback on.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => loadReviewSubmissions()}
+                  className="self-start md:self-auto rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 hover:text-white hover:border-[#444] transition-colors"
+                >
+                  Refresh
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-8">
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video file</label>
+                    <input
+                      type="file"
+                      accept="video/mp4,video/quicktime,video/mov,.mov,.mp4,video/*"
+                      onChange={(e) => setReviewFile(e.target.files?.[0] ?? null)}
+                      disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
+                      className="block w-full text-sm text-[#aaa] file:mr-4 file:py-2 file:px-4 file:rounded-[4px] file:border-0 file:bg-[#222] file:text-white file:text-xs file:font-bold file:tracking-widest file:uppercase file:cursor-pointer disabled:opacity-40"
+                    />
+                    <p className="mt-2 text-xs text-[#555]">Up to 2 minutes and 500MB.</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Question or note</label>
+                    <textarea
+                      value={reviewNote}
+                      onChange={(e) => setReviewNote(e.target.value)}
+                      rows={5}
+                      maxLength={2000}
+                      placeholder="What should we look at?"
+                      disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
+                      className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+                    />
+                  </div>
+
+                  {reviewUploadStage === "uploading" ? (
+                    <div className="pt-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-[#777] text-xs tracking-widest uppercase">Uploading</p>
+                        <p className="text-[#aaa] text-xs">{reviewUploadProgress}%</p>
+                      </div>
+                      <div className="h-1 bg-[#1e1e1e] rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-white transition-all duration-200"
+                          style={{ width: `${reviewUploadProgress}%` }}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {reviewUploadStage === "saving" ? (
+                    <p className="text-[#aaa] text-sm">Processing and saving your video...</p>
+                  ) : null}
+
+                  {reviewUploadStage === "success" ? (
+                    <p className="text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Submitted for review.</p>
+                  ) : null}
+
+                  {reviewUploadError ? (
+                    <p className="text-sm text-[#dc2626]">{reviewUploadError}</p>
+                  ) : null}
+
+                  <Button
+                    onClick={handleReviewUpload}
+                    disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
+                    size="md"
+                  >
+                    {reviewUploadStage === "uploading"
+                      ? "Uploading..."
+                      : reviewUploadStage === "saving"
+                      ? "Submitting..."
+                      : "Submit Video"}
+                  </Button>
+                </div>
+
+                <div>
+                  <h3 className="text-[#777] text-xs tracking-widest uppercase mb-4">Your Submissions</h3>
+                  {!reviewsLoaded ? (
+                    <p className="text-[#777] text-sm">Loading submissions...</p>
+                  ) : reviewSubmissions.length === 0 ? (
+                    <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-5">
+                      <p className="text-[#777] text-sm">No progress videos yet.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {reviewSubmissions.map((submission) => (
+                        <div key={submission.id} className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-4">
+                          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                            <span className={`rounded-full border px-3 py-1 text-[10px] font-bold tracking-widest uppercase ${reviewStatusStyles[submission.status]}`}>
+                              {reviewStatusLabels[submission.status]}
+                            </span>
+                            <p className="text-[#555] text-xs">
+                              {new Date(submission.submittedAt ?? submission.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+
+                          {submission.playbackId && submission.playbackTokens ? (
+                            <div className="mb-4">
+                              <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} />
+                            </div>
+                          ) : null}
+
+                          {submission.note ? (
+                            <p className="text-[#aaa] text-sm leading-relaxed mb-3">{submission.note}</p>
+                          ) : null}
+
+                          {submission.coachNote ? (
+                            <div className="rounded-lg border border-green-900 bg-[oklch(0.18_0.06_155)] p-4">
+                              <p className="text-green-300 text-xs tracking-widest uppercase mb-2">Coach Note</p>
+                              <p className="text-white text-sm leading-relaxed">{submission.coachNote}</p>
+                            </div>
+                          ) : submission.status === "submitted" ? (
+                            <p className="text-[#666] text-sm">Coach review pending.</p>
+                          ) : submission.status === "processing" || submission.status === "uploading" ? (
+                            <p className="text-[#666] text-sm">Video is still processing.</p>
+                          ) : submission.errorMessage ? (
+                            <p className="text-[#dc2626] text-sm">{submission.errorMessage}</p>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         </section>
       </main>
