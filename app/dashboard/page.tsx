@@ -328,7 +328,7 @@ export default function Dashboard() {
                     className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                     style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
                   >
-                    {showBookedBanner ? "You\u2019re Booked." : "You\u2019re In."}
+                    {showBookedBanner ? "You\u2019re Booked" : "You\u2019re In"}
                   </h2>
                   <p className={`text-[#777] max-w-md mx-auto ${showBookedBanner ? "" : "mb-8 md:mb-10"}`}>
                     {showBookedBanner
@@ -363,7 +363,7 @@ export default function Dashboard() {
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                   style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
                 >
-                  You&apos;re Scheduled.
+                  You&apos;re Scheduled
                 </h2>
                 <p className="text-[#777] max-w-md mx-auto">
                   We&apos;ll use your call to understand your level and build your training plan.

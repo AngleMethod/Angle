@@ -45,7 +45,7 @@ function buildProgramReadyEmailHtml(): string {
             <tr>
               <td style="padding-bottom:24px;">
                 <h1 style="margin:0;font-size:32px;line-height:1.1;letter-spacing:0.02em;text-transform:uppercase;color:#ffffff;font-weight:700;">
-                  Your training program is ready.
+                  Your training program is ready
                 </h1>
               </td>
             </tr>

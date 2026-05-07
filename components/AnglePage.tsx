@@ -204,7 +204,7 @@ function ClearPath() {
           className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 64px)' }}
         >
-          A Clear Path To Your First —<br />Or Next — Handstand.
+          A Clear Path To Your First —<br />Or Next — Handstand
         </h2>
         <p className="text-[#777] max-w-xl mb-10 md:mb-14">
           The Angle Method gives you structured training built around your current level, so you can stop guessing and start progressing.
@@ -241,7 +241,7 @@ function Journey() {
           className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 64px)' }}
         >
-          A System That Grows With You.
+          A System That Grows With You
         </h2>
         <p className="text-[#777] max-w-xl mb-10 md:mb-14">
           Start where you are, build real control, and progress toward advanced handstand training — all within one system.
@@ -297,7 +297,7 @@ function Proof() {
           className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
-          Proof You Can See.
+          Proof You Can See
         </h2>
         <p className="text-[#777] max-w-xl mb-10 md:mb-14">
           Real students. Real training. Visible progress from following a structured handstand system.
@@ -394,7 +394,7 @@ function Pricing({
           className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
-          One Plan. Everything Included.
+          One Plan<br />Everything Included
         </h2>
         <p className="text-[#777]">Built for your level. Designed to take you from your current ability to your next handstand.</p>
       </div>
@@ -447,7 +447,7 @@ function FAQ() {
           className="text-white uppercase leading-[0.95] tracking-wide mb-10 md:mb-14"
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
         >
-          Common Questions.
+          Common Questions
         </h2>
         <div className="divide-y divide-[#1a1a1a] border-t border-b border-[#1a1a1a]">
           {items.map((item, i) => (
