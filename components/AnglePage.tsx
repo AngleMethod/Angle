@@ -141,8 +141,8 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
               className="text-white uppercase leading-[0.95] tracking-wide mb-6"
               style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(40px, 5vw, 72px)' }}
             >
-              Train Like You're In Ukraine.<br />
-              <em className="text-[#aaa] italic">Circus School Brought To You.</em>
+              Personalized Handstand Training<br />
+              <em className="text-[#aaa] italic">Built Around You</em>
             </h2>
             <div className="flex flex-wrap gap-2 mb-6">
               {[
