@@ -14,6 +14,16 @@ const ADMIN_EMAILS = [
 ]
 
 // ── Utility: scroll-reveal hook ───────────────────────────────────────────────
+function formatAuthError(error: { message?: string; status?: number; code?: string } | null) {
+  if (!error) return 'Unknown auth error'
+
+  const details = [error.message || 'Unknown auth error']
+  if (error.code) details.push(`code: ${error.code}`)
+  if (typeof error.status === 'number') details.push(`status: ${error.status}`)
+
+  return details.join(' | ')
+}
+
 function useReveal(): [RefObject<HTMLElement | null>, boolean] {
   const ref = useRef<HTMLElement>(null)
   const [visible, setVisible] = useState(false)
@@ -60,7 +70,7 @@ function Hero({
   return (
     <section id="hero" className="relative bg-[#0a0a0a] flex flex-col md:flex-row md:h-screen md:px-12 overflow-hidden">
       {/* Left: content */}
-      <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-0 md:pb-0 md:pl-16 md:pr-8 md:w-[50%]">
+      <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-24 md:pb-0 md:pl-16 md:pr-8 md:w-[50%]">
 
         <div className="relative h-7 mb-4 md:mb-6">
           {heroPills.map((pill, i) => (
@@ -630,15 +640,23 @@ export default function AnglePage() {
     localStorage.setItem('lastSignInEmail', cleanEmail)
     setMessage('Sending sign-in link...')
 
-    const { error } = await supabase.auth.signInWithOtp({
-      email: cleanEmail,
-      options: { emailRedirectTo: `${window.location.origin}/dashboard` },
-    })
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: cleanEmail,
+        options: { emailRedirectTo: `${window.location.origin}/dashboard` },
+      })
 
-    if (error) {
-      setMessage('Something went wrong. Please try again.')
+      if (error) {
+        console.error('[signin] Failed to send magic link:', error)
+        setMessage(`Sign-in link failed: ${formatAuthError(error)}`)
+        return
+      }
+    } catch (err) {
+      console.error('[signin] Magic link request failed:', err)
+      setMessage(`Sign-in link failed: ${err instanceof Error ? err.message : String(err)}`)
       return
     }
+
     setMessage('Check your email for your sign-in link.')
   }
 

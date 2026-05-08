@@ -8,12 +8,23 @@ import Nav from '@/components/Nav'
 
 type Stage = 'loading' | 'sending' | 'sent' | 'error'
 
+function formatAuthError(error: { message?: string; status?: number; code?: string } | null) {
+  if (!error) return 'Unknown auth error'
+
+  const details = [error.message || 'Unknown auth error']
+  if (error.code) details.push(`code: ${error.code}`)
+  if (typeof error.status === 'number') details.push(`status: ${error.status}`)
+
+  return details.join(' | ')
+}
+
 function SuccessInner() {
   const searchParams = useSearchParams()
   const sessionId = searchParams.get('session_id')
 
   const [stage, setStage] = useState<Stage>('loading')
   const [email, setEmail] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -51,12 +62,18 @@ function SuccessInner() {
 
         if (cancelled) return
         if (error) {
+          console.error('[success] Failed to send magic link:', error)
+          setErrorMessage(`Sign-in link failed: ${formatAuthError(error)}`)
           setStage('error')
           return
         }
         setStage('sent')
-      } catch {
-        if (!cancelled) setStage('error')
+      } catch (err) {
+        console.error('[success] Magic link flow failed:', err)
+        if (!cancelled) {
+          setErrorMessage(err instanceof Error ? err.message : String(err))
+          setStage('error')
+        }
       }
     }
 
@@ -131,6 +148,9 @@ function SuccessInner() {
                 <p className="text-[#777] mb-10 md:mb-14">
                   Head back to the homepage and sign in with your email to access your account.
                 </p>
+                {errorMessage ? (
+                  <p className="mb-8 text-sm text-[#dc2626]">{errorMessage}</p>
+                ) : null}
                 <Link
                   href="/"
                   className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors"
