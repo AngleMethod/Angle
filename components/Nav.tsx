@@ -10,6 +10,8 @@ type NavProps = {
   isLoggedIn: boolean
   authReady: boolean
   isStartingTraining?: boolean
+  ctaLabel?: string
+  loadingLabel?: string
   onStartTraining?: () => void
 }
 
@@ -18,6 +20,8 @@ export default function Nav({
   isLoggedIn,
   authReady,
   isStartingTraining = false,
+  ctaLabel = 'Start Training',
+  loadingLabel = 'Starting...',
   onStartTraining,
 }: NavProps) {
   const [scrolled, setScrolled] = useState(false)
@@ -85,7 +89,7 @@ export default function Nav({
           {renderUserLink('text-[#999] hover:text-white transition-colors')}
           {!isMinimal && (
             <Button onClick={onStartTraining} size="sm">
-              {isStartingTraining ? 'Starting...' : 'Start Training'}
+              {isStartingTraining ? loadingLabel : ctaLabel}
             </Button>
           )}
         </div>
@@ -167,7 +171,7 @@ export default function Nav({
             </nav>
 
             <Button onClick={handleMobileCTA} fullWidth>
-              {isStartingTraining ? 'Starting...' : 'Start Training'}
+              {isStartingTraining ? loadingLabel : ctaLabel}
             </Button>
           </div>
         </div>

@@ -43,9 +43,15 @@ function useReveal(): [RefObject<HTMLElement | null>, boolean] {
 // ── Hero ──────────────────────────────────────────────────────────────────────
 function Hero({
   isStartingTraining,
+  ctaLabel,
+  loadingLabel,
+  showMemberSignIn,
   onStartTraining,
 }: {
   isStartingTraining: boolean
+  ctaLabel: string
+  loadingLabel: string
+  showMemberSignIn: boolean
   onStartTraining: () => void
 }) {
   const [scrollVisible, setScrollVisible] = useState(true)
@@ -98,12 +104,14 @@ function Hero({
 
         <div>
           <Button onClick={onStartTraining} className="md:px-10">
-            {isStartingTraining ? 'Starting...' : 'Start Training'}
+            {isStartingTraining ? loadingLabel : ctaLabel}
           </Button>
-          <p className="mt-4 text-sm text-[#555]">
-            Already a member?{' '}
-            <a href="#signin" className="text-[#888] underline hover:text-white transition-colors">Sign in</a>
-          </p>
+          {showMemberSignIn ? (
+            <p className="mt-4 text-sm text-[#555]">
+              Already a member?{' '}
+              <a href="#signin" className="text-[#888] underline hover:text-white transition-colors">Sign in</a>
+            </p>
+          ) : null}
         </div>
 
         {/* Scroll indicator — desktop only */}
@@ -137,7 +145,17 @@ function Hero({
 }
 
 // ── Feature Block ─────────────────────────────────────────────────────────────
-function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTraining: boolean; onStartTraining: () => void }) {
+function FeatureBlock({
+  isStartingTraining,
+  ctaLabel,
+  loadingLabel,
+  onStartTraining,
+}: {
+  isStartingTraining: boolean
+  ctaLabel: string
+  loadingLabel: string
+  onStartTraining: () => void
+}) {
   const [ref, visible] = useReveal()
   return (
     <section id="start-now" ref={ref as RefObject<HTMLElement>} className={`bg-[#0a0a0a] py-16 md:py-28 px-6 md:px-12 transition-all duration-700 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
@@ -168,7 +186,7 @@ function FeatureBlock({ isStartingTraining, onStartTraining }: { isStartingTrain
               Start with an assessment, then train with a custom program built for your body, level, and goals.
             </p>
             <button onClick={onStartTraining} className="self-start inline-block rounded-[4px] border border-white text-white text-xs font-bold tracking-widest uppercase px-8 py-3 hover:bg-white hover:text-black transition-colors">
-              {isStartingTraining ? 'Starting...' : 'Start Training'}
+              {isStartingTraining ? loadingLabel : ctaLabel}
             </button>
           </div>
 
@@ -380,9 +398,13 @@ function Proof() {
 // ── Pricing ───────────────────────────────────────────────────────────────────
 function Pricing({
   isStartingTraining,
+  ctaLabel,
+  loadingLabel,
   onStartTraining,
 }: {
   isStartingTraining: boolean
+  ctaLabel: string
+  loadingLabel: string
   onStartTraining: () => void
 }) {
   const [ref, visible] = useReveal()
@@ -424,7 +446,7 @@ function Pricing({
         </ul>
         <p className="text-[#777] text-sm text-left mb-10">No guesswork. No wasted time.</p>
         <Button onClick={onStartTraining} fullWidth>
-          {isStartingTraining ? 'Starting...' : 'Start Training'}
+          {isStartingTraining ? loadingLabel : ctaLabel}
         </Button>
         <p className="text-[#444] text-xs mt-4">Pause or cancel anytime. No commitment.</p>
       </div>
@@ -600,6 +622,7 @@ export default function AnglePage() {
   const [email, setEmail] = useState('')
   const [message, setMessage] = useState('')
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [subscriptionStatus, setSubscriptionStatus] = useState<'unknown' | 'none' | 'active' | 'inactive'>('unknown')
   const [authReady, setAuthReady] = useState(false)
   const [isStartingTraining, setIsStartingTraining] = useState(false)
 
@@ -609,17 +632,35 @@ export default function AnglePage() {
 
     const syncSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
-      setUserEmail(session?.user?.email ?? null)
+      const nextEmail = session?.user?.email ?? null
+      setUserEmail(nextEmail)
+
+      if (!session?.user) {
+        setSubscriptionStatus('none')
+        setAuthReady(true)
+        setIsStartingTraining(false)
+        return
+      }
+
+      const { data: subscription, error } = await supabase
+        .from('subscriptions')
+        .select('status')
+        .eq('user_id', session.user.id)
+        .single()
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('[homepage] Failed to load subscription state:', error)
+      }
+
+      setSubscriptionStatus(subscription?.status === 'active' ? 'active' : 'inactive')
       setAuthReady(true)
       setIsStartingTraining(false)
     }
 
     syncSession()
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserEmail(session?.user?.email ?? null)
-      setAuthReady(true)
-      setIsStartingTraining(false)
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      syncSession()
     })
 
     return () => { sub.subscription.unsubscribe() }
@@ -628,6 +669,7 @@ export default function AnglePage() {
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setUserEmail(null)
+    setSubscriptionStatus('none')
     setMessage('You have been logged out.')
   }
 
@@ -669,6 +711,7 @@ export default function AnglePage() {
       const { data: { session } } = await supabase.auth.getSession()
 
       if (!session?.user) {
+        setSubscriptionStatus('none')
         const res = await fetch('/api/checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -689,6 +732,8 @@ export default function AnglePage() {
         .select('status')
         .eq('user_id', session.user.id)
         .single()
+
+      setSubscriptionStatus(subscription?.status === 'active' ? 'active' : 'inactive')
 
       if (subscription?.status === 'active') {
         window.location.href = '/dashboard'
@@ -715,15 +760,48 @@ export default function AnglePage() {
     }
   }
 
+  const isLoggedIn = !!userEmail
+  const isActiveSubscriber = subscriptionStatus === 'active'
+  const ctaLabel = isActiveSubscriber
+    ? 'Go To Dashboard'
+    : isLoggedIn
+    ? 'Complete Membership'
+    : 'Start Training'
+  const navCtaLabel = isActiveSubscriber ? 'Dashboard' : ctaLabel
+  const loadingLabel = isActiveSubscriber ? 'Opening...' : 'Starting...'
+
   return (
     <main className="bg-[#0a0a0a] text-white overflow-x-hidden">
-      <Nav isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} isLoggedIn={!!userEmail} authReady={authReady} />
-      <Hero isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
-      <FeatureBlock isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
+      <Nav
+        isStartingTraining={isStartingTraining}
+        ctaLabel={navCtaLabel}
+        loadingLabel={loadingLabel}
+        onStartTraining={handleStartTraining}
+        isLoggedIn={isLoggedIn}
+        authReady={authReady}
+      />
+      <Hero
+        isStartingTraining={isStartingTraining}
+        ctaLabel={ctaLabel}
+        loadingLabel={loadingLabel}
+        showMemberSignIn={!isLoggedIn}
+        onStartTraining={handleStartTraining}
+      />
+      <FeatureBlock
+        isStartingTraining={isStartingTraining}
+        ctaLabel={ctaLabel}
+        loadingLabel={loadingLabel}
+        onStartTraining={handleStartTraining}
+      />
       <ClearPath />
       <Journey />
       <Proof />
-      <Pricing isStartingTraining={isStartingTraining} onStartTraining={handleStartTraining} />
+      <Pricing
+        isStartingTraining={isStartingTraining}
+        ctaLabel={ctaLabel}
+        loadingLabel={loadingLabel}
+        onStartTraining={handleStartTraining}
+      />
       <FAQ />
       <SignIn
         authReady={authReady}
