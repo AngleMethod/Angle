@@ -38,6 +38,55 @@ type ResolveOk = { kind: 'ok'; assetId: string; playbackId: string; duration: nu
 type ResolvePending = { kind: 'pending' }
 type ResolveError = { kind: 'error'; message: string; stage: 'upload_retrieve' | 'asset_retrieve' }
 type ResolveResult = ResolveOk | ResolvePending | ResolveError
+type WorkoutRow = { user_id: string; steps: unknown }
+type WorkoutStep = { videoId?: unknown; [key: string]: unknown }
+
+function isMuxNotFoundError(err: unknown) {
+  if (!err || typeof err !== 'object') return false
+
+  const maybeStatus = err as { status?: unknown; statusCode?: unknown; code?: unknown; message?: unknown }
+  return maybeStatus.status === 404
+    || maybeStatus.statusCode === 404
+    || maybeStatus.code === 404
+    || (typeof maybeStatus.message === 'string' && maybeStatus.message.includes('404'))
+}
+
+async function removeVideoFromAssignedWorkouts(videoId: string) {
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('user_workouts')
+    .select('user_id, steps')
+
+  if (error) {
+    console.error('[videos DELETE] Failed to load assigned workouts:', error)
+    return { error }
+  }
+
+  const touchedRows = ((data ?? []) as WorkoutRow[])
+    .map((row) => {
+      const steps = Array.isArray(row.steps) ? (row.steps as WorkoutStep[]) : []
+      const nextSteps = steps.filter((step) => step?.videoId !== videoId)
+      return { userId: row.user_id, steps, nextSteps }
+    })
+    .filter((row) => row.steps.length !== row.nextSteps.length)
+
+  for (const row of touchedRows) {
+    const { error: updateErr } = await admin
+      .from('user_workouts')
+      .update({
+        steps: row.nextSteps,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('user_id', row.userId)
+
+    if (updateErr) {
+      console.error('[videos DELETE] Failed to clean assigned workout:', { userId: row.userId, error: updateErr })
+      return { error: updateErr }
+    }
+  }
+
+  return { removedAssignments: touchedRows.length }
+}
 
 async function resolveAssetFromUpload(uploadId: string): Promise<ResolveResult> {
   for (let attempt = 0; attempt < 20; attempt++) {
@@ -182,4 +231,65 @@ export async function POST(req: NextRequest) {
 
   console.log('[videos POST] Saved:', { id: data?.id })
   return NextResponse.json({ video: data })
+}
+
+export async function DELETE(req: NextRequest) {
+  const adminUser = await getAuthedAdminUser(req)
+  if (!adminUser) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
+
+  const body = await req.json().catch(() => ({}))
+  const videoId = typeof body?.videoId === 'string' ? body.videoId.trim() : ''
+
+  if (!videoId) {
+    return NextResponse.json({ error: 'videoId is required' }, { status: 400 })
+  }
+
+  const admin = createAdminClient()
+  const { data: existing, error: existingErr } = await admin
+    .from('videos')
+    .select('id, title, mux_asset_id')
+    .eq('id', videoId)
+    .single()
+
+  if (existingErr || !existing) {
+    return NextResponse.json({ error: 'Video not found' }, { status: 404 })
+  }
+
+  if (existing.mux_asset_id) {
+    try {
+      await mux.video.assets.delete(existing.mux_asset_id)
+    } catch (err) {
+      if (isMuxNotFoundError(err)) {
+        console.warn('[videos DELETE] Mux asset was already deleted:', existing.mux_asset_id)
+      } else {
+        console.error('[videos DELETE] Failed to delete Mux asset:', describeError(err))
+        return NextResponse.json(
+          { error: `Failed to delete video from Mux: ${describeError(err)}` },
+          { status: 502 }
+        )
+      }
+    }
+  }
+
+  const assignmentCleanup = await removeVideoFromAssignedWorkouts(videoId)
+  if (assignmentCleanup.error) {
+    return NextResponse.json({ error: 'Failed to clean assigned workouts' }, { status: 500 })
+  }
+
+  const { error: deleteErr } = await admin
+    .from('videos')
+    .delete()
+    .eq('id', videoId)
+
+  if (deleteErr) {
+    console.error('[videos DELETE] Failed to delete video row:', deleteErr)
+    return NextResponse.json({ error: 'Failed to delete video row' }, { status: 500 })
+  }
+
+  return NextResponse.json({
+    deleted: true,
+    removedAssignments: assignmentCleanup.removedAssignments ?? 0,
+  })
 }

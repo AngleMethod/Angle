@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -35,6 +35,8 @@ export default function AdminVideosPage() {
 
   const [videos, setVideos] = useState<Video[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -75,17 +77,14 @@ export default function AdminVideosPage() {
     };
   }, [router]);
 
-  useEffect(() => {
-    if (isLoaded) fetchVideos();
-  }, [isLoaded]);
-
-  async function getAccessToken(): Promise<string | null> {
+  const getAccessToken = useCallback(async (): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
     return session?.access_token ?? null;
-  }
+  }, []);
 
-  async function fetchVideos() {
+  const fetchVideos = useCallback(async () => {
     setLoadingVideos(true);
+    setDeleteMessage("");
     const token = await getAccessToken();
     const res = await fetch("/api/admin/videos", {
       headers: { Authorization: `Bearer ${token}` },
@@ -95,6 +94,43 @@ export default function AdminVideosPage() {
       setVideos(data.videos ?? []);
     }
     setLoadingVideos(false);
+  }, [getAccessToken]);
+
+  useEffect(() => {
+    if (!isLoaded) return;
+    const timer = window.setTimeout(() => {
+      void fetchVideos();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [fetchVideos, isLoaded]);
+
+  async function handleDeleteVideo(video: Video) {
+    const confirmed = window.confirm(`Delete "${video.title}" from Angle, Mux, and assigned workouts?`);
+    if (!confirmed) return;
+
+    setDeletingId(video.id);
+    setDeleteMessage("");
+
+    const token = await getAccessToken();
+    const res = await fetch("/api/admin/videos", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ videoId: video.id }),
+    });
+
+    const data = await res.json().catch(() => ({} as { error?: string; removedAssignments?: number }));
+    if (!res.ok) {
+      setDeleteMessage(data?.error || "Failed to delete video.");
+      setDeletingId(null);
+      return;
+    }
+
+    setVideos(prev => prev.filter(item => item.id !== video.id));
+    setDeleteMessage(`Deleted. Cleaned ${data.removedAssignments ?? 0} assigned workout${data.removedAssignments === 1 ? "" : "s"}.`);
+    setDeletingId(null);
   }
 
   function resetForm() {
@@ -404,6 +440,13 @@ export default function AdminVideosPage() {
             ) : null}
 
             <div className="overflow-hidden rounded-lg border border-[#1e1e1e]">
+              {deleteMessage ? (
+                <div className="border-b border-[#1e1e1e] bg-[#111110] px-6 py-3">
+                  <p className={`text-sm ${deleteMessage.startsWith("Deleted.") ? "text-[#777]" : "text-[#dc2626]"}`}>
+                    {deleteMessage}
+                  </p>
+                </div>
+              ) : null}
               <table className="w-full">
                 <thead className="bg-[#111110] border-b border-[#1e1e1e]">
                   <tr>
@@ -412,16 +455,17 @@ export default function AdminVideosPage() {
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Level</th>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Category</th>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Created</th>
+                    <th className="px-6 py-4 text-right text-xs tracking-widest uppercase text-[#666] font-medium">Delete</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loadingVideos ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-6 text-[#777] text-sm">Loading videos...</td>
+                      <td colSpan={6} className="px-6 py-6 text-[#777] text-sm">Loading videos...</td>
                     </tr>
                   ) : videos.length === 0 ? (
                     <tr>
-                      <td colSpan={5} className="px-6 py-6 text-[#777] text-sm">No videos yet. Upload your first one.</td>
+                      <td colSpan={6} className="px-6 py-6 text-[#777] text-sm">No videos yet. Upload your first one.</td>
                     </tr>
                   ) : (
                     videos.map((v) => (
@@ -435,6 +479,18 @@ export default function AdminVideosPage() {
                         <td className="px-6 py-4 text-[#aaa] text-sm">{v.level || "—"}</td>
                         <td className="px-6 py-4 text-[#aaa] text-sm">{v.category || "—"}</td>
                         <td className="px-6 py-4 text-[#777] text-sm">{new Date(v.created_at).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 text-right">
+                          <button
+                            type="button"
+                            aria-label={`Delete ${v.title}`}
+                            title="Delete from Angle, Mux, and assigned workouts"
+                            disabled={deletingId === v.id}
+                            onClick={() => handleDeleteVideo(v)}
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#dc2626]/40 text-[#dc2626] transition-colors hover:border-[#dc2626] hover:bg-[#dc2626]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            <span aria-hidden="true" className="text-xl leading-none">&times;</span>
+                          </button>
+                        </td>
                       </tr>
                     ))
                   )}
