@@ -752,7 +752,7 @@ export default function Dashboard() {
 
                           {submission.playbackId && submission.playbackTokens ? (
                             <div className="mb-4">
-                              <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} />
+                              <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} aspect="9/16" />
                             </div>
                           ) : null}
 
