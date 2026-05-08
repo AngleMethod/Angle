@@ -13,6 +13,10 @@ const ADMIN_EMAILS = [
   'morgan@anglemethod.com',
 ]
 
+const isAdminEmail = (email?: string | null) => (
+  !!email && ADMIN_EMAILS.includes(email.toLowerCase())
+)
+
 // ── Utility: scroll-reveal hook ───────────────────────────────────────────────
 function formatAuthError(error: { message?: string; status?: number; code?: string } | null) {
   if (!error) return 'Unknown auth error'
@@ -642,6 +646,13 @@ export default function AnglePage() {
         return
       }
 
+      if (isAdminEmail(nextEmail)) {
+        setSubscriptionStatus('active')
+        setAuthReady(true)
+        setIsStartingTraining(false)
+        return
+      }
+
       const { data: subscription, error } = await supabase
         .from('subscriptions')
         .select('status')
@@ -727,6 +738,12 @@ export default function AnglePage() {
         return
       }
 
+      if (isAdminEmail(session.user.email)) {
+        setSubscriptionStatus('active')
+        window.location.href = '/dashboard'
+        return
+      }
+
       const { data: subscription } = await supabase
         .from('subscriptions')
         .select('status')
@@ -808,7 +825,7 @@ export default function AnglePage() {
         userEmail={userEmail}
         email={email}
         message={message}
-        isAdmin={!!userEmail && ADMIN_EMAILS.includes(userEmail)}
+        isAdmin={isAdminEmail(userEmail)}
         onEmailChange={setEmail}
         onLogin={handleLogin}
         onLogout={handleLogout}
