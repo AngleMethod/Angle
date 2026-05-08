@@ -226,7 +226,7 @@ export default function AdminReviewsPage() {
                     <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div className="min-w-0">
                         <div className="mb-3 flex flex-wrap items-center gap-3">
-                          <span className={`rounded-full border px-3 py-1 text-[11px] font-bold tracking-wide ${statusStyles[submission.status]}`}>
+                          <span className={`rounded-full border px-3 py-1 text-xs font-medium ${statusStyles[submission.status]}`}>
                             {statusLabels[submission.status]}
                           </span>
                           <p className="text-[#555] text-xs">
