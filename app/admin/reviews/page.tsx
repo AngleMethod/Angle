@@ -51,6 +51,7 @@ export default function AdminReviewsPage() {
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
   const [coachNotes, setCoachNotes] = useState<Record<string, string>>({});
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [errorById, setErrorById] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -140,6 +141,44 @@ export default function AdminReviewsPage() {
     setSavingId(null);
   }
 
+  async function handleDeleteReview(submission: ReviewSubmission) {
+    if (!isDeletableStatus(submission.status)) {
+      setErrorById(prev => ({ ...prev, [submission.id]: "Wait until the video finishes processing before deleting it." }));
+      return;
+    }
+
+    const confirmed = window.confirm("Delete this submitted video? This removes it from Angle and Mux.");
+    if (!confirmed) return;
+
+    setDeletingId(submission.id);
+    setErrorById(prev => ({ ...prev, [submission.id]: "" }));
+
+    const token = await getAccessToken();
+    const res = await fetch("/api/admin/reviews", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ submissionId: submission.id }),
+    });
+
+    const data = await res.json().catch(() => ({} as { error?: string }));
+    if (!res.ok) {
+      setErrorById(prev => ({ ...prev, [submission.id]: data?.error || "Failed to delete review." }));
+      setDeletingId(null);
+      return;
+    }
+
+    setSubmissions(prev => prev.filter(item => item.id !== submission.id));
+    setCoachNotes(prev => {
+      const next = { ...prev };
+      delete next[submission.id];
+      return next;
+    });
+    setDeletingId(null);
+  }
+
   const statusStyles: Record<ReviewSubmissionStatus, string> = {
     uploading: "border-[#333] text-[#777]",
     processing: "border-blue-900 text-blue-300",
@@ -155,6 +194,10 @@ export default function AdminReviewsPage() {
     reviewed: "Reviewed",
     error: "Error",
   };
+
+  function isDeletableStatus(status: ReviewSubmissionStatus) {
+    return status === "submitted" || status === "reviewed" || status === "error";
+  }
 
   const secondaryLinkClass = "inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors";
   const MinimalNav = (
@@ -222,9 +265,19 @@ export default function AdminReviewsPage() {
             ) : (
               <div className="space-y-6">
                 {submissions.map((submission) => (
-                  <div key={submission.id} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                  <div key={submission.id} className="relative rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                    <button
+                      type="button"
+                      aria-label={`Delete review video from ${submission.userEmail}`}
+                      title={isDeletableStatus(submission.status) ? "Delete from Angle and Mux" : "Wait until processing finishes before deleting"}
+                      disabled={!isDeletableStatus(submission.status) || deletingId === submission.id}
+                      onClick={() => handleDeleteReview(submission)}
+                      className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full border border-[#dc2626]/40 text-[#dc2626] transition-colors hover:border-[#dc2626] hover:bg-[#dc2626]/10 disabled:cursor-not-allowed disabled:opacity-30"
+                    >
+                      <span aria-hidden="true" className="text-xl leading-none">&times;</span>
+                    </button>
                     <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                      <div className="min-w-0">
+                      <div className="min-w-0 pr-10">
                         <div className="mb-3 flex flex-wrap items-center gap-3">
                           <span className={`rounded-full border px-3 py-1 text-xs font-medium ${statusStyles[submission.status]}`}>
                             {statusLabels[submission.status]}

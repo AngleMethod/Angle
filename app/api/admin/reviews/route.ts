@@ -3,15 +3,18 @@ import { createAdminClient } from '@/lib/supabase'
 import {
   describeError,
   getAuthedAdminReviewUser,
+  getMuxClient,
   signReviewPlaybackTokens,
 } from '@/app/api/dashboard/reviews/shared'
+
+type AdminReviewStatus = 'uploading' | 'processing' | 'submitted' | 'reviewed' | 'error'
 
 type AdminReviewRow = {
   id: string
   user_id: string
   user_email: string
   note: string
-  status: 'uploading' | 'processing' | 'submitted' | 'reviewed' | 'error'
+  status: AdminReviewStatus
   mux_playback_id: string | null
   duration_seconds: number | null
   file_name: string | null
@@ -31,8 +34,24 @@ type ReviewRequestBody = {
   coachNote?: unknown
 }
 
+const DELETABLE_STATUSES: AdminReviewStatus[] = ['submitted', 'reviewed', 'error']
+
 function isPlayableStatus(status: AdminReviewRow['status']) {
   return status === 'submitted' || status === 'reviewed'
+}
+
+function isDeletableStatus(status: AdminReviewStatus) {
+  return DELETABLE_STATUSES.includes(status)
+}
+
+function isMuxNotFoundError(err: unknown) {
+  if (!err || typeof err !== 'object') return false
+
+  const maybeStatus = err as { status?: unknown; statusCode?: unknown; code?: unknown; message?: unknown }
+  return maybeStatus.status === 404
+    || maybeStatus.statusCode === 404
+    || maybeStatus.code === 404
+    || (typeof maybeStatus.message === 'string' && maybeStatus.message.includes('404'))
 }
 
 export async function GET(req: NextRequest) {
@@ -148,4 +167,64 @@ export async function POST(req: NextRequest) {
       reviewedAt: updated.reviewed_at,
     },
   })
+}
+
+export async function DELETE(req: NextRequest) {
+  const auth = await getAuthedAdminReviewUser(req)
+  if ('response' in auth) return auth.response
+
+  const body = await req.json().catch(() => ({} as ReviewRequestBody))
+  const submissionId = typeof body.submissionId === 'string' ? body.submissionId.trim() : ''
+
+  if (!submissionId) {
+    return NextResponse.json({ error: 'submissionId is required' }, { status: 400 })
+  }
+
+  const admin = createAdminClient()
+  const { data: existing, error: existingErr } = await admin
+    .from('coach_review_submissions')
+    .select('id, status, mux_asset_id')
+    .eq('id', submissionId)
+    .single()
+
+  if (existingErr || !existing) {
+    return NextResponse.json({ error: 'Review submission not found' }, { status: 404 })
+  }
+
+  const status = existing.status as AdminReviewStatus
+  if (!isDeletableStatus(status)) {
+    return NextResponse.json(
+      { error: 'Wait until the video finishes processing before deleting it.' },
+      { status: 400 }
+    )
+  }
+
+  if (existing.mux_asset_id) {
+    try {
+      const mux = getMuxClient()
+      await mux.video.assets.delete(existing.mux_asset_id)
+    } catch (err) {
+      if (isMuxNotFoundError(err)) {
+        console.warn('[admin/reviews DELETE] Mux asset was already deleted:', existing.mux_asset_id)
+      } else {
+        console.error('[admin/reviews DELETE] Failed to delete Mux asset:', describeError(err))
+        return NextResponse.json(
+          { error: `Failed to delete video from Mux: ${describeError(err)}` },
+          { status: 502 }
+        )
+      }
+    }
+  }
+
+  const { error: deleteErr } = await admin
+    .from('coach_review_submissions')
+    .delete()
+    .eq('id', submissionId)
+
+  if (deleteErr) {
+    console.error('[admin/reviews DELETE] Failed to delete submission row:', deleteErr)
+    return NextResponse.json({ error: 'Failed to delete review submission' }, { status: 500 })
+  }
+
+  return NextResponse.json({ deleted: true })
 }
