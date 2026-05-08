@@ -85,6 +85,7 @@ export default function Dashboard() {
   const [reviewUploadStage, setReviewUploadStage] = useState<ReviewUploadStage>("idle");
   const [reviewUploadProgress, setReviewUploadProgress] = useState(0);
   const [reviewUploadError, setReviewUploadError] = useState("");
+  const [isCoachReviewOpen, setIsCoachReviewOpen] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -396,7 +397,7 @@ export default function Dashboard() {
   const reviewStatusStyles: Record<ReviewSubmissionStatus, string> = {
     uploading: "border-[#333] text-[#777]",
     processing: "border-blue-900 text-blue-300",
-    submitted: "border-green-900 text-green-300",
+    submitted: "border-green-900 bg-[oklch(0.18_0.06_155)] text-[oklch(0.68_0.14_155)]",
     reviewed: "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]",
     error: "border-[#dc2626] text-[#dc2626]",
   };
@@ -640,8 +641,8 @@ export default function Dashboard() {
             )}
 
             <div className="mt-10 md:mt-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
-              <div className="mb-6 md:mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                <div>
+              <div className={`${isCoachReviewOpen ? "mb-6 md:mb-8" : ""} flex flex-col gap-3 md:flex-row md:items-start md:justify-between`}>
+                <div className="pr-12 md:pr-0">
                   <p className="text-[#666] text-xs tracking-widest uppercase mb-3">Coach Review</p>
                   <h2
                     className="text-white uppercase tracking-wide mb-2"
@@ -653,28 +654,37 @@ export default function Dashboard() {
                     Upload a short clip and tell us what you want feedback on.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => loadReviewSubmissions()}
-                  className="self-start md:self-auto rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 hover:text-white hover:border-[#444] transition-colors"
-                >
-                  Refresh
-                </button>
+                <div className="flex items-center gap-2 self-start md:self-auto">
+                  <button
+                    type="button"
+                    aria-label={isCoachReviewOpen ? "Collapse coach review" : "Expand coach review"}
+                    aria-expanded={isCoachReviewOpen}
+                    aria-controls="coach-review-panel"
+                    onClick={() => setIsCoachReviewOpen(prev => !prev)}
+                    className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isCoachReviewOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                    />
+                  </button>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-8">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video file</label>
-                    <input
-                      type="file"
-                      accept="video/mp4,video/quicktime,video/mov,.mov,.mp4,video/*"
-                      onChange={(e) => setReviewFile(e.target.files?.[0] ?? null)}
-                      disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
-                      className="block w-full text-sm text-[#aaa] file:mr-4 file:py-2 file:px-4 file:rounded-[4px] file:border-0 file:bg-[#222] file:text-white file:text-xs file:font-bold file:tracking-widest file:uppercase file:cursor-pointer disabled:opacity-40"
-                    />
-                    <p className="mt-2 text-xs text-[#555]">Up to 2 minutes and 500MB.</p>
-                  </div>
+              {isCoachReviewOpen ? (
+                <div id="coach-review-panel" className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-8">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video file</label>
+                      <input
+                        type="file"
+                        accept="video/mp4,video/quicktime,video/mov,.mov,.mp4,video/*"
+                        onChange={(e) => setReviewFile(e.target.files?.[0] ?? null)}
+                        disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
+                        className="block w-full text-sm text-[#aaa] file:mr-4 file:py-2 file:px-4 file:rounded-[4px] file:border-0 file:bg-[#222] file:text-white file:text-xs file:font-bold file:tracking-widest file:uppercase file:cursor-pointer disabled:opacity-40"
+                      />
+                      <p className="mt-2 text-xs text-[#555]">Up to 2 minutes and 500MB.</p>
+                    </div>
 
                   <div>
                     <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Question or note</label>
@@ -778,6 +788,7 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
+              ) : null}
             </div>
           </div>
         </section>

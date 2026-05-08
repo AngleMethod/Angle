@@ -143,7 +143,7 @@ export default function AdminReviewsPage() {
   const statusStyles: Record<ReviewSubmissionStatus, string> = {
     uploading: "border-[#333] text-[#777]",
     processing: "border-blue-900 text-blue-300",
-    submitted: "border-green-900 text-green-300",
+    submitted: "border-green-900 bg-[oklch(0.18_0.06_155)] text-[oklch(0.68_0.14_155)]",
     reviewed: "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]",
     error: "border-[#dc2626] text-[#dc2626]",
   };
