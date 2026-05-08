@@ -144,7 +144,7 @@ export default function AdminReviewsPage() {
     uploading: "border-[#333] text-[#777]",
     processing: "border-blue-900 text-blue-300",
     submitted: "border-green-900 text-green-300",
-    reviewed: "border-white text-white",
+    reviewed: "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]",
     error: "border-[#dc2626] text-[#dc2626]",
   };
 
@@ -226,7 +226,7 @@ export default function AdminReviewsPage() {
                     <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div className="min-w-0">
                         <div className="mb-3 flex flex-wrap items-center gap-3">
-                          <span className={`rounded-full border px-3 py-1 text-[10px] font-bold tracking-widest uppercase ${statusStyles[submission.status]}`}>
+                          <span className={`rounded-full border px-3 py-1 text-[11px] font-bold tracking-wide ${statusStyles[submission.status]}`}>
                             {statusLabels[submission.status]}
                           </span>
                           <p className="text-[#555] text-xs">

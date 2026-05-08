@@ -397,7 +397,7 @@ export default function Dashboard() {
     uploading: "border-[#333] text-[#777]",
     processing: "border-blue-900 text-blue-300",
     submitted: "border-green-900 text-green-300",
-    reviewed: "border-white text-white",
+    reviewed: "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]",
     error: "border-[#dc2626] text-[#dc2626]",
   };
 
@@ -742,7 +742,7 @@ export default function Dashboard() {
                       {reviewSubmissions.map((submission) => (
                         <div key={submission.id} className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-4">
                           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                            <span className={`rounded-full border px-3 py-1 text-[10px] font-bold tracking-widest uppercase ${reviewStatusStyles[submission.status]}`}>
+                            <span className={`rounded-full border px-3 py-1 text-[11px] font-bold tracking-wide ${reviewStatusStyles[submission.status]}`}>
                               {reviewStatusLabels[submission.status]}
                             </span>
                             <p className="text-[#555] text-xs">
@@ -752,7 +752,7 @@ export default function Dashboard() {
 
                           {submission.playbackId && submission.playbackTokens ? (
                             <div className="mb-4">
-                              <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} aspect="9/16" />
+                              <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} />
                             </div>
                           ) : null}
 
@@ -761,8 +761,8 @@ export default function Dashboard() {
                           ) : null}
 
                           {submission.coachNote ? (
-                            <div className="rounded-lg border border-green-900 bg-[oklch(0.18_0.06_155)] p-4">
-                              <p className="text-green-300 text-xs tracking-widest uppercase mb-2">Coach Note</p>
+                            <div className="rounded-lg border border-blue-900 bg-[oklch(0.18_0.06_240)] p-4">
+                              <p className="text-[oklch(0.65_0.14_240)] text-xs font-bold tracking-wide mb-2">Coach note</p>
                               <p className="text-white text-sm leading-relaxed">{submission.coachNote}</p>
                             </div>
                           ) : submission.status === "submitted" ? (

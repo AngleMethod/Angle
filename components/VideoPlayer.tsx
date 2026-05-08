@@ -5,7 +5,7 @@ import type { MuxPlayerCSSProperties, MuxPlayerProps } from "@mux/mux-player-rea
 
 type Props = {
   playbackId: string;
-  aspect?: "16/9" | "4/5" | "9/16";
+  aspect?: "16/9" | "4/5";
   autoPlay?: boolean;
   poster?: string;
   objectFit?: "contain" | "cover";
@@ -13,7 +13,7 @@ type Props = {
 };
 
 export default function VideoPlayer({ playbackId, aspect = "16/9", autoPlay = false, poster, objectFit = "contain", tokens }: Props) {
-  const aspectClass = aspect === "9/16" ? "aspect-[9/16]" : aspect === "4/5" ? "aspect-[4/5]" : "aspect-video";
+  const aspectClass = aspect === "4/5" ? "aspect-[4/5]" : "aspect-video";
   const playerStyle = {
     display: "block",
     width: "100%",
