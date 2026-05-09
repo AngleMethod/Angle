@@ -24,6 +24,12 @@ type VideoOption = {
   category: string | null;
 };
 
+type ActiveUserOption = {
+  userId: string;
+  email: string;
+  onboardingStatus: OnboardingStatus;
+};
+
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 
 const ADMIN_EMAILS = [
@@ -50,8 +56,12 @@ export default function AdminPage() {
   const [assignedUserEmail, setAssignedUserEmail] = useState<string | null>(null);
   const [assignedOnboardingStatus, setAssignedOnboardingStatus] = useState<OnboardingStatus>("not_booked");
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [activeUsers, setActiveUsers] = useState<ActiveUserOption[]>([]);
+  const [activeUsersLoaded, setActiveUsersLoaded] = useState(false);
+  const [activeUserDropdownOpen, setActiveUserDropdownOpen] = useState(false);
 
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
+  const [goals, setGoals] = useState("");
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   const [title, setTitle] = useState("");
@@ -111,28 +121,48 @@ export default function AdminPage() {
     if (!isLoaded) return;
 
     let cancelled = false;
-    const loadLibrary = async () => {
+    const loadAdminData = async () => {
       const token = await getAccessToken();
-      const res = await fetch("/api/admin/videos", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) return;
-      const data = await res.json();
+
+      const [videosRes, activeUsersRes] = await Promise.all([
+        fetch("/api/admin/videos", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch("/api/admin/active-users", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
       if (cancelled) return;
-      setVideoLibrary(data.videos ?? []);
+
+      if (videosRes.ok) {
+        const data = await videosRes.json();
+        if (!cancelled) setVideoLibrary(data.videos ?? []);
+      }
       setVideoLibraryLoaded(true);
+
+      if (activeUsersRes.ok) {
+        const data = await activeUsersRes.json();
+        if (!cancelled) setActiveUsers(data.users ?? []);
+      }
+      setActiveUsersLoaded(true);
     };
 
-    loadLibrary();
+    loadAdminData();
     return () => { cancelled = true; };
   }, [isLoaded]);
 
-  async function handleLookupUser() {
-    if (!lookupEmail.trim()) return;
+  async function handleLookupUser(emailOverride?: string) {
+    const emailToLookup = (emailOverride ?? lookupEmail).trim();
+    if (!emailToLookup) return;
+
+    setLookupEmail(emailToLookup);
+    setActiveUserDropdownOpen(false);
     setLookupStatus("loading");
     setAssignedUserId(null);
     setAssignedUserEmail(null);
     setWorkout([]);
+    setGoals("");
 
     const token = await getAccessToken();
     const res = await fetch("/api/admin/lookup-user", {
@@ -141,7 +171,7 @@ export default function AdminPage() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ email: lookupEmail.trim() }),
+      body: JSON.stringify({ email: emailToLookup }),
     });
 
     if (!res.ok) {
@@ -157,8 +187,9 @@ export default function AdminPage() {
     const workoutData = await workoutRes.json();
 
     setAssignedUserId(userId);
-    setAssignedUserEmail(lookupEmail.trim());
+    setAssignedUserEmail(emailToLookup);
     setAssignedOnboardingStatus(onboardingStatus ?? "not_booked");
+    setGoals(typeof workoutData.goals === "string" ? workoutData.goals : "");
     setWorkout((workoutData.steps ?? []).map((s: WorkoutStep) => ({
       ...s,
       videoId: s.videoId || undefined,
@@ -235,7 +266,7 @@ export default function AdminPage() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ userId: assignedUserId, steps: stepsToSave }),
+      body: JSON.stringify({ userId: assignedUserId, steps: stepsToSave, goals }),
     });
 
     if (!res.ok) {
@@ -304,6 +335,12 @@ export default function AdminPage() {
   const sectionTitleClass = "text-white uppercase tracking-wide";
   const sectionTitleStyle = { fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" };
   const secondaryLinkClass = "inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors";
+  const activeUserMatches = (() => {
+    const term = lookupEmail.trim().toLowerCase();
+    return term
+      ? activeUsers.filter(user => user.email.toLowerCase().includes(term))
+      : activeUsers;
+  })();
 
   if (!isLoaded) {
     return (
@@ -369,15 +406,50 @@ export default function AdminPage() {
                 Assign To User
               </h2>
               <div className="flex flex-col sm:flex-row gap-3">
-                <input
-                  value={lookupEmail}
-                  onChange={(e) => setLookupEmail(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleLookupUser()}
-                  placeholder="User email"
-                  className={`flex-1 ${inputClass}`}
-                />
+                <div className="relative flex-1">
+                  <input
+                    value={lookupEmail}
+                    onChange={(e) => {
+                      setLookupEmail(e.target.value);
+                      setActiveUserDropdownOpen(true);
+                    }}
+                    onFocus={() => setActiveUserDropdownOpen(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleLookupUser();
+                      if (e.key === "Escape") setActiveUserDropdownOpen(false);
+                    }}
+                    placeholder="User email"
+                    className={inputClass}
+                    autoComplete="off"
+                  />
+                  {activeUserDropdownOpen ? (
+                    <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 max-h-72 overflow-y-auto rounded-lg border border-[#222] bg-[#0a0a0a] shadow-2xl">
+                      {!activeUsersLoaded ? (
+                        <p className="px-4 py-3 text-sm text-[#777]">Loading active users...</p>
+                      ) : activeUsers.length === 0 ? (
+                        <p className="px-4 py-3 text-sm text-[#777]">No active users found.</p>
+                      ) : activeUserMatches.length === 0 ? (
+                        <p className="px-4 py-3 text-sm text-[#777]">No active users match that email.</p>
+                      ) : (
+                        activeUserMatches.map((user) => (
+                          <button
+                            key={user.userId}
+                            type="button"
+                            onClick={() => handleLookupUser(user.email)}
+                            className="w-full border-b border-[#1e1e1e] px-4 py-3 text-left last:border-b-0 hover:bg-[#111110] transition-colors"
+                          >
+                            <p className="text-sm text-white">{user.email}</p>
+                            <p className="mt-1 text-[11px] uppercase tracking-widest text-[#666]">
+                              {STATUS_LABELS[user.onboardingStatus] ?? user.onboardingStatus}
+                            </p>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  ) : null}
+                </div>
                 <Button
-                  onClick={handleLookupUser}
+                  onClick={() => handleLookupUser()}
                   disabled={lookupStatus === "loading"}
                   size="md"
                 >
@@ -420,6 +492,23 @@ export default function AdminPage() {
                       );
                     })}
                   </div>
+                </div>
+
+                {/* Goals */}
+                <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                  <h2 className={`${sectionTitleClass} mb-4`} style={sectionTitleStyle}>
+                    Goals
+                  </h2>
+                  <textarea
+                    value={goals}
+                    onChange={(e) => setGoals(e.target.value)}
+                    rows={4}
+                    placeholder="e.g. Build toward a cleaner two-arm flag line while improving compression and shoulder control."
+                    className={`${inputClass} min-h-[110px] resize-y`}
+                  />
+                  <p className="mt-2 text-xs text-[#555]">
+                    This appears near the top of the member&apos;s dashboard.
+                  </p>
                 </div>
 
                 {/* Add Step */}
