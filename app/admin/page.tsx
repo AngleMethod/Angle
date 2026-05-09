@@ -62,6 +62,7 @@ export default function AdminPage() {
 
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
   const [goals, setGoals] = useState("");
+  const [isGoalsOpen, setIsGoalsOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   const [title, setTitle] = useState("");
@@ -163,6 +164,7 @@ export default function AdminPage() {
     setAssignedUserEmail(null);
     setWorkout([]);
     setGoals("");
+    setIsGoalsOpen(false);
 
     const token = await getAccessToken();
     const res = await fetch("/api/admin/lookup-user", {
@@ -496,19 +498,41 @@ export default function AdminPage() {
 
                 {/* Goals */}
                 <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
-                  <h2 className={`${sectionTitleClass} mb-4`} style={sectionTitleStyle}>
-                    Goals
-                  </h2>
-                  <textarea
-                    value={goals}
-                    onChange={(e) => setGoals(e.target.value)}
-                    rows={4}
-                    placeholder="e.g. Build toward a cleaner two-arm flag line while improving compression and shoulder control."
-                    className={`${inputClass} min-h-[110px] resize-y`}
-                  />
-                  <p className="mt-2 text-xs text-[#555]">
-                    This appears near the top of the member&apos;s dashboard.
-                  </p>
+                  <div className={`${isGoalsOpen ? "mb-4" : ""} flex items-start justify-between gap-4`}>
+                    <div className="min-w-0">
+                      <h2 className={sectionTitleClass} style={sectionTitleStyle}>
+                        Goals
+                      </h2>
+                      <p className="mt-2 text-xs text-[#555]">
+                        Internal programming note for admins.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={isGoalsOpen ? "Collapse goals" : "Expand goals"}
+                      aria-expanded={isGoalsOpen}
+                      aria-controls="admin-goals-panel"
+                      onClick={() => setIsGoalsOpen(prev => !prev)}
+                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isGoalsOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                      />
+                    </button>
+                  </div>
+
+                  {isGoalsOpen ? (
+                    <div id="admin-goals-panel">
+                      <textarea
+                        value={goals}
+                        onChange={(e) => setGoals(e.target.value)}
+                        rows={4}
+                        placeholder="e.g. Build toward a cleaner two-arm flag line while improving compression and shoulder control."
+                        className={`${inputClass} min-h-[110px] resize-y`}
+                      />
+                    </div>
+                  ) : null}
                 </div>
 
                 {/* Add Step */}
