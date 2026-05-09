@@ -699,10 +699,10 @@ export default function AdminPage() {
                   )}
                 </div>
 
-                {/* Add Step */}
+                {/* Program */}
                 <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
                   <h2 className={`${sectionTitleClass} mb-6`} style={sectionTitleStyle}>
-                    Add Step
+                    Program
                   </h2>
                   <div className="space-y-4">
                     <div>
