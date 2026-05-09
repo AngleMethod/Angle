@@ -63,6 +63,13 @@ const ADMIN_EMAILS = [
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
 
+function formatFileSize(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
+  const mb = bytes / (1024 * 1024);
+  if (mb < 1) return `${Math.max(1, Math.round(mb * 1000))} KB`;
+  return `${mb >= 10 ? Math.round(mb) : mb.toFixed(1)} MB`;
+}
+
 export default function Dashboard() {
   const router = useRouter();
   const reviewFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -86,7 +93,7 @@ export default function Dashboard() {
   const [reviewUploadStage, setReviewUploadStage] = useState<ReviewUploadStage>("idle");
   const [reviewUploadProgress, setReviewUploadProgress] = useState(0);
   const [reviewUploadError, setReviewUploadError] = useState("");
-  const [isCoachReviewOpen, setIsCoachReviewOpen] = useState(true);
+  const [isCoachReviewOpen, setIsCoachReviewOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -223,6 +230,15 @@ export default function Dashboard() {
     setReviewUploadError("");
     if (reviewFileInputRef.current) {
       reviewFileInputRef.current.value = "";
+    }
+  }
+
+  function handleReviewFileChange(file: File | null) {
+    setReviewFile(file);
+    setReviewUploadError("");
+    setReviewUploadProgress(0);
+    if (reviewUploadStage === "success") {
+      setReviewUploadStage("idle");
     }
   }
 
@@ -446,7 +462,7 @@ export default function Dashboard() {
       <>
         {DashboardNav}
         <main className="min-h-screen bg-[#0a0a0a] text-white">
-          <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
+          <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-4 sm:px-6 md:px-12">
             <div className="mx-auto max-w-xl text-center">
               <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Membership</p>
               <h1
@@ -458,7 +474,7 @@ export default function Dashboard() {
               <p className="text-[#777] mb-10 md:mb-14">
                 This training program is part of the paid Angle membership.
               </p>
-              <Button onClick={handleUpgrade} disabled={isUpgrading}>
+              <Button onClick={handleUpgrade} disabled={isUpgrading} className="w-full sm:w-auto">
                 {isUpgrading ? "Redirecting..." : "Upgrade to Access"}
               </Button>
               {upgradeError ? (
@@ -475,7 +491,7 @@ export default function Dashboard() {
     <>
       {DashboardNav}
       <main className="min-h-screen bg-[#0a0a0a] text-white">
-        <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
+        <section className="pt-28 md:pt-40 pb-12 md:pb-28 px-4 sm:px-6 md:px-12">
           <div className="mx-auto max-w-6xl">
             <Suspense fallback={null}>
               <BookedRedirectHandler onBooked={() => setShowBookedBanner(true)} />
@@ -524,7 +540,7 @@ export default function Dashboard() {
 
             {onboardingStatus === "not_booked" && (
               <>
-                <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-12 text-center">
                   <div className="flex justify-center mb-6">
                     <div
                       className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
@@ -549,7 +565,7 @@ export default function Dashboard() {
                       href={CALENDLY_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors"
+                      className="inline-block w-full rounded-[4px] bg-white text-center text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors sm:w-auto"
                     >
                       Book Your Call
                     </a>
@@ -559,7 +575,7 @@ export default function Dashboard() {
             )}
 
             {onboardingStatus === "booked" && (
-              <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+              <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-12 text-center">
                 <div className="flex justify-center mb-6">
                   <div
                     className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
@@ -585,7 +601,7 @@ export default function Dashboard() {
                 {!workoutLoaded ? (
                   <p className="text-[#777]">Loading your workout...</p>
                 ) : workout.length === 0 ? (
-                  <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                  <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-12 text-center">
                     <div className="flex justify-center mb-6">
                       <div
                         className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
@@ -608,23 +624,23 @@ export default function Dashboard() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <div className="space-y-4 md:space-y-6">
                     {workout.map((step, i) => {
                       const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
                       return (
-                        <div key={`${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                        <div key={`${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
                           <h2
-                            className="text-white uppercase tracking-wide mb-6"
+                            className="text-white uppercase tracking-wide mb-4 md:mb-6"
                             style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
                           >
                             Step {i + 1}: {step.title}
                           </h2>
                           {muxVideo ? (
-                            <div className="mb-6">
+                            <div className="mb-4 md:mb-6">
                               <VideoPlayer playbackId={muxVideo.mux_playback_id} />
                             </div>
                           ) : step.videoId ? (
-                            <div className="aspect-video w-full mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
+                            <div className="aspect-video w-full mb-4 md:mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
                               <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
                             </div>
                           ) : null}
@@ -639,7 +655,7 @@ export default function Dashboard() {
                             </div>
                           ) : null}
                           {step.description ? (
-                            <p className="whitespace-pre-line text-[#aaa] leading-relaxed">{step.description}</p>
+                            <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{step.description}</p>
                           ) : null}
                         </div>
                       );
@@ -649,9 +665,9 @@ export default function Dashboard() {
               </>
             )}
 
-            <div className="mt-10 md:mt-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
-              <div className={`${isCoachReviewOpen ? "mb-6 md:mb-8" : ""} flex flex-col gap-3 md:flex-row md:items-start md:justify-between`}>
-                <div className="pr-12 md:pr-0">
+            <div className="mt-8 md:mt-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+              <div className={`${isCoachReviewOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
+                <div className="min-w-0">
                   <p className="text-[#666] text-xs tracking-widest uppercase mb-3">Coach Review</p>
                   <h2
                     className="text-white uppercase tracking-wide mb-2"
@@ -663,7 +679,7 @@ export default function Dashboard() {
                     Upload a short clip and tell us what you want feedback on.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 self-start md:self-auto">
+                <div className="flex flex-shrink-0 items-center gap-2">
                   <button
                     type="button"
                     aria-label={isCoachReviewOpen ? "Collapse coach review" : "Expand coach review"}
@@ -681,7 +697,7 @@ export default function Dashboard() {
               </div>
 
               {isCoachReviewOpen ? (
-                <div id="coach-review-panel" className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-8">
+                <div id="coach-review-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                   <div className="space-y-4">
                     <div>
                       <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video file</label>
@@ -689,11 +705,19 @@ export default function Dashboard() {
                         ref={reviewFileInputRef}
                         type="file"
                         accept="video/mp4,video/quicktime,video/mov,.mov,.mp4,video/*"
-                        onChange={(e) => setReviewFile(e.target.files?.[0] ?? null)}
+                        onChange={(e) => handleReviewFileChange(e.target.files?.[0] ?? null)}
                         disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
-                        className="block w-full text-sm text-[#aaa] file:mr-4 file:py-2 file:px-4 file:rounded-[4px] file:border-0 file:bg-[#222] file:text-white file:text-xs file:font-bold file:tracking-widest file:uppercase file:cursor-pointer disabled:opacity-40"
+                        className="block w-full max-w-full text-sm text-[#aaa] file:mr-3 file:rounded-[4px] file:border-0 file:bg-[#222] file:px-4 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-white file:cursor-pointer disabled:opacity-40"
                       />
-                      <p className="mt-2 text-xs text-[#555]">Up to 2 minutes and 500MB.</p>
+                      <p className="mt-2 text-xs text-[#555]">
+                        Short clips upload fastest. Aim for 10-30 seconds when possible. Max 2 minutes and 500MB.
+                      </p>
+                      {reviewFile ? (
+                        <div className="mt-3 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-3">
+                          <p className="truncate text-sm text-white">{reviewFile.name}</p>
+                          <p className="mt-1 text-xs text-[#666]">{formatFileSize(reviewFile.size)} selected</p>
+                        </div>
+                      ) : null}
                     </div>
 
                   <div>
@@ -712,7 +736,7 @@ export default function Dashboard() {
                   {reviewUploadStage === "uploading" ? (
                     <div className="pt-2">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-[#777] text-xs tracking-widest uppercase">Uploading</p>
+                        <p className="text-[#777] text-xs tracking-widest uppercase">Uploading video</p>
                         <p className="text-[#aaa] text-xs">{reviewUploadProgress}%</p>
                       </div>
                       <div className="h-1 bg-[#1e1e1e] rounded-full overflow-hidden">
@@ -721,11 +745,12 @@ export default function Dashboard() {
                           style={{ width: `${reviewUploadProgress}%` }}
                         />
                       </div>
+                      <p className="mt-2 text-xs text-[#555]">Keep this page open while your clip uploads.</p>
                     </div>
                   ) : null}
 
                   {reviewUploadStage === "saving" ? (
-                    <p className="text-[#aaa] text-sm">Processing and saving your video...</p>
+                    <p className="text-[#aaa] text-sm">Processing video... this can take a minute.</p>
                   ) : null}
 
                   {reviewUploadStage === "success" ? (
@@ -740,11 +765,12 @@ export default function Dashboard() {
                     onClick={handleReviewUpload}
                     disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
                     size="md"
+                    className="w-full sm:w-auto"
                   >
                     {reviewUploadStage === "uploading"
                       ? "Uploading..."
                       : reviewUploadStage === "saving"
-                      ? "Submitting..."
+                      ? "Processing..."
                       : "Submit Video"}
                   </Button>
                 </div>
@@ -760,7 +786,7 @@ export default function Dashboard() {
                   ) : (
                     <div className="space-y-4">
                       {reviewSubmissions.map((submission) => (
-                        <div key={submission.id} className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-4">
+                        <div key={submission.id} className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-3 md:p-4">
                           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                             <span className={`rounded-full border px-3 py-1 text-xs font-medium ${reviewStatusStyles[submission.status]}`}>
                               {reviewStatusLabels[submission.status]}
