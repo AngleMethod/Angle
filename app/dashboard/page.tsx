@@ -70,13 +70,6 @@ function formatFileSize(bytes: number): string {
   return `${mb >= 10 ? Math.round(mb) : mb.toFixed(1)} MB`;
 }
 
-function isMissingGoalsColumn(error: unknown): boolean {
-  if (!error || typeof error !== "object") return false;
-  const maybeError = error as { message?: unknown; details?: unknown };
-  const text = `${maybeError.message ?? ""} ${maybeError.details ?? ""}`.toLowerCase();
-  return text.includes("goals") && (text.includes("column") || text.includes("schema cache"));
-}
-
 export default function Dashboard() {
   const router = useRouter();
   const reviewFileInputRef = useRef<HTMLInputElement | null>(null);
@@ -91,7 +84,6 @@ export default function Dashboard() {
   const [upgradeError, setUpgradeError] = useState("");
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("not_booked");
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
-  const [workoutGoals, setWorkoutGoals] = useState("");
   const [workoutLoaded, setWorkoutLoaded] = useState(false);
   const [muxVideoMap, setMuxVideoMap] = useState<Record<string, MuxVideoRecord>>({});
   const [reviewSubmissions, setReviewSubmissions] = useState<ReviewSubmission[]>([]);
@@ -113,7 +105,6 @@ export default function Dashboard() {
 
       if (!session?.user) {
         setUserEmail(null);
-        setWorkoutGoals("");
         setHasAccess(false);
         setIsLoaded(true);
         setAuthStatus("redirecting");
@@ -147,27 +138,15 @@ export default function Dashboard() {
       let status: OnboardingStatus = subscription?.onboarding_status ?? "not_booked";
 
       if (status === "completed" || isAdmin) {
-        const initialWorkout = await supabase
+        const { data: workoutData } = await supabase
           .from("user_workouts")
-          .select("steps, goals")
+          .select("steps")
           .eq("user_id", session.user.id)
           .single();
-
-        let workoutData = initialWorkout.data as { steps?: unknown; goals?: unknown } | null;
-
-        if (initialWorkout.error && isMissingGoalsColumn(initialWorkout.error)) {
-          const fallbackWorkout = await supabase
-            .from("user_workouts")
-            .select("steps")
-            .eq("user_id", session.user.id)
-            .single();
-          workoutData = fallbackWorkout.data as { steps?: unknown; goals?: unknown } | null;
-        }
 
         if (!isMounted) return;
 
         const assignedSteps = Array.isArray(workoutData?.steps) ? workoutData.steps : [];
-        setWorkoutGoals(typeof workoutData?.goals === "string" ? workoutData.goals : "");
         if (assignedSteps.length > 0) {
           setWorkout(assignedSteps);
           if (isAdmin) status = "completed";
@@ -619,12 +598,6 @@ export default function Dashboard() {
 
             {onboardingStatus === "completed" && (
               <>
-                {workoutLoaded && workoutGoals ? (
-                  <div className="mb-4 rounded-lg border border-blue-900 bg-[oklch(0.18_0.06_240)] p-4 md:mb-6 md:p-6">
-                    <p className="mb-2 text-xs font-medium text-[oklch(0.65_0.14_240)]">Goals</p>
-                    <p className="whitespace-pre-line text-sm leading-relaxed text-white md:text-base">{workoutGoals}</p>
-                  </div>
-                ) : null}
                 {!workoutLoaded ? (
                   <p className="text-[#777]">Loading your workout...</p>
                 ) : workout.length === 0 ? (
