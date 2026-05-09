@@ -58,12 +58,26 @@ export async function GET(req: NextRequest) {
   const auth = await getAuthedAdminReviewUser(req)
   if ('response' in auth) return auth.response
 
+  const userId = req.nextUrl.searchParams.get('userId')?.trim() ?? ''
+  const rawLimit = Number(req.nextUrl.searchParams.get('limit') ?? (userId ? 5 : 100))
+  const limit = Number.isFinite(rawLimit)
+    ? Math.min(Math.max(Math.trunc(rawLimit), 1), 100)
+    : userId
+      ? 5
+      : 100
+
   const admin = createAdminClient()
-  const { data, error } = await admin
+  let query = admin
     .from('coach_review_submissions')
     .select('id, user_id, user_email, note, status, mux_playback_id, duration_seconds, file_name, file_size_bytes, mime_type, submitted_at, coach_note, reviewed_by_email, reviewed_at, error_message, created_at, updated_at')
     .order('created_at', { ascending: false })
-    .limit(100)
+    .limit(limit)
+
+  if (userId) {
+    query = query.eq('user_id', userId)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     console.error('[admin/reviews GET] Failed to list submissions:', error)

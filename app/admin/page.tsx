@@ -31,6 +31,29 @@ type ActiveUserOption = {
 };
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
+type ReviewSubmissionStatus = "uploading" | "processing" | "submitted" | "reviewed" | "error";
+
+type ReviewPlaybackTokens = {
+  playback?: string;
+  thumbnail?: string;
+  storyboard?: string;
+};
+
+type RecentSubmission = {
+  id: string;
+  note: string;
+  status: ReviewSubmissionStatus;
+  playbackId: string | null;
+  playbackTokens: ReviewPlaybackTokens | null;
+  durationSeconds: number | null;
+  fileName: string | null;
+  submittedAt: string | null;
+  coachNote: string | null;
+  reviewedByEmail: string | null;
+  reviewedAt: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+};
 
 const ADMIN_EMAILS = [
   "josh@anglemethod.com",
@@ -42,6 +65,29 @@ const STATUS_LABELS: Record<OnboardingStatus, string> = {
   booked: "Booked",
   completed: "Completed",
 };
+
+const REVIEW_STATUS_LABELS: Record<ReviewSubmissionStatus, string> = {
+  uploading: "Uploading",
+  processing: "Processing",
+  submitted: "Submitted",
+  reviewed: "Reviewed",
+  error: "Error",
+};
+
+const REVIEW_STATUS_STYLES: Record<ReviewSubmissionStatus, string> = {
+  uploading: "border-[#333] text-[#777]",
+  processing: "border-blue-900 text-blue-300",
+  submitted: "border-green-900 bg-[oklch(0.18_0.06_155)] text-[oklch(0.68_0.14_155)]",
+  reviewed: "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]",
+  error: "border-[#dc2626] text-[#dc2626]",
+};
+
+function formatSubmissionDate(value: string | null): string {
+  if (!value) return "No date";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "No date";
+  return date.toLocaleDateString();
+}
 
 export default function AdminPage() {
   const router = useRouter();
@@ -63,6 +109,10 @@ export default function AdminPage() {
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
   const [goals, setGoals] = useState("");
   const [isGoalsOpen, setIsGoalsOpen] = useState(false);
+  const [recentSubmissions, setRecentSubmissions] = useState<RecentSubmission[]>([]);
+  const [recentSubmissionsLoaded, setRecentSubmissionsLoaded] = useState(false);
+  const [recentSubmissionsError, setRecentSubmissionsError] = useState("");
+  const [openSubmissionIds, setOpenSubmissionIds] = useState<Record<string, boolean>>({});
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   const [title, setTitle] = useState("");
@@ -165,6 +215,10 @@ export default function AdminPage() {
     setWorkout([]);
     setGoals("");
     setIsGoalsOpen(false);
+    setRecentSubmissions([]);
+    setRecentSubmissionsLoaded(false);
+    setRecentSubmissionsError("");
+    setOpenSubmissionIds({});
 
     const token = await getAccessToken();
     const res = await fetch("/api/admin/lookup-user", {
@@ -183,15 +237,24 @@ export default function AdminPage() {
 
     const { userId, onboardingStatus } = await res.json();
 
-    const workoutRes = await fetch(`/api/admin/workout?userId=${userId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const workoutData = await workoutRes.json();
+    const [workoutRes, reviewsRes] = await Promise.all([
+      fetch(`/api/admin/workout?userId=${encodeURIComponent(userId)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+      fetch(`/api/admin/reviews?userId=${encodeURIComponent(userId)}&limit=5`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
+    ]);
+    const workoutData = workoutRes.ok ? await workoutRes.json() : { steps: [], goals: "" };
+    const reviewsData = reviewsRes.ok ? await reviewsRes.json() : { submissions: [] };
 
     setAssignedUserId(userId);
     setAssignedUserEmail(emailToLookup);
     setAssignedOnboardingStatus(onboardingStatus ?? "not_booked");
     setGoals(typeof workoutData.goals === "string" ? workoutData.goals : "");
+    setRecentSubmissions((reviewsData.submissions ?? []) as RecentSubmission[]);
+    setRecentSubmissionsLoaded(true);
+    setRecentSubmissionsError(reviewsRes.ok ? "" : "Could not load recent submissions.");
     setWorkout((workoutData.steps ?? []).map((s: WorkoutStep) => ({
       ...s,
       videoId: s.videoId || undefined,
@@ -327,6 +390,13 @@ export default function AdminPage() {
     const updated = [...workout];
     [updated[index + 1], updated[index]] = [updated[index], updated[index + 1]];
     setWorkout(updated);
+  }
+
+  function toggleRecentSubmission(submissionId: string) {
+    setOpenSubmissionIds(prev => ({
+      ...prev,
+      [submissionId]: !prev[submissionId],
+    }));
   }
 
   const MinimalNav = (
@@ -533,6 +603,100 @@ export default function AdminPage() {
                       />
                     </div>
                   ) : null}
+                </div>
+
+                {/* Recent Submissions */}
+                <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                  <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <h2 className={sectionTitleClass} style={sectionTitleStyle}>
+                        Recent Submissions
+                      </h2>
+                      <p className="mt-2 text-xs text-[#555]">
+                        Last 5 progress videos from this member.
+                      </p>
+                    </div>
+                    <Link href="/admin/reviews" className="text-xs font-bold tracking-widest uppercase text-[#777] hover:text-white transition-colors">
+                      View all reviews
+                    </Link>
+                  </div>
+
+                  {!recentSubmissionsLoaded ? (
+                    <p className="text-sm text-[#777]">Loading recent submissions...</p>
+                  ) : recentSubmissionsError ? (
+                    <p className="text-sm text-[#dc2626]">{recentSubmissionsError}</p>
+                  ) : recentSubmissions.length === 0 ? (
+                    <p className="text-sm text-[#777]">No review videos submitted yet.</p>
+                  ) : (
+                    <div className="divide-y divide-[#1e1e1e]">
+                      {recentSubmissions.map((submission) => {
+                        const isOpen = !!openSubmissionIds[submission.id];
+                        const displayDate = formatSubmissionDate(submission.submittedAt ?? submission.createdAt);
+                        return (
+                          <div key={submission.id} className="py-4 first:pt-0 last:pb-0">
+                            <button
+                              type="button"
+                              aria-expanded={isOpen}
+                              aria-controls={`recent-submission-${submission.id}`}
+                              onClick={() => toggleRecentSubmission(submission.id)}
+                              className="flex w-full items-start justify-between gap-4 text-left"
+                            >
+                              <div className="min-w-0">
+                                <div className="mb-2 flex flex-wrap items-center gap-2">
+                                  <span className={`rounded-full border px-3 py-1 text-xs font-medium ${REVIEW_STATUS_STYLES[submission.status]}`}>
+                                    {REVIEW_STATUS_LABELS[submission.status]}
+                                  </span>
+                                  <span className="text-xs text-[#555]">{displayDate}</span>
+                                </div>
+                                <p className="truncate text-sm text-[#aaa]">
+                                  {submission.note || submission.fileName || "No note added."}
+                                </p>
+                              </div>
+                              <span className="mt-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] transition-colors hover:border-[#444] hover:text-white">
+                                <span
+                                  aria-hidden="true"
+                                  className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                                />
+                              </span>
+                            </button>
+
+                            {isOpen ? (
+                              <div id={`recent-submission-${submission.id}`} className="mt-4 space-y-4">
+                                {submission.playbackId && submission.playbackTokens ? (
+                                  <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} />
+                                ) : (
+                                  <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
+                                    <p className="text-[#666] text-xs tracking-widest uppercase">
+                                      {submission.status === "error" ? "Upload failed" : "Video not ready"}
+                                    </p>
+                                  </div>
+                                )}
+
+                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                  <div>
+                                    <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Member note</p>
+                                    <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa]">
+                                      {submission.note || "No note added."}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Coach note</p>
+                                    <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa]">
+                                      {submission.coachNote || "No coach note yet."}
+                                    </p>
+                                  </div>
+                                </div>
+
+                                {submission.errorMessage ? (
+                                  <p className="text-sm text-[#dc2626]">{submission.errorMessage}</p>
+                                ) : null}
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Add Step */}
