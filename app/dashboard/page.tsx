@@ -127,10 +127,9 @@ export default function Dashboard() {
       await loadReviewSubmissions(session.access_token);
       if (!isMounted) return;
 
-      const status: OnboardingStatus = subscription?.onboarding_status ?? "not_booked";
-      setOnboardingStatus(status);
+      let status: OnboardingStatus = subscription?.onboarding_status ?? "not_booked";
 
-      if (status === "completed") {
+      if (status === "completed" || isAdmin) {
         const { data: workoutData } = await supabase
           .from("user_workouts")
           .select("steps")
@@ -139,8 +138,10 @@ export default function Dashboard() {
 
         if (!isMounted) return;
 
-        if (workoutData && workoutData.steps?.length > 0) {
-          setWorkout(workoutData.steps);
+        const assignedSteps = Array.isArray(workoutData?.steps) ? workoutData.steps : [];
+        if (assignedSteps.length > 0) {
+          setWorkout(assignedSteps);
+          if (isAdmin) status = "completed";
         }
 
         setWorkoutLoaded(true);
@@ -158,6 +159,8 @@ export default function Dashboard() {
           console.error("Mux video lookup failed:", err);
         }
       }
+
+      setOnboardingStatus(status);
 
       setIsLoaded(true);
       setAuthStatus("authenticated");
