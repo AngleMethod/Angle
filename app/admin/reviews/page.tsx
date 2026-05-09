@@ -14,6 +14,7 @@ const ADMIN_EMAILS = [
 ];
 
 type ReviewSubmissionStatus = "uploading" | "processing" | "submitted" | "reviewed" | "error";
+type ReviewFilter = "needs_review" | "reviewed" | "all";
 
 type ReviewPlaybackTokens = {
   playback?: string;
@@ -53,6 +54,7 @@ export default function AdminReviewsPage() {
   const [savingId, setSavingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [errorById, setErrorById] = useState<Record<string, string>>({});
+  const [activeFilter, setActiveFilter] = useState<ReviewFilter>("needs_review");
 
   useEffect(() => {
     let isMounted = true;
@@ -199,7 +201,40 @@ export default function AdminReviewsPage() {
     return status === "submitted" || status === "reviewed" || status === "error";
   }
 
+  function isNeedsReviewStatus(status: ReviewSubmissionStatus) {
+    return status === "uploading" || status === "processing" || status === "submitted" || status === "error";
+  }
+
+  function matchesFilter(submission: ReviewSubmission, filter: ReviewFilter) {
+    if (filter === "needs_review") return isNeedsReviewStatus(submission.status);
+    if (filter === "reviewed") return submission.status === "reviewed";
+    return true;
+  }
+
   const secondaryLinkClass = "inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors";
+  const filterOptions: Array<{ id: ReviewFilter; label: string; count: number }> = [
+    {
+      id: "needs_review",
+      label: "Needs review",
+      count: submissions.filter(submission => isNeedsReviewStatus(submission.status)).length,
+    },
+    {
+      id: "reviewed",
+      label: "Reviewed",
+      count: submissions.filter(submission => submission.status === "reviewed").length,
+    },
+    {
+      id: "all",
+      label: "All",
+      count: submissions.length,
+    },
+  ];
+  const filteredSubmissions = submissions.filter(submission => matchesFilter(submission, activeFilter));
+  const emptyFilterMessage: Record<ReviewFilter, string> = {
+    needs_review: "No videos need review right now.",
+    reviewed: "No reviewed videos yet.",
+    all: "No progress videos submitted yet.",
+  };
   const MinimalNav = (
     <Nav variant="minimal" isLoggedIn={!!userEmail} authReady={isLoaded} />
   );
@@ -264,7 +299,36 @@ export default function AdminReviewsPage() {
               </div>
             ) : (
               <div className="space-y-6">
-                {submissions.map((submission) => (
+                <div className="flex flex-wrap gap-2" role="tablist" aria-label="Review filters">
+                  {filterOptions.map((option) => {
+                    const isActive = activeFilter === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={isActive}
+                        onClick={() => setActiveFilter(option.id)}
+                        className={`rounded-full border px-4 py-2 text-xs font-medium transition-colors ${
+                          isActive
+                            ? "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]"
+                            : "border-[#222] text-[#777] hover:border-[#444] hover:text-white"
+                        }`}
+                      >
+                        {option.label}
+                        <span className="ml-2 text-[#555]">{option.count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {filteredSubmissions.length === 0 ? (
+                  <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
+                    <p className="text-[#777] text-sm">{emptyFilterMessage[activeFilter]}</p>
+                  </div>
+                ) : null}
+
+                {filteredSubmissions.map((submission) => (
                   <div key={submission.id} className="relative rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
                     <button
                       type="button"
