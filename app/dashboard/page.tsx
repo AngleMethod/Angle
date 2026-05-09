@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -65,6 +65,7 @@ const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
 
 export default function Dashboard() {
   const router = useRouter();
+  const reviewFileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [showBookedBanner, setShowBookedBanner] = useState(false);
@@ -220,6 +221,9 @@ export default function Dashboard() {
     setReviewNote("");
     setReviewUploadProgress(0);
     setReviewUploadError("");
+    if (reviewFileInputRef.current) {
+      reviewFileInputRef.current.value = "";
+    }
   }
 
   async function finalizeReviewUpload(token: string, submissionId: string, uploadId: string) {
@@ -619,11 +623,11 @@ export default function Dashboard() {
                             <div className="mb-6">
                               <VideoPlayer playbackId={muxVideo.mux_playback_id} />
                             </div>
-                          ) : (
+                          ) : step.videoId ? (
                             <div className="aspect-video w-full mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
                               <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
                             </div>
-                          )}
+                          ) : null}
                           {(step.sets || step.repsOrHoldTime) ? (
                             <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
                               {step.sets ? (
@@ -634,7 +638,9 @@ export default function Dashboard() {
                               ) : null}
                             </div>
                           ) : null}
-                          <p className="text-[#aaa] leading-relaxed">{step.description}</p>
+                          {step.description ? (
+                            <p className="whitespace-pre-line text-[#aaa] leading-relaxed">{step.description}</p>
+                          ) : null}
                         </div>
                       );
                     })}
@@ -680,6 +686,7 @@ export default function Dashboard() {
                     <div>
                       <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video file</label>
                       <input
+                        ref={reviewFileInputRef}
                         type="file"
                         accept="video/mp4,video/quicktime,video/mov,.mov,.mp4,video/*"
                         onChange={(e) => setReviewFile(e.target.files?.[0] ?? null)}

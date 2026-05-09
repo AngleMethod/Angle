@@ -11,7 +11,7 @@ import VideoPlayer from "@/components/VideoPlayer";
 type WorkoutStep = {
   title: string;
   description: string;
-  videoId: string;
+  videoId?: string;
   sets?: string;
   repsOrHoldTime?: string;
 };
@@ -161,7 +161,7 @@ export default function AdminPage() {
     setAssignedOnboardingStatus(onboardingStatus ?? "not_booked");
     setWorkout((workoutData.steps ?? []).map((s: WorkoutStep) => ({
       ...s,
-      videoId: s.videoId ?? "",
+      videoId: s.videoId || undefined,
       sets: s.sets ?? "",
       repsOrHoldTime: s.repsOrHoldTime ?? "",
     })));
@@ -194,16 +194,27 @@ export default function AdminPage() {
 
     let stepsToSave = workout;
     const pendingVideoId = video.trim();
-    if (pendingVideoId) {
+    const hasPendingStep = !!(
+      title.trim() ||
+      description.trim() ||
+      pendingVideoId ||
+      sets.trim() ||
+      repsOrHoldTime.trim()
+    );
+    if (hasPendingStep) {
       const pendingStep: WorkoutStep = {
         title: title.trim() || `Step ${workout.length + 1}`,
         description: description.trim(),
-        videoId: pendingVideoId,
         sets: sets.trim(),
         repsOrHoldTime: repsOrHoldTime.trim(),
       };
+      if (pendingVideoId) pendingStep.videoId = pendingVideoId;
+
       const alreadyAdded = workout.some(
-        (s) => s.title === pendingStep.title && s.videoId === pendingStep.videoId
+        (s) =>
+          s.title === pendingStep.title &&
+          s.description === pendingStep.description &&
+          s.videoId === pendingStep.videoId
       );
       if (!alreadyAdded) {
         stepsToSave = [...workout, pendingStep];
@@ -238,18 +249,26 @@ export default function AdminPage() {
 
   function addStep() {
     const videoId = video.trim();
-    if (!videoId) {
-      setAddStepError("Please select a video first.");
+    const hasStepContent = !!(
+      title.trim() ||
+      description.trim() ||
+      videoId ||
+      sets.trim() ||
+      repsOrHoldTime.trim()
+    );
+    if (!hasStepContent) {
+      setAddStepError("Add a title, description, or video first.");
       return;
     }
     setAddStepError("");
     const newStep: WorkoutStep = {
       title: title.trim() || `Step ${workout.length + 1}`,
       description: description.trim(),
-      videoId,
       sets: sets.trim(),
       repsOrHoldTime: repsOrHoldTime.trim(),
     };
+    if (videoId) newStep.videoId = videoId;
+
     setWorkout(prev => [...prev, newStep]);
     setTitle("");
     setDescription("");
@@ -420,11 +439,12 @@ export default function AdminPage() {
                     </div>
                     <div>
                       <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Step description</label>
-                      <input
+                      <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
+                        rows={5}
                         placeholder="Optional"
-                        className={inputClass}
+                        className={`${inputClass} min-h-[120px] resize-y`}
                       />
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -448,7 +468,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video</label>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video (optional)</label>
                       {(() => {
                         const selected = videoLibrary.find(v => v.id === video) ?? null;
                         if (selected) {
@@ -536,10 +556,10 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     workout.map((step, i) => {
-                      const stepVideo = videoLibrary.find(v => v.id === step.videoId) ?? null;
+                      const stepVideo = step.videoId ? videoLibrary.find(v => v.id === step.videoId) ?? null : null;
                       return (
                       <div
-                        key={`${step.videoId}-${i}`}
+                        key={`${step.videoId || step.title || "text-step"}-${i}`}
                         className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
                       >
                         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -574,11 +594,11 @@ export default function AdminPage() {
                               {(stepVideo.level || "—")} · {(stepVideo.category || "—")}
                             </p>
                           </>
-                        ) : (
+                        ) : step.videoId ? (
                           <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
                             <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
                           </div>
-                        )}
+                        ) : null}
                         {(step.sets || step.repsOrHoldTime) ? (
                           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
                             {step.sets ? (
@@ -590,7 +610,7 @@ export default function AdminPage() {
                           </div>
                         ) : null}
                         {step.description ? (
-                          <p className="mt-4 text-[#aaa] text-sm leading-relaxed">{step.description}</p>
+                          <p className="mt-4 whitespace-pre-line text-[#aaa] text-sm leading-relaxed">{step.description}</p>
                         ) : null}
                       </div>
                       );
