@@ -112,6 +112,7 @@ export default function AdminPage() {
   const [recentSubmissions, setRecentSubmissions] = useState<RecentSubmission[]>([]);
   const [recentSubmissionsLoaded, setRecentSubmissionsLoaded] = useState(false);
   const [recentSubmissionsError, setRecentSubmissionsError] = useState("");
+  const [isRecentSubmissionsOpen, setIsRecentSubmissionsOpen] = useState(false);
   const [openSubmissionIds, setOpenSubmissionIds] = useState<Record<string, boolean>>({});
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
@@ -218,6 +219,7 @@ export default function AdminPage() {
     setRecentSubmissions([]);
     setRecentSubmissionsLoaded(false);
     setRecentSubmissionsError("");
+    setIsRecentSubmissionsOpen(false);
     setOpenSubmissionIds({});
 
     const token = await getAccessToken();
@@ -607,7 +609,7 @@ export default function AdminPage() {
 
                 {/* Recent Submissions */}
                 <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
-                  <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div className={`${isRecentSubmissionsOpen ? "mb-5" : ""} flex items-start justify-between gap-4`}>
                     <div>
                       <h2 className={sectionTitleClass} style={sectionTitleStyle}>
                         Recent Submissions
@@ -616,87 +618,110 @@ export default function AdminPage() {
                         Last 5 progress videos from this member.
                       </p>
                     </div>
-                    <Link href="/admin/reviews" className="text-xs font-bold tracking-widest uppercase text-[#777] hover:text-white transition-colors">
-                      View all reviews
-                    </Link>
+                    <div className="flex flex-shrink-0 items-center gap-3">
+                      <Link href="/admin/reviews" className="hidden text-xs font-bold tracking-widest uppercase text-[#777] hover:text-white transition-colors sm:inline-block">
+                        View all reviews
+                      </Link>
+                      <button
+                        type="button"
+                        aria-label={isRecentSubmissionsOpen ? "Collapse recent submissions" : "Expand recent submissions"}
+                        aria-expanded={isRecentSubmissionsOpen}
+                        aria-controls="admin-recent-submissions-panel"
+                        onClick={() => setIsRecentSubmissionsOpen(prev => !prev)}
+                        className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isRecentSubmissionsOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                        />
+                      </button>
+                    </div>
                   </div>
 
-                  {!recentSubmissionsLoaded ? (
-                    <p className="text-sm text-[#777]">Loading recent submissions...</p>
-                  ) : recentSubmissionsError ? (
-                    <p className="text-sm text-[#dc2626]">{recentSubmissionsError}</p>
-                  ) : recentSubmissions.length === 0 ? (
-                    <p className="text-sm text-[#777]">No review videos submitted yet.</p>
-                  ) : (
-                    <div className="divide-y divide-[#1e1e1e]">
-                      {recentSubmissions.map((submission) => {
-                        const isOpen = !!openSubmissionIds[submission.id];
-                        const displayDate = formatSubmissionDate(submission.submittedAt ?? submission.createdAt);
-                        return (
-                          <div key={submission.id} className="py-4 first:pt-0 last:pb-0">
-                            <button
-                              type="button"
-                              aria-expanded={isOpen}
-                              aria-controls={`recent-submission-${submission.id}`}
-                              onClick={() => toggleRecentSubmission(submission.id)}
-                              className="flex w-full items-start justify-between gap-4 text-left"
-                            >
-                              <div className="min-w-0">
-                                <div className="mb-2 flex flex-wrap items-center gap-2">
-                                  <span className={`rounded-full border px-3 py-1 text-xs font-medium ${REVIEW_STATUS_STYLES[submission.status]}`}>
-                                    {REVIEW_STATUS_LABELS[submission.status]}
+                  {isRecentSubmissionsOpen ? (
+                    <div id="admin-recent-submissions-panel">
+                      <Link href="/admin/reviews" className="mb-4 inline-block text-xs font-bold tracking-widest uppercase text-[#777] hover:text-white transition-colors sm:hidden">
+                        View all reviews
+                      </Link>
+
+                      {!recentSubmissionsLoaded ? (
+                        <p className="text-sm text-[#777]">Loading recent submissions...</p>
+                      ) : recentSubmissionsError ? (
+                        <p className="text-sm text-[#dc2626]">{recentSubmissionsError}</p>
+                      ) : recentSubmissions.length === 0 ? (
+                        <p className="text-sm text-[#777]">No review videos submitted yet.</p>
+                      ) : (
+                        <div className="divide-y divide-[#1e1e1e]">
+                          {recentSubmissions.map((submission) => {
+                            const isOpen = !!openSubmissionIds[submission.id];
+                            const displayDate = formatSubmissionDate(submission.submittedAt ?? submission.createdAt);
+                            return (
+                              <div key={submission.id} className="py-4 first:pt-0 last:pb-0">
+                                <button
+                                  type="button"
+                                  aria-expanded={isOpen}
+                                  aria-controls={`recent-submission-${submission.id}`}
+                                  onClick={() => toggleRecentSubmission(submission.id)}
+                                  className="flex w-full items-start justify-between gap-4 text-left"
+                                >
+                                  <div className="min-w-0">
+                                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                                      <span className={`rounded-full border px-3 py-1 text-xs font-medium ${REVIEW_STATUS_STYLES[submission.status]}`}>
+                                        {REVIEW_STATUS_LABELS[submission.status]}
+                                      </span>
+                                      <span className="text-xs text-[#555]">{displayDate}</span>
+                                    </div>
+                                    <p className="truncate text-sm text-[#aaa]">
+                                      {submission.note || submission.fileName || "No note added."}
+                                    </p>
+                                  </div>
+                                  <span className="mt-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] transition-colors hover:border-[#444] hover:text-white">
+                                    <span
+                                      aria-hidden="true"
+                                      className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                                    />
                                   </span>
-                                  <span className="text-xs text-[#555]">{displayDate}</span>
-                                </div>
-                                <p className="truncate text-sm text-[#aaa]">
-                                  {submission.note || submission.fileName || "No note added."}
-                                </p>
-                              </div>
-                              <span className="mt-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] transition-colors hover:border-[#444] hover:text-white">
-                                <span
-                                  aria-hidden="true"
-                                  className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
-                                />
-                              </span>
-                            </button>
+                                </button>
 
-                            {isOpen ? (
-                              <div id={`recent-submission-${submission.id}`} className="mt-4 space-y-4">
-                                {submission.playbackId && submission.playbackTokens ? (
-                                  <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} />
-                                ) : (
-                                  <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                                    <p className="text-[#666] text-xs tracking-widest uppercase">
-                                      {submission.status === "error" ? "Upload failed" : "Video not ready"}
-                                    </p>
-                                  </div>
-                                )}
+                                {isOpen ? (
+                                  <div id={`recent-submission-${submission.id}`} className="mt-4 space-y-4">
+                                    {submission.playbackId && submission.playbackTokens ? (
+                                      <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} />
+                                    ) : (
+                                      <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
+                                        <p className="text-[#666] text-xs tracking-widest uppercase">
+                                          {submission.status === "error" ? "Upload failed" : "Video not ready"}
+                                        </p>
+                                      </div>
+                                    )}
 
-                                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                  <div>
-                                    <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Member note</p>
-                                    <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa]">
-                                      {submission.note || "No note added."}
-                                    </p>
-                                  </div>
-                                  <div>
-                                    <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Coach note</p>
-                                    <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa]">
-                                      {submission.coachNote || "No coach note yet."}
-                                    </p>
-                                  </div>
-                                </div>
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                      <div>
+                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Member note</p>
+                                        <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa]">
+                                          {submission.note || "No note added."}
+                                        </p>
+                                      </div>
+                                      <div>
+                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Coach note</p>
+                                        <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa]">
+                                          {submission.coachNote || "No coach note yet."}
+                                        </p>
+                                      </div>
+                                    </div>
 
-                                {submission.errorMessage ? (
-                                  <p className="text-sm text-[#dc2626]">{submission.errorMessage}</p>
+                                    {submission.errorMessage ? (
+                                      <p className="text-sm text-[#dc2626]">{submission.errorMessage}</p>
+                                    ) : null}
+                                  </div>
                                 ) : null}
                               </div>
-                            ) : null}
-                          </div>
-                        );
-                      })}
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                  )}
+                  ) : null}
                 </div>
 
                 {/* Program */}
@@ -819,7 +844,7 @@ export default function AdminPage() {
                     ) : null}
                     <div className="pt-2">
                       <Button onClick={addStep} size="md">
-                        Add Step
+                        Add Video
                       </Button>
                     </div>
                   </div>
