@@ -480,7 +480,7 @@ export default function AdminPage() {
                 Assign To User
               </h2>
               <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
+                <div className="relative min-w-0 flex-1">
                   <input
                     value={lookupEmail}
                     onChange={(e) => {
@@ -510,9 +510,9 @@ export default function AdminPage() {
                             key={user.userId}
                             type="button"
                             onClick={() => handleLookupUser(user.email)}
-                            className="w-full border-b border-[#1e1e1e] px-4 py-3 text-left last:border-b-0 hover:bg-[#111110] transition-colors"
+                            className="w-full overflow-hidden border-b border-[#1e1e1e] px-4 py-3 text-left last:border-b-0 hover:bg-[#111110] transition-colors"
                           >
-                            <p className="text-sm text-white">{user.email}</p>
+                            <p className="truncate text-sm text-white">{user.email}</p>
                             <p className="mt-1 text-[11px] uppercase tracking-widest text-[#666]">
                               {STATUS_LABELS[user.onboardingStatus] ?? user.onboardingStatus}
                             </p>
@@ -534,8 +534,8 @@ export default function AdminPage() {
                 <p className="mt-4 text-sm text-[#dc2626]">No user found with that email.</p>
               )}
               {lookupStatus === "found" && assignedUserEmail && (
-                <p className="mt-4 text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>
-                  Editing: <span className="font-medium">{assignedUserEmail}</span>
+                <p className="mt-4 min-w-0 text-sm break-words" style={{ color: "oklch(0.68 0.14 155)" }}>
+                  Editing: <span className="font-medium break-all">{assignedUserEmail}</span>
                 </p>
               )}
             </div>

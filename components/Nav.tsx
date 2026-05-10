@@ -24,21 +24,30 @@ export default function Nav({
   loadingLabel = 'Starting...',
   onStartTraining,
 }: NavProps) {
-  const [scrolled, setScrolled] = useState(false)
+  const [navSolid, setNavSolid] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const isMinimal = variant === 'minimal'
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', fn, { passive: true })
-    return () => window.removeEventListener('scroll', fn)
-  }, [])
+    const updateNavState = () => {
+      const shortDesktopViewport = window.innerWidth >= 768 && window.innerHeight <= 820
+      setNavSolid(window.scrollY > 12 || (!isMinimal && shortDesktopViewport))
+    }
+
+    updateNavState()
+    window.addEventListener('scroll', updateNavState, { passive: true })
+    window.addEventListener('resize', updateNavState)
+    return () => {
+      window.removeEventListener('scroll', updateNavState)
+      window.removeEventListener('resize', updateNavState)
+    }
+  }, [isMinimal])
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? 'hidden' : ''
     return () => { document.body.style.overflow = '' }
   }, [menuOpen])
 
-  const isMinimal = variant === 'minimal'
   const logoHref = isMinimal ? '/' : '#hero'
 
   const mobileLinks = [
@@ -72,7 +81,7 @@ export default function Nav({
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-28 py-3 md:py-4 border-b border-[#222] transition-all duration-300 ${scrolled ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-28 py-3 md:py-4 border-b border-[#222] transition-all duration-300 ${navSolid ? 'bg-black/95 backdrop-blur-md' : 'bg-transparent'}`}>
         <a href={logoHref} className="flex-shrink-0">
           <Image src="/angle-logo-white.svg" alt="Angle" width={75} height={22} priority className="w-[43px] md:w-[68px] h-auto" />
         </a>
