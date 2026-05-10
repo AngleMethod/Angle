@@ -780,11 +780,11 @@ export default function AnglePage() {
   const isLoggedIn = !!userEmail
   const isActiveSubscriber = subscriptionStatus === 'active'
   const ctaLabel = isActiveSubscriber
-    ? 'Go To Dashboard'
+    ? 'Continue Training'
     : isLoggedIn
     ? 'Complete Membership'
     : 'Start Training'
-  const navCtaLabel = isActiveSubscriber ? 'Dashboard' : ctaLabel
+  const navCtaLabel = isActiveSubscriber ? 'Continue Training' : ctaLabel
   const loadingLabel = isActiveSubscriber ? 'Opening...' : 'Starting...'
 
   return (
