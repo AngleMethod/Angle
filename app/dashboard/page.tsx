@@ -513,17 +513,17 @@ export default function Dashboard() {
                 >
                   Your Training
                 </h1>
-                <p className="text-[#777]">
-                  {onboardingStatus === "not_booked"
-                    ? showBookedBanner
-                      ? "Your setup call is booked."
-                      : "Your training starts with a short setup call."
-                    : onboardingStatus === "booked"
-                    ? "Your setup call is booked. We'll build your plan next."
-                    : workoutLoaded && workout.length > 0
-                    ? "Your current workout playlist."
-                    : "We\u2019re working on your personalized video playlist."}
-                </p>
+                {onboardingStatus === "completed" && workoutLoaded && workout.length > 0 ? null : (
+                  <p className="text-[#777]">
+                    {onboardingStatus === "not_booked"
+                      ? showBookedBanner
+                        ? "Your setup call is booked."
+                        : "Your training starts with a short setup call."
+                      : onboardingStatus === "booked"
+                      ? "Your setup call is booked. We'll build your plan next."
+                      : "We\u2019re working on your personalized video playlist."}
+                  </p>
+                )}
                 {userEmail ? (
                   <p className="mt-2 text-sm text-[#555]">Signed in as {userEmail}</p>
                 ) : null}
@@ -676,7 +676,7 @@ export default function Dashboard() {
                     Submit A Progress Video
                   </h2>
                   <p className="text-[#777] text-sm md:text-base">
-                    Upload a short clip and tell us what you want feedback on.
+                    Upload a short clip.
                   </p>
                 </div>
                 <div className="flex flex-shrink-0 items-center gap-2">
@@ -709,9 +709,6 @@ export default function Dashboard() {
                         disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
                         className="block w-full max-w-full text-sm text-[#aaa] file:mr-3 file:rounded-[4px] file:border-0 file:bg-[#222] file:px-4 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-white file:cursor-pointer disabled:opacity-40"
                       />
-                      <p className="mt-2 text-xs text-[#555]">
-                        Short clips upload fastest. Aim for 10-30 seconds when possible. Max 2 minutes and 500MB.
-                      </p>
                       {reviewFile ? (
                         <div className="mt-3 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-3">
                           <p className="truncate text-sm text-white">{reviewFile.name}</p>
