@@ -405,7 +405,7 @@ export default function AdminPage() {
     <Nav variant="minimal" isLoggedIn={!!userEmail} authReady={isLoaded} />
   );
 
-  const inputClass = "w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40";
+  const inputClass = "w-full min-w-0 rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40";
   const sectionTitleClass = "text-white uppercase tracking-wide";
   const sectionTitleStyle = { fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" };
   const secondaryLinkClass = "inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors";
@@ -420,9 +420,9 @@ export default function AdminPage() {
     return (
       <>
         {MinimalNav}
-        <main className="min-h-screen bg-[#0a0a0a] text-white">
+        <main className="min-h-screen overflow-x-hidden bg-[#0a0a0a] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto w-full min-w-0 max-w-6xl">
               <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Admin</p>
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-6"
@@ -443,12 +443,12 @@ export default function AdminPage() {
   return (
     <>
       {MinimalNav}
-      <main className="min-h-screen bg-[#0a0a0a] text-white">
+      <main className="min-h-screen overflow-x-hidden bg-[#0a0a0a] text-white">
         <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
-          <div className="mx-auto max-w-6xl">
+          <div className="mx-auto w-full min-w-0 max-w-6xl">
             {/* Page header */}
             <div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-              <div>
+              <div className="min-w-0">
                 <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Admin</p>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
@@ -458,7 +458,7 @@ export default function AdminPage() {
                 </h1>
                 <p className="text-[#777]">Assign workouts to users.</p>
                 {userEmail ? (
-                  <p className="mt-2 text-sm text-[#555]">Signed in as {userEmail}</p>
+                  <p className="mt-2 text-sm text-[#555] break-all">Signed in as {userEmail}</p>
                 ) : null}
               </div>
               <div className="flex flex-wrap gap-2">
@@ -543,7 +543,7 @@ export default function AdminPage() {
             {assignedUserId ? (
               <>
                 {/* Onboarding Status */}
-                <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
                   <h2 className={`${sectionTitleClass} mb-6`} style={sectionTitleStyle}>
                     Onboarding Status
                   </h2>
@@ -569,7 +569,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Goals */}
-                <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
                   <div className={`${isGoalsOpen ? "mb-4" : ""} flex items-start justify-between gap-4`}>
                     <div className="min-w-0">
                       <h2 className={sectionTitleClass} style={sectionTitleStyle}>
@@ -608,9 +608,9 @@ export default function AdminPage() {
                 </div>
 
                 {/* Recent Submissions */}
-                <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
                   <div className={`${isRecentSubmissionsOpen ? "mb-5" : ""} flex items-start justify-between gap-4`}>
-                    <div>
+                    <div className="min-w-0">
                       <h2 className={sectionTitleClass} style={sectionTitleStyle}>
                         Recent Submissions
                       </h2>
@@ -696,15 +696,15 @@ export default function AdminPage() {
                                     )}
 
                                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                      <div>
+                                      <div className="min-w-0">
                                         <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Member note</p>
-                                        <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa]">
+                                        <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#aaa]">
                                           {submission.note || "No note added."}
                                         </p>
                                       </div>
-                                      <div>
+                                      <div className="min-w-0">
                                         <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Coach note</p>
-                                        <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa]">
+                                        <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#aaa]">
                                           {submission.coachNote || "No coach note yet."}
                                         </p>
                                       </div>
@@ -725,7 +725,7 @@ export default function AdminPage() {
                 </div>
 
                 {/* Program */}
-                <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
                   <h2 className={`${sectionTitleClass} mb-6`} style={sectionTitleStyle}>
                     Program
                   </h2>
@@ -778,7 +778,7 @@ export default function AdminPage() {
                             <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-3 flex items-center justify-between gap-4">
                               <div className="min-w-0">
                                 <p className="text-white text-sm truncate">{selected.title}</p>
-                                <p className="text-[#666] text-xs tracking-widest uppercase mt-1">
+                                <p className="mt-1 truncate text-xs uppercase tracking-widest text-[#666]">
                                   {(selected.level || "—")} · {(selected.category || "—")}
                                 </p>
                               </div>
@@ -825,10 +825,10 @@ export default function AdminPage() {
                                     key={v.id}
                                     type="button"
                                     onClick={() => { setVideo(v.id); setVideoSearch(""); }}
-                                    className="w-full text-left px-4 py-3 border-b border-[#1e1e1e] last:border-b-0 hover:bg-[#111110] transition-colors"
+                                    className="w-full overflow-hidden border-b border-[#1e1e1e] px-4 py-3 text-left last:border-b-0 hover:bg-[#111110] transition-colors"
                                   >
                                     <p className="text-white text-sm truncate">{v.title}</p>
-                                    <p className="text-[#666] text-xs tracking-widest uppercase mt-1">
+                                    <p className="mt-1 truncate text-xs uppercase tracking-widest text-[#666]">
                                       {(v.level || "—")} · {(v.category || "—")}
                                     </p>
                                   </button>
@@ -862,10 +862,10 @@ export default function AdminPage() {
                       return (
                       <div
                         key={`${step.videoId || step.title || "text-step"}-${i}`}
-                        className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
+                        className="min-w-0 overflow-hidden rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
                       >
                         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                          <h3 className="text-white uppercase tracking-wide" style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(20px, 2vw, 24px)" }}>
+                          <h3 className="min-w-0 break-words text-white uppercase tracking-wide" style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(20px, 2vw, 24px)" }}>
                             Step {i + 1}: {step.title}
                           </h3>
                           <div className="flex flex-wrap gap-2">
@@ -892,27 +892,27 @@ export default function AdminPage() {
                         {stepVideo ? (
                           <>
                             <VideoPlayer playbackId={stepVideo.mux_playback_id} />
-                            <p className="mt-3 text-[#666] text-xs tracking-widest uppercase">
+                            <p className="mt-3 truncate text-xs uppercase tracking-widest text-[#666]">
                               {(stepVideo.level || "—")} · {(stepVideo.category || "—")}
                             </p>
                           </>
                         ) : step.videoId ? (
                           <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                            <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
+                            <p className="px-3 text-center text-xs uppercase tracking-widest text-[#666]">Video not found in library</p>
                           </div>
                         ) : null}
                         {(step.sets || step.repsOrHoldTime) ? (
                           <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
                             {step.sets ? (
-                              <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
+                              <p className="break-words text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
                             ) : null}
                             {step.repsOrHoldTime ? (
-                              <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
+                              <p className="break-words text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
                             ) : null}
                           </div>
                         ) : null}
                         {step.description ? (
-                          <p className="mt-4 whitespace-pre-line text-[#aaa] text-sm leading-relaxed">{step.description}</p>
+                          <p className="mt-4 whitespace-pre-line break-words text-[#aaa] text-sm leading-relaxed">{step.description}</p>
                         ) : null}
                       </div>
                       );
