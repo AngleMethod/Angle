@@ -114,10 +114,6 @@ export default function AdminReviewsPage() {
 
   async function handleSaveReview(submissionId: string) {
     const coachNote = (coachNotes[submissionId] ?? "").trim();
-    if (!coachNote) {
-      setErrorById(prev => ({ ...prev, [submissionId]: "Coach note is required." }));
-      return;
-    }
 
     setSavingId(submissionId);
     setErrorById(prev => ({ ...prev, [submissionId]: "" }));
@@ -381,7 +377,7 @@ export default function AdminReviewsPage() {
                         </div>
 
                         <div>
-                          <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Coach note</label>
+                          <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Coach note optional</label>
                           <textarea
                             value={coachNotes[submission.id] ?? ""}
                             onChange={(e) => setCoachNotes(prev => ({ ...prev, [submission.id]: e.target.value }))}

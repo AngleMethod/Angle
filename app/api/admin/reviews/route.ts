@@ -130,10 +130,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'submissionId is required' }, { status: 400 })
   }
 
-  if (!coachNote) {
-    return NextResponse.json({ error: 'Coach note is required' }, { status: 400 })
-  }
-
   if (coachNote.length > 4000) {
     return NextResponse.json({ error: 'Coach note must be 4000 characters or fewer' }, { status: 400 })
   }
@@ -158,7 +154,7 @@ export async function POST(req: NextRequest) {
     .from('coach_review_submissions')
     .update({
       status: 'reviewed',
-      coach_note: coachNote,
+      coach_note: coachNote || null,
       reviewed_by_email: auth.user.email,
       reviewed_at: now,
       error_message: null,
