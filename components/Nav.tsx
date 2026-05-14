@@ -90,7 +90,9 @@ export default function Nav({
           <div className="hidden md:flex items-center gap-8">
             <a href="#how-it-works" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">How It Works</a>
             <a href="#pricing" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">Pricing</a>
-            <a href="#signin" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">Sign In</a>
+            {authReady && !isLoggedIn && (
+              <a href="#signin" className="text-[#999] text-xs tracking-widest uppercase hover:text-white transition-colors">Sign In</a>
+            )}
           </div>
         )}
 

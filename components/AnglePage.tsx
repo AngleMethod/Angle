@@ -60,9 +60,16 @@ function Hero({
 }) {
   const [scrollVisible, setScrollVisible] = useState(true)
   useEffect(() => {
-    const fn = () => setScrollVisible(window.scrollY < 60)
-    window.addEventListener('scroll', fn, { passive: true })
-    return () => window.removeEventListener('scroll', fn)
+    const updateScrollPrompt = () => {
+      setScrollVisible(window.scrollY < 60 && window.innerHeight >= 780)
+    }
+    updateScrollPrompt()
+    window.addEventListener('scroll', updateScrollPrompt, { passive: true })
+    window.addEventListener('resize', updateScrollPrompt)
+    return () => {
+      window.removeEventListener('scroll', updateScrollPrompt)
+      window.removeEventListener('resize', updateScrollPrompt)
+    }
   }, [])
 
   const heroPills = [
@@ -604,7 +611,7 @@ function SignIn({
 }
 
 // ── Footer ────────────────────────────────────────────────────────────────────
-function Footer() {
+function Footer({ authReady, isLoggedIn }: { authReady: boolean; isLoggedIn: boolean }) {
   return (
     <footer className="bg-white border-t border-[#e5e5e5] py-8 md:py-10 px-6 md:px-12">
       <div className="max-w-6xl mx-auto flex flex-col items-center gap-6">
@@ -613,7 +620,9 @@ function Footer() {
           <a href="#how-it-works" className="hover:text-[#444] transition-colors">How It Works</a>
           <a href="#pricing" className="hover:text-[#444] transition-colors">Pricing</a>
           <a href="#faq" className="hover:text-[#444] transition-colors">FAQ</a>
-          <a href="#signin" className="hover:text-[#444] transition-colors">Sign In</a>
+          {authReady && !isLoggedIn && (
+            <a href="#signin" className="hover:text-[#444] transition-colors">Sign In</a>
+          )}
         </div>
         <p className="text-[#777] text-xs">© 2026 Angle. All rights reserved.</p>
       </div>
@@ -830,7 +839,7 @@ export default function AnglePage() {
         onLogin={handleLogin}
         onLogout={handleLogout}
       />
-      <Footer />
+      <Footer authReady={authReady} isLoggedIn={isLoggedIn} />
     </main>
   )
 }
