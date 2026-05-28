@@ -432,6 +432,9 @@ export default function Dashboard() {
     reviewed: "Reviewed",
     error: "Error",
   };
+  const reviewedCoachNoteCount = reviewSubmissions.filter(
+    (submission) => submission.status === "reviewed" && !!submission.coachNote?.trim()
+  ).length;
 
   if (!isLoaded) {
     return (
@@ -680,6 +683,15 @@ export default function Dashboard() {
                   </p>
                 </div>
                 <div className="flex flex-shrink-0 items-center gap-2">
+                  {reviewedCoachNoteCount > 0 ? (
+                    <span
+                      aria-label={`${reviewedCoachNoteCount} coach ${reviewedCoachNoteCount === 1 ? "note" : "notes"}`}
+                      title={`${reviewedCoachNoteCount} coach ${reviewedCoachNoteCount === 1 ? "note" : "notes"}`}
+                      className="inline-flex h-9 min-w-9 items-center justify-center rounded-full border border-blue-900 bg-[oklch(0.18_0.06_240)] px-3 text-xs font-medium text-[oklch(0.65_0.14_240)]"
+                    >
+                      {reviewedCoachNoteCount}
+                    </span>
+                  ) : null}
                   <button
                     type="button"
                     aria-label={isCoachReviewOpen ? "Collapse coach review" : "Expand coach review"}
