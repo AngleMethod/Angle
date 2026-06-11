@@ -7,6 +7,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const ADMIN_EMAILS = [
   'josh@anglemethod.com',
   'morgan@anglemethod.com',
+  'ninagrishchenko2003@gmail.com',
 ]
 
 type Step = { videoId?: string }

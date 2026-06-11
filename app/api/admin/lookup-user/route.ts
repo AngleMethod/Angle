@@ -5,6 +5,7 @@ import { createAdminClient, findUserByEmail } from '@/lib/supabase'
 const ADMIN_EMAILS = [
   'josh@anglemethod.com',
   'morgan@anglemethod.com',
+  'ninagrishchenko2003@gmail.com',
 ]
 
 async function isAdmin(req: NextRequest): Promise<boolean> {

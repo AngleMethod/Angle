@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase'
 const ADMIN_EMAILS = [
   'josh@anglemethod.com',
   'morgan@anglemethod.com',
+  'ninagrishchenko2003@gmail.com',
 ]
 
 const { MUX_TOKEN_ID, MUX_TOKEN_SECRET } = process.env

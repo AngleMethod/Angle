@@ -9,6 +9,7 @@ export const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024
 const ADMIN_EMAILS = [
   'josh@anglemethod.com',
   'morgan@anglemethod.com',
+  'ninagrishchenko2003@gmail.com',
 ]
 
 let muxClient: Mux | null = null

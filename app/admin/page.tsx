@@ -58,6 +58,7 @@ type RecentSubmission = {
 const ADMIN_EMAILS = [
   "josh@anglemethod.com",
   "morgan@anglemethod.com",
+  "ninagrishchenko2003@gmail.com",
 ];
 
 const STATUS_LABELS: Record<OnboardingStatus, string> = {

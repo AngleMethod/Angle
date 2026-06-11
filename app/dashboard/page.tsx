@@ -59,6 +59,7 @@ type MuxVideoRecord = {
 const ADMIN_EMAILS = [
   "josh@anglemethod.com",
   "morgan@anglemethod.com",
+  "ninagrishchenko2003@gmail.com",
 ];
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;

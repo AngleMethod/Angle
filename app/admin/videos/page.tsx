@@ -12,6 +12,7 @@ import VideoPlayer from "@/components/VideoPlayer";
 const ADMIN_EMAILS = [
   "josh@anglemethod.com",
   "morgan@anglemethod.com",
+  "ninagrishchenko2003@gmail.com",
 ];
 
 type Video = {
