@@ -34,7 +34,7 @@ type ReviewRequestBody = {
   coachNote?: unknown
 }
 
-const DELETABLE_STATUSES: AdminReviewStatus[] = ['submitted', 'reviewed', 'error']
+const DELETABLE_STATUSES: AdminReviewStatus[] = ['uploading', 'processing', 'submitted', 'reviewed', 'error']
 
 function isPlayableStatus(status: AdminReviewRow['status']) {
   return status === 'submitted' || status === 'reviewed'
@@ -193,7 +193,7 @@ export async function DELETE(req: NextRequest) {
   const admin = createAdminClient()
   const { data: existing, error: existingErr } = await admin
     .from('coach_review_submissions')
-    .select('id, status, mux_asset_id')
+    .select('id, status, mux_upload_id, mux_asset_id')
     .eq('id', submissionId)
     .single()
 
@@ -220,6 +220,21 @@ export async function DELETE(req: NextRequest) {
         console.error('[admin/reviews DELETE] Failed to delete Mux asset:', describeError(err))
         return NextResponse.json(
           { error: `Failed to delete video from Mux: ${describeError(err)}` },
+          { status: 502 }
+        )
+      }
+    }
+  } else if (existing.mux_upload_id) {
+    try {
+      const mux = getMuxClient()
+      await mux.video.uploads.cancel(existing.mux_upload_id)
+    } catch (err) {
+      if (isMuxNotFoundError(err)) {
+        console.warn('[admin/reviews DELETE] Mux upload was already gone:', existing.mux_upload_id)
+      } else {
+        console.error('[admin/reviews DELETE] Failed to cancel Mux upload:', describeError(err))
+        return NextResponse.json(
+          { error: `Failed to cancel video upload in Mux: ${describeError(err)}` },
           { status: 502 }
         )
       }

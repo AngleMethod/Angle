@@ -146,7 +146,7 @@ export default function AdminReviewsPage() {
       return;
     }
 
-    const confirmed = window.confirm("Delete this submitted video? This removes it from Angle and Mux.");
+    const confirmed = window.confirm("Delete this review upload? This removes the row from Angle and cleans up the Mux upload or asset when possible.");
     if (!confirmed) return;
 
     setDeletingId(submission.id);
@@ -195,7 +195,7 @@ export default function AdminReviewsPage() {
   };
 
   function isDeletableStatus(status: ReviewSubmissionStatus) {
-    return status === "submitted" || status === "reviewed" || status === "error";
+    return status === "uploading" || status === "processing" || status === "submitted" || status === "reviewed" || status === "error";
   }
 
   function isNeedsReviewStatus(status: ReviewSubmissionStatus) {
