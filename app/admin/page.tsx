@@ -91,6 +91,10 @@ function formatSubmissionDate(value: string | null): string {
   return date.toLocaleDateString();
 }
 
+function getMuxThumbnailUrl(playbackId: string): string {
+  return `https://image.mux.com/${encodeURIComponent(playbackId)}/thumbnail.jpg?time=1&width=320&fit_mode=smartcrop`;
+}
+
 export default function AdminPage() {
   const router = useRouter();
 
@@ -783,7 +787,10 @@ export default function AdminPage() {
                         const selected = videoLibrary.find(v => v.id === video) ?? null;
                         if (selected) {
                           return (
-                            <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-3 flex items-center justify-between gap-4">
+                            <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                              <div className="w-full flex-shrink-0 sm:w-[180px]">
+                                <VideoPlayer playbackId={selected.mux_playback_id} />
+                              </div>
                               <div className="min-w-0">
                                 <p className="text-white text-sm truncate">{selected.title}</p>
                                 <p className="mt-1 truncate text-xs uppercase tracking-widest text-[#666]">
@@ -821,7 +828,7 @@ export default function AdminPage() {
                               disabled={!videoLibraryLoaded}
                               className={`${inputClass} mb-2`}
                             />
-                            <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] max-h-60 overflow-y-auto">
+                            <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] max-h-96 overflow-y-auto">
                               {!videoLibraryLoaded ? (
                                 <p className="px-4 py-3 text-[#777] text-sm">Loading library...</p>
                               ) : videoLibrary.length === 0 ? (
@@ -840,12 +847,32 @@ export default function AdminPage() {
                                         setDescription(v.description.trim());
                                       }
                                     }}
-                                    className="w-full overflow-hidden border-b border-[#1e1e1e] px-4 py-3 text-left last:border-b-0 hover:bg-[#111110] transition-colors"
+                                    className="grid w-full grid-cols-[112px_minmax(0,1fr)] gap-4 overflow-hidden border-b border-[#1e1e1e] px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-[#111110] sm:grid-cols-[140px_minmax(0,1fr)]"
                                   >
+                                    <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-[#1e1e1e] bg-[#111110]">
+                                      <span
+                                        aria-hidden="true"
+                                        className="absolute inset-0 bg-cover bg-center"
+                                        style={{ backgroundImage: `url(${getMuxThumbnailUrl(v.mux_playback_id)})` }}
+                                      />
+                                      <span
+                                        aria-hidden="true"
+                                        className="absolute inset-0 flex items-center justify-center bg-black/20"
+                                      >
+                                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/70 bg-black/60 text-white shadow-lg">
+                                          <span className="ml-0.5 h-0 w-0 border-y-[7px] border-l-[11px] border-y-transparent border-l-current" />
+                                        </span>
+                                      </span>
+                                    </div>
+                                    <div className="min-w-0 self-center">
                                     <p className="text-white text-sm truncate">{v.title}</p>
                                     <p className="mt-1 truncate text-xs uppercase tracking-widest text-[#666]">
                                       {(v.level || "—")} · {(v.category || "—")}
                                     </p>
+                                      {v.description ? (
+                                        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#777]">{v.description}</p>
+                                      ) : null}
+                                    </div>
                                   </button>
                                 ))
                               )}
