@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -95,6 +95,34 @@ export default function Dashboard() {
   const [reviewUploadProgress, setReviewUploadProgress] = useState(0);
   const [reviewUploadError, setReviewUploadError] = useState("");
   const [isCoachReviewOpen, setIsCoachReviewOpen] = useState(false);
+
+  const getAccessToken = useCallback(async (): Promise<string | null> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token ?? null;
+  }, []);
+
+  const loadReviewSubmissions = useCallback(async (accessToken?: string | null) => {
+    const token = accessToken ?? await getAccessToken();
+    if (!token) return;
+
+    try {
+      const res = await fetch("/api/dashboard/reviews", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        setReviewsLoaded(true);
+        return;
+      }
+
+      const data = await res.json();
+      setReviewSubmissions((data.submissions ?? []) as ReviewSubmission[]);
+      setReviewsLoaded(true);
+    } catch (err) {
+      console.error("Review submissions lookup failed:", err);
+      setReviewsLoaded(true);
+    }
+  }, [getAccessToken]);
 
   useEffect(() => {
     let isMounted = true;
@@ -194,35 +222,7 @@ export default function Dashboard() {
       isMounted = false;
       authListener.subscription.unsubscribe();
     };
-  }, [router]);
-
-  async function getAccessToken(): Promise<string | null> {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token ?? null;
-  }
-
-  async function loadReviewSubmissions(accessToken?: string | null) {
-    const token = accessToken ?? await getAccessToken();
-    if (!token) return;
-
-    try {
-      const res = await fetch("/api/dashboard/reviews", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        setReviewsLoaded(true);
-        return;
-      }
-
-      const data = await res.json();
-      setReviewSubmissions((data.submissions ?? []) as ReviewSubmission[]);
-      setReviewsLoaded(true);
-    } catch (err) {
-      console.error("Review submissions lookup failed:", err);
-      setReviewsLoaded(true);
-    }
-  }
+  }, [loadReviewSubmissions, router]);
 
   function resetReviewUpload() {
     setReviewFile(null);
@@ -631,6 +631,7 @@ export default function Dashboard() {
                   <div className="space-y-4 md:space-y-6">
                     {workout.map((step, i) => {
                       const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
+                      const displayDescription = step.description || muxVideo?.description || "";
                       return (
                         <div key={`${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
                           <h2
@@ -658,8 +659,8 @@ export default function Dashboard() {
                               ) : null}
                             </div>
                           ) : null}
-                          {step.description ? (
-                            <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{step.description}</p>
+                          {displayDescription ? (
+                            <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{displayDescription}</p>
                           ) : null}
                         </div>
                       );

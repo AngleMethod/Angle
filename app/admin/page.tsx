@@ -20,6 +20,7 @@ type VideoOption = {
   id: string;
   mux_playback_id: string;
   title: string;
+  description: string | null;
   level: string | null;
   category: string | null;
 };
@@ -293,6 +294,9 @@ export default function AdminPage() {
 
     let stepsToSave = workout;
     const pendingVideoId = video.trim();
+    const pendingVideoDescription = pendingVideoId
+      ? videoLibrary.find(v => v.id === pendingVideoId)?.description?.trim() ?? ""
+      : "";
     const hasPendingStep = !!(
       title.trim() ||
       description.trim() ||
@@ -303,7 +307,7 @@ export default function AdminPage() {
     if (hasPendingStep) {
       const pendingStep: WorkoutStep = {
         title: title.trim() || `Step ${workout.length + 1}`,
-        description: description.trim(),
+        description: description.trim() || pendingVideoDescription,
         sets: sets.trim(),
         repsOrHoldTime: repsOrHoldTime.trim(),
       };
@@ -360,9 +364,12 @@ export default function AdminPage() {
       return;
     }
     setAddStepError("");
+    const videoDescription = videoId
+      ? videoLibrary.find(v => v.id === videoId)?.description?.trim() ?? ""
+      : "";
     const newStep: WorkoutStep = {
       title: title.trim() || `Step ${workout.length + 1}`,
-      description: description.trim(),
+      description: description.trim() || videoDescription,
       sets: sets.trim(),
       repsOrHoldTime: repsOrHoldTime.trim(),
     };
@@ -798,6 +805,7 @@ export default function AdminPage() {
                         const filtered = term
                           ? videoLibrary.filter(v =>
                               v.title.toLowerCase().includes(term) ||
+                              (v.description ?? "").toLowerCase().includes(term) ||
                               (v.level ?? "").toLowerCase().includes(term) ||
                               (v.category ?? "").toLowerCase().includes(term)
                             )
@@ -825,7 +833,13 @@ export default function AdminPage() {
                                   <button
                                     key={v.id}
                                     type="button"
-                                    onClick={() => { setVideo(v.id); setVideoSearch(""); }}
+                                    onClick={() => {
+                                      setVideo(v.id);
+                                      setVideoSearch("");
+                                      if (!description.trim() && v.description?.trim()) {
+                                        setDescription(v.description.trim());
+                                      }
+                                    }}
                                     className="w-full overflow-hidden border-b border-[#1e1e1e] px-4 py-3 text-left last:border-b-0 hover:bg-[#111110] transition-colors"
                                   >
                                     <p className="text-white text-sm truncate">{v.title}</p>
@@ -860,6 +874,7 @@ export default function AdminPage() {
                   ) : (
                     workout.map((step, i) => {
                       const stepVideo = step.videoId ? videoLibrary.find(v => v.id === step.videoId) ?? null : null;
+                      const displayDescription = step.description || stepVideo?.description || "";
                       return (
                       <div
                         key={`${step.videoId || step.title || "text-step"}-${i}`}
@@ -912,8 +927,8 @@ export default function AdminPage() {
                             ) : null}
                           </div>
                         ) : null}
-                        {step.description ? (
-                          <p className="mt-4 whitespace-pre-line break-words text-[#aaa] text-sm leading-relaxed">{step.description}</p>
+                        {displayDescription ? (
+                          <p className="mt-4 whitespace-pre-line break-words text-[#aaa] text-sm leading-relaxed">{displayDescription}</p>
                         ) : null}
                       </div>
                       );
