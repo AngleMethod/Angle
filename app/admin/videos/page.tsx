@@ -38,6 +38,10 @@ export default function AdminVideosPage() {
   const [loadingVideos, setLoadingVideos] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteMessage, setDeleteMessage] = useState("");
+  const [editingDescriptionId, setEditingDescriptionId] = useState<string | null>(null);
+  const [descriptionDraft, setDescriptionDraft] = useState("");
+  const [savingDescriptionId, setSavingDescriptionId] = useState<string | null>(null);
+  const [descriptionMessage, setDescriptionMessage] = useState("");
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -86,6 +90,7 @@ export default function AdminVideosPage() {
   const fetchVideos = useCallback(async () => {
     setLoadingVideos(true);
     setDeleteMessage("");
+    setDescriptionMessage("");
     const token = await getAccessToken();
     const res = await fetch("/api/admin/videos", {
       headers: { Authorization: `Bearer ${token}` },
@@ -132,6 +137,49 @@ export default function AdminVideosPage() {
     setVideos(prev => prev.filter(item => item.id !== video.id));
     setDeleteMessage(`Deleted. Cleaned ${data.removedAssignments ?? 0} assigned workout${data.removedAssignments === 1 ? "" : "s"}.`);
     setDeletingId(null);
+  }
+
+  function startEditingDescription(video: Video) {
+    setEditingDescriptionId(video.id);
+    setDescriptionDraft(video.description ?? "");
+    setDescriptionMessage("");
+  }
+
+  function cancelEditingDescription() {
+    setEditingDescriptionId(null);
+    setDescriptionDraft("");
+  }
+
+  async function handleSaveDescription(video: Video) {
+    setSavingDescriptionId(video.id);
+    setDescriptionMessage("");
+
+    const token = await getAccessToken();
+    const res = await fetch("/api/admin/videos", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        videoId: video.id,
+        description: descriptionDraft,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({} as { error?: string; video?: Video }));
+    if (!res.ok || !data.video) {
+      setDescriptionMessage(data?.error || "Failed to update description.");
+      setSavingDescriptionId(null);
+      return;
+    }
+
+    setVideos(prev => prev.map(item => item.id === video.id ? data.video as Video : item));
+    setEditingDescriptionId(null);
+    setDescriptionDraft("");
+    setSavingDescriptionId(null);
+    setDescriptionMessage("Description saved.");
+    setTimeout(() => setDescriptionMessage(""), 2000);
   }
 
   function resetForm() {
@@ -440,11 +488,18 @@ export default function AdminVideosPage() {
               </div>
             ) : null}
 
-            <div className="overflow-hidden rounded-lg border border-[#1e1e1e]">
+            <div className="overflow-x-auto rounded-lg border border-[#1e1e1e]">
               {deleteMessage ? (
                 <div className="border-b border-[#1e1e1e] bg-[#111110] px-6 py-3">
                   <p className={`text-sm ${deleteMessage.startsWith("Deleted.") ? "text-[#777]" : "text-[#dc2626]"}`}>
                     {deleteMessage}
+                  </p>
+                </div>
+              ) : null}
+              {descriptionMessage ? (
+                <div className="border-b border-[#1e1e1e] bg-[#111110] px-6 py-3">
+                  <p className={`text-sm ${descriptionMessage === "Description saved." ? "text-[#777]" : "text-[#dc2626]"}`}>
+                    {descriptionMessage}
                   </p>
                 </div>
               ) : null}
@@ -453,6 +508,7 @@ export default function AdminVideosPage() {
                   <tr>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium w-[180px]">Preview</th>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Title</th>
+                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Description</th>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Level</th>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Category</th>
                     <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Created</th>
@@ -462,11 +518,11 @@ export default function AdminVideosPage() {
                 <tbody>
                   {loadingVideos ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-6 text-[#777] text-sm">Loading videos...</td>
+                      <td colSpan={7} className="px-6 py-6 text-[#777] text-sm">Loading videos...</td>
                     </tr>
                   ) : videos.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-6 text-[#777] text-sm">No videos yet. Upload your first one.</td>
+                      <td colSpan={7} className="px-6 py-6 text-[#777] text-sm">No videos yet. Upload your first one.</td>
                     </tr>
                   ) : (
                     videos.map((v) => (
@@ -477,6 +533,50 @@ export default function AdminVideosPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 text-white text-sm">{v.title}</td>
+                        <td className="min-w-[280px] px-6 py-4 align-top text-sm">
+                          {editingDescriptionId === v.id ? (
+                            <div className="space-y-3">
+                              <textarea
+                                value={descriptionDraft}
+                                onChange={(e) => setDescriptionDraft(e.target.value)}
+                                rows={4}
+                                disabled={savingDescriptionId === v.id}
+                                className="w-full min-w-0 rounded-lg border border-[#222] bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder-[#444] focus:border-[#555] focus:outline-none disabled:opacity-40"
+                              />
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSaveDescription(v)}
+                                  disabled={savingDescriptionId === v.id}
+                                  className="rounded-[4px] border border-[#333] bg-white px-3 py-2 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-[#e0e0e0] disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  {savingDescriptionId === v.id ? "Saving..." : "Save"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={cancelEditingDescription}
+                                  disabled={savingDescriptionId === v.id}
+                                  className="rounded-[4px] border border-[#222] px-3 py-2 text-xs font-bold uppercase tracking-widest text-[#999] transition-colors hover:border-[#444] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              <p className="whitespace-pre-line break-words leading-relaxed text-[#aaa]">
+                                {v.description || "No description."}
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => startEditingDescription(v)}
+                                className="text-xs font-bold uppercase tracking-widest text-[#777] transition-colors hover:text-white"
+                              >
+                                Edit
+                              </button>
+                            </div>
+                          )}
+                        </td>
                         <td className="px-6 py-4 text-[#aaa] text-sm">{v.level || "—"}</td>
                         <td className="px-6 py-4 text-[#aaa] text-sm">{v.category || "—"}</td>
                         <td className="px-6 py-4 text-[#777] text-sm">{new Date(v.created_at).toLocaleDateString()}</td>

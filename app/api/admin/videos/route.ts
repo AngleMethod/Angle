@@ -234,6 +234,42 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ video: data })
 }
 
+export async function PATCH(req: NextRequest) {
+  const adminUser = await getAuthedAdminUser(req)
+  if (!adminUser) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+  }
+
+  const body = await req.json().catch(() => ({}))
+  const videoId = typeof body?.videoId === 'string' ? body.videoId.trim() : ''
+  const description = typeof body?.description === 'string' ? body.description.trim() || null : null
+
+  if (!videoId) {
+    return NextResponse.json({ error: 'videoId is required' }, { status: 400 })
+  }
+
+  const admin = createAdminClient()
+  const { data, error } = await admin
+    .from('videos')
+    .update({ description })
+    .eq('id', videoId)
+    .is('archived_at', null)
+    .select('id, mux_playback_id, title, description, level, category, duration_seconds, created_at')
+    .single()
+
+  if (error) {
+    console.error('[videos PATCH] Supabase update failed:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    })
+    return NextResponse.json({ error: `Failed to update video: ${error.message}` }, { status: 500 })
+  }
+
+  return NextResponse.json({ video: data })
+}
+
 export async function DELETE(req: NextRequest) {
   const adminUser = await getAuthedAdminUser(req)
   if (!adminUser) {
