@@ -298,9 +298,10 @@ export default function AdminPage() {
 
     let stepsToSave = workout;
     const pendingVideoId = video.trim();
-    const pendingVideoDescription = pendingVideoId
-      ? videoLibrary.find(v => v.id === pendingVideoId)?.description?.trim() ?? ""
-      : "";
+    const pendingVideo = pendingVideoId
+      ? videoLibrary.find(v => v.id === pendingVideoId) ?? null
+      : null;
+    const pendingVideoDescription = pendingVideo?.description?.trim() ?? "";
     const hasPendingStep = !!(
       title.trim() ||
       description.trim() ||
@@ -310,7 +311,7 @@ export default function AdminPage() {
     );
     if (hasPendingStep) {
       const pendingStep: WorkoutStep = {
-        title: title.trim() || `Step ${workout.length + 1}`,
+        title: title.trim() || pendingVideo?.title.trim() || `Step ${workout.length + 1}`,
         description: description.trim() || pendingVideoDescription,
         sets: sets.trim(),
         repsOrHoldTime: repsOrHoldTime.trim(),
@@ -368,11 +369,12 @@ export default function AdminPage() {
       return;
     }
     setAddStepError("");
-    const videoDescription = videoId
-      ? videoLibrary.find(v => v.id === videoId)?.description?.trim() ?? ""
-      : "";
+    const selectedVideo = videoId
+      ? videoLibrary.find(v => v.id === videoId) ?? null
+      : null;
+    const videoDescription = selectedVideo?.description?.trim() ?? "";
     const newStep: WorkoutStep = {
-      title: title.trim() || `Step ${workout.length + 1}`,
+      title: title.trim() || selectedVideo?.title.trim() || `Step ${workout.length + 1}`,
       description: description.trim() || videoDescription,
       sets: sets.trim(),
       repsOrHoldTime: repsOrHoldTime.trim(),
@@ -390,6 +392,12 @@ export default function AdminPage() {
 
   function removeStep(index: number) {
     setWorkout(workout.filter((_, i) => i !== index));
+  }
+
+  function updateStep(index: number, patch: Partial<WorkoutStep>) {
+    setWorkout(prev => prev.map((step, i) => (
+      i === index ? { ...step, ...patch } : step
+    )));
   }
 
   function moveStepUp(index: number) {
@@ -843,6 +851,9 @@ export default function AdminPage() {
                                     onClick={() => {
                                       setVideo(v.id);
                                       setVideoSearch("");
+                                      if (!title.trim()) {
+                                        setTitle(v.title);
+                                      }
                                       if (!description.trim() && v.description?.trim()) {
                                         setDescription(v.description.trim());
                                       }
@@ -901,7 +912,6 @@ export default function AdminPage() {
                   ) : (
                     workout.map((step, i) => {
                       const stepVideo = step.videoId ? videoLibrary.find(v => v.id === step.videoId) ?? null : null;
-                      const displayDescription = step.description || stepVideo?.description || "";
                       return (
                       <div
                         key={`${step.videoId || step.title || "text-step"}-${i}`}
@@ -909,7 +919,7 @@ export default function AdminPage() {
                       >
                         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                           <h3 className="min-w-0 break-words text-white uppercase tracking-wide" style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(20px, 2vw, 24px)" }}>
-                            Step {i + 1}: {step.title}
+                            Step {i + 1}
                           </h3>
                           <div className="flex flex-wrap gap-2">
                             <button
@@ -932,6 +942,37 @@ export default function AdminPage() {
                             </button>
                           </div>
                         </div>
+                        <div className="mb-4 grid grid-cols-1 gap-4">
+                          <div>
+                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Title</label>
+                            <input
+                              value={step.title}
+                              onChange={(e) => updateStep(i, { title: e.target.value })}
+                              placeholder={stepVideo?.title || `Step ${i + 1}`}
+                              className={inputClass}
+                            />
+                          </div>
+                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                              <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Sets</label>
+                              <input
+                                value={step.sets ?? ""}
+                                onChange={(e) => updateStep(i, { sets: e.target.value })}
+                                placeholder="e.g. 3"
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Reps / Hold Time</label>
+                              <input
+                                value={step.repsOrHoldTime ?? ""}
+                                onChange={(e) => updateStep(i, { repsOrHoldTime: e.target.value })}
+                                placeholder="e.g. 30-45 sec"
+                                className={inputClass}
+                              />
+                            </div>
+                          </div>
+                        </div>
                         {stepVideo ? (
                           <>
                             <VideoPlayer playbackId={stepVideo.mux_playback_id} />
@@ -944,19 +985,16 @@ export default function AdminPage() {
                             <p className="px-3 text-center text-xs uppercase tracking-widest text-[#666]">Video not found in library</p>
                           </div>
                         ) : null}
-                        {(step.sets || step.repsOrHoldTime) ? (
-                          <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
-                            {step.sets ? (
-                              <p className="break-words text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
-                            ) : null}
-                            {step.repsOrHoldTime ? (
-                              <p className="break-words text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
-                            ) : null}
-                          </div>
-                        ) : null}
-                        {displayDescription ? (
-                          <p className="mt-4 whitespace-pre-line break-words text-[#aaa] text-sm leading-relaxed">{displayDescription}</p>
-                        ) : null}
+                        <div className="mt-4">
+                          <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Description</label>
+                          <textarea
+                            value={step.description}
+                            onChange={(e) => updateStep(i, { description: e.target.value })}
+                            rows={4}
+                            placeholder={stepVideo?.description || "Optional"}
+                            className={`${inputClass} min-h-[110px] resize-y`}
+                          />
+                        </div>
                       </div>
                       );
                     })
