@@ -819,10 +819,7 @@ export default function AdminPage() {
                         const term = videoSearch.trim().toLowerCase();
                         const filtered = term
                           ? videoLibrary.filter(v =>
-                              v.title.toLowerCase().includes(term) ||
-                              (v.description ?? "").toLowerCase().includes(term) ||
-                              (v.level ?? "").toLowerCase().includes(term) ||
-                              (v.category ?? "").toLowerCase().includes(term)
+                              v.title.toLowerCase().includes(term)
                             )
                           : videoLibrary;
 
