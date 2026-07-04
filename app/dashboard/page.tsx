@@ -16,12 +16,11 @@ type WorkoutStep = {
   videoId?: string;
   sets?: string;
   repsOrHoldTime?: string;
-  section?: WorkoutSection;
+  frequency?: string;
+  section?: string;
   sectionTitle?: string;
   sectionDescription?: string;
 };
-
-type WorkoutSection = "handstand" | "flexibility";
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 type ReviewUploadStage = "idle" | "uploading" | "saving" | "success" | "error";
@@ -68,13 +67,14 @@ const ADMIN_EMAILS = [
 ];
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
-const WORKOUT_SECTION_DISPLAY: { value: WorkoutSection; title: string; description: string }[] = [
-  { value: "handstand", title: "Handstand Practice", description: "Handstand Practice - 6x/week" },
-  { value: "flexibility", title: "Flexibility", description: "Do 3x/week" },
-];
+const DEFAULT_FREQUENCY = "Handstand Practice - 6x/week";
 
-function normalizeWorkoutSection(value: unknown): WorkoutSection {
-  return value === "flexibility" ? "flexibility" : "handstand";
+function getWorkoutFrequency(step: WorkoutStep): string {
+  if (step.frequency?.trim()) return step.frequency.trim();
+  if (step.sectionDescription?.trim()) return step.sectionDescription.trim();
+  if (step.sectionTitle?.trim()) return step.sectionTitle.trim();
+  if (step.section === "flexibility") return "Flexibility - 3x/week";
+  return DEFAULT_FREQUENCY;
 }
 
 function formatFileSize(bytes: number): string {
@@ -642,42 +642,31 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <div className="space-y-8 md:space-y-10">
-                    {WORKOUT_SECTION_DISPLAY.map((sectionConfig) => {
-                      const sectionSteps = workout.filter(step => normalizeWorkoutSection(step.section) === sectionConfig.value);
-                      if (sectionSteps.length === 0) return null;
-                      const sectionGroups = sectionSteps.reduce<Array<{ title: string; description: string; steps: WorkoutStep[] }>>((groups, step) => {
-                        const title = step.sectionTitle?.trim() || sectionConfig.title;
-                        const description = step.sectionDescription?.trim() || sectionConfig.description;
-                        const existingGroup = groups.find(group => group.title === title && group.description === description);
-                        if (existingGroup) {
-                          existingGroup.steps.push(step);
-                        } else {
-                          groups.push({ title, description, steps: [step] });
-                        }
-                        return groups;
-                      }, []);
-
-                      return (
-                        <div key={sectionConfig.value} className="space-y-8 md:space-y-10">
-                          {sectionGroups.map((group, groupIndex) => (
-                        <section key={`${sectionConfig.value}-${group.title}-${groupIndex}`} className="space-y-4 md:space-y-6">
+                    {workout.reduce<Array<{ frequency: string; steps: WorkoutStep[] }>>((groups, step) => {
+                      const frequency = getWorkoutFrequency(step);
+                      const existingGroup = groups.find(group => group.frequency === frequency);
+                      if (existingGroup) {
+                        existingGroup.steps.push(step);
+                      } else {
+                        groups.push({ frequency, steps: [step] });
+                      }
+                      return groups;
+                    }, []).map((group, groupIndex) => (
+                        <section key={`${group.frequency}-${groupIndex}`} className="space-y-4 md:space-y-6">
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                             <h2
                               className="text-white uppercase tracking-wide"
                               style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
                             >
-                              {group.title}
+                              {group.frequency}
                             </h2>
-                            <p className="text-xs font-medium uppercase tracking-widest text-[#777]">
-                              {group.description}
-                            </p>
                           </div>
 
                           {group.steps.map((step, i) => {
                             const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
                             const displayDescription = step.description || muxVideo?.description || "";
                             return (
-                              <div key={`${sectionConfig.value}-${groupIndex}-${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+                              <div key={`${groupIndex}-${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
                                 <h3
                                   className="text-white uppercase tracking-wide mb-4 md:mb-6"
                                   style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
@@ -710,10 +699,7 @@ export default function Dashboard() {
                             );
                           })}
                         </section>
-                          ))}
-                        </div>
-                      );
-                    })}
+                    ))}
                   </div>
                 )}
               </>

@@ -14,12 +14,11 @@ type WorkoutStep = {
   videoId?: string;
   sets?: string;
   repsOrHoldTime?: string;
-  section?: WorkoutSection;
+  frequency?: string;
+  section?: string;
   sectionTitle?: string;
   sectionDescription?: string;
 };
-
-type WorkoutSection = "handstand" | "flexibility";
 
 type VideoOption = {
   id: string;
@@ -89,31 +88,14 @@ const REVIEW_STATUS_STYLES: Record<ReviewSubmissionStatus, string> = {
   error: "border-[#dc2626] text-[#dc2626]",
 };
 
-const WORKOUT_SECTION_OPTIONS: { value: WorkoutSection; label: string; frequency: string }[] = [
-  { value: "handstand", label: "Handstand Practice", frequency: "6x/week" },
-  { value: "flexibility", label: "Flexibility", frequency: "3x/week" },
-];
+const DEFAULT_FREQUENCY = "Handstand Practice - 6x/week";
 
-const DEFAULT_SECTION_TITLES: Record<WorkoutSection, string> = {
-  handstand: "Handstand Practice",
-  flexibility: "Flexibility",
-};
-
-const DEFAULT_SECTION_DESCRIPTIONS: Record<WorkoutSection, string> = {
-  handstand: "Handstand Practice - 6x/week",
-  flexibility: "Do 3x/week",
-};
-
-function normalizeWorkoutSection(value: unknown): WorkoutSection {
-  return value === "flexibility" ? "flexibility" : "handstand";
-}
-
-function getSectionTitle(section: WorkoutSection, title: string | undefined): string {
-  return title?.trim() || DEFAULT_SECTION_TITLES[section];
-}
-
-function getSectionDescription(section: WorkoutSection, description: string | undefined): string {
-  return description?.trim() || DEFAULT_SECTION_DESCRIPTIONS[section];
+function getWorkoutFrequency(step: Partial<WorkoutStep>): string {
+  if (step.frequency?.trim()) return step.frequency.trim();
+  if (step.sectionDescription?.trim()) return step.sectionDescription.trim();
+  if (step.sectionTitle?.trim()) return step.sectionTitle.trim();
+  if (step.section === "flexibility") return "Flexibility - 3x/week";
+  return DEFAULT_FREQUENCY;
 }
 
 function formatSubmissionDate(value: string | null): string {
@@ -159,9 +141,7 @@ export default function AdminPage() {
   const [video, setVideo] = useState("");
   const [sets, setSets] = useState("");
   const [repsOrHoldTime, setRepsOrHoldTime] = useState("");
-  const [section, setSection] = useState<WorkoutSection>("handstand");
-  const [sectionTitle, setSectionTitle] = useState(DEFAULT_SECTION_TITLES.handstand);
-  const [sectionDescription, setSectionDescription] = useState(DEFAULT_SECTION_DESCRIPTIONS.handstand);
+  const [frequency, setFrequency] = useState(DEFAULT_FREQUENCY);
   const [addStepError, setAddStepError] = useState("");
 
   const [videoLibrary, setVideoLibrary] = useState<VideoOption[]>([]);
@@ -255,8 +235,7 @@ export default function AdminPage() {
     setAssignedUserId(null);
     setAssignedUserEmail(null);
     setWorkout([]);
-    setSectionTitle(DEFAULT_SECTION_TITLES.handstand);
-    setSectionDescription(DEFAULT_SECTION_DESCRIPTIONS.handstand);
+    setFrequency(DEFAULT_FREQUENCY);
     setGoals("");
     setIsGoalsOpen(false);
     setRecentSubmissions([]);
@@ -300,18 +279,13 @@ export default function AdminPage() {
     setRecentSubmissions((reviewsData.submissions ?? []) as RecentSubmission[]);
     setRecentSubmissionsLoaded(true);
     setRecentSubmissionsError(reviewsRes.ok ? "" : "Could not load recent submissions.");
-    const loadedSteps = (workoutData.steps ?? []).map((s: WorkoutStep) => {
-      const normalizedSection = normalizeWorkoutSection(s.section);
-      return {
-        ...s,
-        videoId: s.videoId || undefined,
-        sets: s.sets ?? "",
-        repsOrHoldTime: s.repsOrHoldTime ?? "",
-        section: normalizedSection,
-        sectionTitle: getSectionTitle(normalizedSection, s.sectionTitle),
-        sectionDescription: getSectionDescription(normalizedSection, s.sectionDescription),
-      };
-    });
+    const loadedSteps = (workoutData.steps ?? []).map((s: WorkoutStep) => ({
+      ...s,
+      videoId: s.videoId || undefined,
+      sets: s.sets ?? "",
+      repsOrHoldTime: s.repsOrHoldTime ?? "",
+      frequency: getWorkoutFrequency(s),
+    }));
     setWorkout(loadedSteps);
     setLookupStatus("found");
   }
@@ -359,9 +333,7 @@ export default function AdminPage() {
         description: description.trim() || pendingVideoDescription,
         sets: sets.trim(),
         repsOrHoldTime: repsOrHoldTime.trim(),
-        section,
-        sectionTitle: getSectionTitle(section, sectionTitle),
-        sectionDescription: getSectionDescription(section, sectionDescription),
+        frequency: frequency.trim() || DEFAULT_FREQUENCY,
       };
       if (pendingVideoId) pendingStep.videoId = pendingVideoId;
 
@@ -380,19 +352,14 @@ export default function AdminPage() {
         setVideoSearch("");
         setSets("");
         setRepsOrHoldTime("");
-        setSection("handstand");
-        setSectionTitle(DEFAULT_SECTION_TITLES.handstand);
-        setSectionDescription(DEFAULT_SECTION_DESCRIPTIONS.handstand);
+        setFrequency(DEFAULT_FREQUENCY);
       }
     }
 
     stepsToSave = stepsToSave.map((step) => {
-      const normalizedSection = normalizeWorkoutSection(step.section);
       return {
         ...step,
-        section: normalizedSection,
-        sectionTitle: getSectionTitle(normalizedSection, step.sectionTitle),
-        sectionDescription: getSectionDescription(normalizedSection, step.sectionDescription),
+        frequency: getWorkoutFrequency(step),
       };
     });
     setWorkout(stepsToSave);
@@ -439,9 +406,7 @@ export default function AdminPage() {
       description: description.trim() || videoDescription,
       sets: sets.trim(),
       repsOrHoldTime: repsOrHoldTime.trim(),
-      section,
-      sectionTitle: getSectionTitle(section, sectionTitle),
-      sectionDescription: getSectionDescription(section, sectionDescription),
+      frequency: frequency.trim() || DEFAULT_FREQUENCY,
     };
     if (videoId) newStep.videoId = videoId;
 
@@ -452,9 +417,7 @@ export default function AdminPage() {
     setVideoSearch("");
     setSets("");
     setRepsOrHoldTime("");
-    setSection("handstand");
-    setSectionTitle(DEFAULT_SECTION_TITLES.handstand);
-    setSectionDescription(DEFAULT_SECTION_DESCRIPTIONS.handstand);
+    setFrequency(DEFAULT_FREQUENCY);
   }
 
   function removeStep(index: number) {
@@ -857,39 +820,11 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Section type</label>
-                      <select
-                        value={section}
-                        onChange={(e) => {
-                          const nextSection = normalizeWorkoutSection(e.target.value);
-                          setSection(nextSection);
-                          setSectionTitle(DEFAULT_SECTION_TITLES[nextSection]);
-                          setSectionDescription(DEFAULT_SECTION_DESCRIPTIONS[nextSection]);
-                        }}
-                        className={inputClass}
-                      >
-                        {WORKOUT_SECTION_OPTIONS.map(option => (
-                          <option key={option.value} value={option.value}>
-                            {option.label} - {option.frequency}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Section</label>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Frequency</label>
                       <input
-                        value={sectionTitle}
-                        onChange={(e) => setSectionTitle(e.target.value)}
-                        placeholder={DEFAULT_SECTION_TITLES[section]}
-                        className={inputClass}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Section description</label>
-                      <input
-                        value={sectionDescription}
-                        onChange={(e) => setSectionDescription(e.target.value)}
-                        placeholder={DEFAULT_SECTION_DESCRIPTIONS[section]}
+                        value={frequency}
+                        onChange={(e) => setFrequency(e.target.value)}
+                        placeholder={DEFAULT_FREQUENCY}
                         className={inputClass}
                       />
                     </div>
@@ -1054,43 +989,13 @@ export default function AdminPage() {
                             />
                           </div>
                           <div>
-                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Section</label>
+                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Frequency</label>
                             <input
-                              value={step.sectionTitle ?? DEFAULT_SECTION_TITLES[normalizeWorkoutSection(step.section)]}
-                              onChange={(e) => updateStep(i, { sectionTitle: e.target.value })}
-                              placeholder={DEFAULT_SECTION_TITLES[normalizeWorkoutSection(step.section)]}
+                              value={step.frequency ?? getWorkoutFrequency(step)}
+                              onChange={(e) => updateStep(i, { frequency: e.target.value })}
+                              placeholder={DEFAULT_FREQUENCY}
                               className={inputClass}
                             />
-                          </div>
-                          <div>
-                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Section description</label>
-                            <input
-                              value={step.sectionDescription ?? DEFAULT_SECTION_DESCRIPTIONS[normalizeWorkoutSection(step.section)]}
-                              onChange={(e) => updateStep(i, { sectionDescription: e.target.value })}
-                              placeholder={DEFAULT_SECTION_DESCRIPTIONS[normalizeWorkoutSection(step.section)]}
-                              className={inputClass}
-                            />
-                          </div>
-                          <div>
-                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Section type</label>
-                            <select
-                              value={normalizeWorkoutSection(step.section)}
-                              onChange={(e) => {
-                                const nextSection = normalizeWorkoutSection(e.target.value);
-                                updateStep(i, {
-                                  section: nextSection,
-                                  sectionTitle: DEFAULT_SECTION_TITLES[nextSection],
-                                  sectionDescription: DEFAULT_SECTION_DESCRIPTIONS[nextSection],
-                                });
-                              }}
-                              className={inputClass}
-                            >
-                              {WORKOUT_SECTION_OPTIONS.map(option => (
-                                <option key={option.value} value={option.value}>
-                                  {option.label} - {option.frequency}
-                                </option>
-                              ))}
-                            </select>
                           </div>
                           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
