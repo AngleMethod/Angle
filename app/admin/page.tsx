@@ -129,6 +129,7 @@ export default function AdminPage() {
   const [workout, setWorkout] = useState<WorkoutStep[]>([]);
   const [goals, setGoals] = useState("");
   const [isGoalsOpen, setIsGoalsOpen] = useState(false);
+  const [isProgramOpen, setIsProgramOpen] = useState(false);
   const [recentSubmissions, setRecentSubmissions] = useState<RecentSubmission[]>([]);
   const [recentSubmissionsLoaded, setRecentSubmissionsLoaded] = useState(false);
   const [recentSubmissionsError, setRecentSubmissionsError] = useState("");
@@ -238,6 +239,7 @@ export default function AdminPage() {
     setFrequency(DEFAULT_FREQUENCY);
     setGoals("");
     setIsGoalsOpen(false);
+    setIsProgramOpen(false);
     setRecentSubmissions([]);
     setRecentSubmissionsLoaded(false);
     setRecentSubmissionsError("");
@@ -776,10 +778,32 @@ export default function AdminPage() {
 
                 {/* Program */}
                 <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
-                  <h2 className={`${sectionTitleClass} mb-6`} style={sectionTitleStyle}>
-                    Program
-                  </h2>
-                  <div className="space-y-4">
+                  <div className={`${isProgramOpen ? "mb-6" : ""} flex items-start justify-between gap-4`}>
+                    <div className="min-w-0">
+                      <h2 className={sectionTitleClass} style={sectionTitleStyle}>
+                        Program
+                      </h2>
+                      <p className="mt-2 text-xs text-[#555]">
+                        Add videos and programming details for this member.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={isProgramOpen ? "Collapse program" : "Expand program"}
+                      aria-expanded={isProgramOpen}
+                      aria-controls="admin-program-panel"
+                      onClick={() => setIsProgramOpen(prev => !prev)}
+                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isProgramOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                      />
+                    </button>
+                  </div>
+
+                  {isProgramOpen ? (
+                  <div id="admin-program-panel" className="space-y-4">
                     <div>
                       <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Step title</label>
                       <input
@@ -937,6 +961,7 @@ export default function AdminPage() {
                       </Button>
                     </div>
                   </div>
+                  ) : null}
                 </div>
 
                 {/* Steps list */}
