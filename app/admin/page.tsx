@@ -9,6 +9,7 @@ import Button from "@/components/ui/Button";
 import VideoPlayer from "@/components/VideoPlayer";
 
 type WorkoutStep = {
+  type?: "video";
   title: string;
   description: string;
   videoId?: string;
@@ -19,6 +20,13 @@ type WorkoutStep = {
   sectionTitle?: string;
   sectionDescription?: string;
 };
+
+type WorkoutBanner = {
+  type: "banner";
+  text: string;
+};
+
+type WorkoutItem = WorkoutStep | WorkoutBanner;
 
 type VideoOption = {
   id: string;
@@ -89,6 +97,7 @@ const REVIEW_STATUS_STYLES: Record<ReviewSubmissionStatus, string> = {
 };
 
 const DEFAULT_FREQUENCY = "Handbalancing - 6x/week";
+const DEFAULT_BANNER_TEXT = "Flexibility - 3x/week";
 
 function getWorkoutFrequency(step: Partial<WorkoutStep>): string {
   if (step.frequency?.trim()) return step.frequency.trim();
@@ -96,6 +105,10 @@ function getWorkoutFrequency(step: Partial<WorkoutStep>): string {
   if (step.sectionTitle?.trim()) return step.sectionTitle.trim();
   if (step.section === "flexibility") return "Flexibility - 3x/week";
   return DEFAULT_FREQUENCY;
+}
+
+function isWorkoutBanner(item: WorkoutItem): item is WorkoutBanner {
+  return item.type === "banner";
 }
 
 function formatSubmissionDate(value: string | null): string {
@@ -126,7 +139,7 @@ export default function AdminPage() {
   const [activeUsersLoaded, setActiveUsersLoaded] = useState(false);
   const [activeUserDropdownOpen, setActiveUserDropdownOpen] = useState(false);
 
-  const [workout, setWorkout] = useState<WorkoutStep[]>([]);
+  const [workout, setWorkout] = useState<WorkoutItem[]>([]);
   const [goals, setGoals] = useState("");
   const [isGoalsOpen, setIsGoalsOpen] = useState(false);
   const [isProgramOpen, setIsProgramOpen] = useState(false);
@@ -281,13 +294,23 @@ export default function AdminPage() {
     setRecentSubmissions((reviewsData.submissions ?? []) as RecentSubmission[]);
     setRecentSubmissionsLoaded(true);
     setRecentSubmissionsError(reviewsRes.ok ? "" : "Could not load recent submissions.");
-    const loadedSteps = (workoutData.steps ?? []).map((s: WorkoutStep) => ({
-      ...s,
-      videoId: s.videoId || undefined,
-      sets: s.sets ?? "",
-      repsOrHoldTime: s.repsOrHoldTime ?? "",
-      frequency: getWorkoutFrequency(s),
-    }));
+    const loadedSteps = (workoutData.steps ?? []).map((s: WorkoutItem) => {
+      if (isWorkoutBanner(s)) {
+        return {
+          type: "banner" as const,
+          text: s.text?.trim() || DEFAULT_BANNER_TEXT,
+        };
+      }
+
+      return {
+        ...s,
+        type: "video" as const,
+        videoId: s.videoId || undefined,
+        sets: s.sets ?? "",
+        repsOrHoldTime: s.repsOrHoldTime ?? "",
+        frequency: getWorkoutFrequency(s),
+      };
+    });
     setWorkout(loadedSteps);
     setLookupStatus("found");
   }
@@ -331,6 +354,7 @@ export default function AdminPage() {
     );
     if (hasPendingStep) {
       const pendingStep: WorkoutStep = {
+        type: "video",
         title: title.trim() || pendingVideo?.title.trim() || `Step ${workout.length + 1}`,
         description: description.trim() || pendingVideoDescription,
         sets: sets.trim(),
@@ -341,6 +365,7 @@ export default function AdminPage() {
 
       const alreadyAdded = workout.some(
         (s) =>
+          !isWorkoutBanner(s) &&
           s.title === pendingStep.title &&
           s.description === pendingStep.description &&
           s.videoId === pendingStep.videoId
@@ -359,8 +384,16 @@ export default function AdminPage() {
     }
 
     stepsToSave = stepsToSave.map((step) => {
+      if (isWorkoutBanner(step)) {
+        return {
+          type: "banner" as const,
+          text: step.text.trim() || DEFAULT_BANNER_TEXT,
+        };
+      }
+
       return {
         ...step,
+        type: "video" as const,
         frequency: getWorkoutFrequency(step),
       };
     });
@@ -404,6 +437,7 @@ export default function AdminPage() {
       : null;
     const videoDescription = selectedVideo?.description?.trim() ?? "";
     const newStep: WorkoutStep = {
+      type: "video",
       title: title.trim() || selectedVideo?.title.trim() || `Step ${workout.length + 1}`,
       description: description.trim() || videoDescription,
       sets: sets.trim(),
@@ -422,13 +456,24 @@ export default function AdminPage() {
     setFrequency(DEFAULT_FREQUENCY);
   }
 
+  function addBanner() {
+    setAddStepError("");
+    setWorkout(prev => [...prev, { type: "banner", text: DEFAULT_BANNER_TEXT }]);
+  }
+
   function removeStep(index: number) {
     setWorkout(workout.filter((_, i) => i !== index));
   }
 
   function updateStep(index: number, patch: Partial<WorkoutStep>) {
     setWorkout(prev => prev.map((step, i) => (
-      i === index ? { ...step, ...patch } : step
+      i === index && !isWorkoutBanner(step) ? { ...step, ...patch } : step
+    )));
+  }
+
+  function updateBanner(index: number, text: string) {
+    setWorkout(prev => prev.map((step, i) => (
+      i === index && isWorkoutBanner(step) ? { ...step, text } : step
     )));
   }
 
@@ -955,10 +1000,17 @@ export default function AdminPage() {
                     {addStepError ? (
                       <p className="text-sm text-[#dc2626]">{addStepError}</p>
                     ) : null}
-                    <div className="pt-2">
+                    <div className="flex flex-wrap gap-3 pt-2">
                       <Button onClick={addStep} size="md">
                         Add Video
                       </Button>
+                      <button
+                        type="button"
+                        onClick={addBanner}
+                        className="rounded-[4px] border border-[#333] px-6 py-3 text-sm font-bold uppercase tracking-widest text-[#ddd] transition-colors hover:border-[#555] hover:text-white"
+                      >
+                        Add Banner
+                      </button>
                     </div>
                   </div>
                   ) : null}
@@ -972,6 +1024,56 @@ export default function AdminPage() {
                     </div>
                   ) : (
                     workout.map((step, i) => {
+                      if (isWorkoutBanner(step)) {
+                        return (
+                          <div
+                            key={`banner-${step.text || "empty"}-${i}`}
+                            className="min-w-0 overflow-hidden rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
+                          >
+                            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                              <h3 className="min-w-0 break-words text-white uppercase tracking-wide" style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(20px, 2vw, 24px)" }}>
+                                Banner
+                              </h3>
+                              <div className="flex flex-wrap gap-2">
+                                <button
+                                  onClick={() => moveStepUp(i)}
+                                  className="rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#444] transition-colors"
+                                >
+                                  Up
+                                </button>
+                                <button
+                                  onClick={() => moveStepDown(i)}
+                                  className="rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#444] transition-colors"
+                                >
+                                  Down
+                                </button>
+                                <button
+                                  onClick={() => removeStep(i)}
+                                  className="rounded-[4px] border border-[#dc2626] text-[#dc2626] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:bg-[#dc2626] hover:text-white transition-colors"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                            <div className="mb-4 rounded-[4px] border border-[#333] bg-[#0a0a0a] px-4 py-4">
+                              <p
+                                className="break-words text-white uppercase tracking-wide"
+                                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(26px, 3vw, 38px)" }}
+                              >
+                                {step.text || DEFAULT_BANNER_TEXT}
+                              </p>
+                            </div>
+                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Banner Text</label>
+                            <input
+                              value={step.text}
+                              onChange={(e) => updateBanner(i, e.target.value)}
+                              placeholder={DEFAULT_BANNER_TEXT}
+                              className={inputClass}
+                            />
+                          </div>
+                        );
+                      }
+
                       const stepVideo = step.videoId ? videoLibrary.find(v => v.id === step.videoId) ?? null : null;
                       return (
                       <div

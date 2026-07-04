@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import VideoPlayer from "@/components/VideoPlayer";
 
 type WorkoutStep = {
+  type?: "video";
   title: string;
   description: string;
   videoId?: string;
@@ -21,6 +22,13 @@ type WorkoutStep = {
   sectionTitle?: string;
   sectionDescription?: string;
 };
+
+type WorkoutBanner = {
+  type: "banner";
+  text: string;
+};
+
+type WorkoutItem = WorkoutStep | WorkoutBanner;
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 type ReviewUploadStage = "idle" | "uploading" | "saving" | "success" | "error";
@@ -68,6 +76,7 @@ const ADMIN_EMAILS = [
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
 const DEFAULT_FREQUENCY = "Handbalancing - 6x/week";
+const DEFAULT_BANNER_TEXT = "Flexibility - 3x/week";
 
 function getWorkoutFrequency(step: WorkoutStep): string {
   if (step.frequency?.trim()) return step.frequency.trim();
@@ -75,6 +84,10 @@ function getWorkoutFrequency(step: WorkoutStep): string {
   if (step.sectionTitle?.trim()) return step.sectionTitle.trim();
   if (step.section === "flexibility") return "Flexibility - 3x/week";
   return DEFAULT_FREQUENCY;
+}
+
+function isWorkoutBanner(item: WorkoutItem): item is WorkoutBanner {
+  return item.type === "banner";
 }
 
 function formatFileSize(bytes: number): string {
@@ -97,7 +110,7 @@ export default function Dashboard() {
   const [isUpgrading, setIsUpgrading] = useState(false);
   const [upgradeError, setUpgradeError] = useState("");
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("not_booked");
-  const [workout, setWorkout] = useState<WorkoutStep[]>([]);
+  const [workout, setWorkout] = useState<WorkoutItem[]>([]);
   const [workoutLoaded, setWorkoutLoaded] = useState(false);
   const [muxVideoMap, setMuxVideoMap] = useState<Record<string, MuxVideoRecord>>({});
   const [reviewSubmissions, setReviewSubmissions] = useState<ReviewSubmission[]>([]);
@@ -188,7 +201,7 @@ export default function Dashboard() {
 
         if (!isMounted) return;
 
-        const assignedSteps = Array.isArray(workoutData?.steps) ? workoutData.steps : [];
+        const assignedSteps = Array.isArray(workoutData?.steps) ? workoutData.steps as WorkoutItem[] : [];
         if (assignedSteps.length > 0) {
           setWorkout(assignedSteps);
           if (isAdmin) status = "completed";
@@ -642,64 +655,120 @@ export default function Dashboard() {
                   </div>
                 ) : (
                   <div className="space-y-8 md:space-y-10">
-                    {workout.reduce<Array<{ frequency: string; steps: WorkoutStep[] }>>((groups, step) => {
-                      const frequency = getWorkoutFrequency(step);
-                      const existingGroup = groups.find(group => group.frequency === frequency);
-                      if (existingGroup) {
-                        existingGroup.steps.push(step);
-                      } else {
-                        groups.push({ frequency, steps: [step] });
-                      }
-                      return groups;
-                    }, []).map((group, groupIndex) => (
-                        <section key={`${group.frequency}-${groupIndex}`} className="space-y-4 md:space-y-6">
-                          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                            <h2
-                              className="text-white uppercase tracking-wide"
-                              style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
-                            >
-                              {group.frequency}
-                            </h2>
-                          </div>
-
-                          {group.steps.map((step, i) => {
-                            const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
-                            const displayDescription = step.description || muxVideo?.description || "";
+                    {workout.some(isWorkoutBanner)
+                      ? workout.map((item, itemIndex) => {
+                          if (isWorkoutBanner(item)) {
                             return (
-                              <div key={`${groupIndex}-${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
-                                <h3
-                                  className="text-white uppercase tracking-wide mb-4 md:mb-6"
-                                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
+                              <div
+                                key={`banner-${item.text || "empty"}-${itemIndex}`}
+                                className="border-l-2 border-white bg-[#111110] px-4 py-4 md:px-6 md:py-5"
+                              >
+                                <h2
+                                  className="break-words text-white uppercase tracking-wide"
+                                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
                                 >
-                                  Step {i + 1}: {step.title}
-                                </h3>
-                                {muxVideo ? (
-                                  <div className="mb-4 md:mb-6">
-                                    <VideoPlayer playbackId={muxVideo.mux_playback_id} />
-                                  </div>
-                                ) : step.videoId ? (
-                                  <div className="aspect-video w-full mb-4 md:mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                                    <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
-                                  </div>
-                                ) : null}
-                                {(step.sets || step.repsOrHoldTime) ? (
-                                  <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
-                                    {step.sets ? (
-                                      <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
-                                    ) : null}
-                                    {step.repsOrHoldTime ? (
-                                      <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
-                                    ) : null}
-                                  </div>
-                                ) : null}
-                                {displayDescription ? (
-                                  <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{displayDescription}</p>
-                                ) : null}
+                                  {item.text || DEFAULT_BANNER_TEXT}
+                                </h2>
                               </div>
                             );
-                          })}
-                        </section>
-                    ))}
+                          }
+
+                          const stepNumber = workout.slice(0, itemIndex + 1).filter(step => !isWorkoutBanner(step)).length;
+                          const muxVideo = item.videoId ? muxVideoMap[item.videoId] : undefined;
+                          const displayDescription = item.description || muxVideo?.description || "";
+                          return (
+                            <div key={`${itemIndex}-${item.videoId ?? "missing"}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+                              <h3
+                                className="text-white uppercase tracking-wide mb-4 md:mb-6"
+                                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
+                              >
+                                Step {stepNumber}: {item.title}
+                              </h3>
+                              {muxVideo ? (
+                                <div className="mb-4 md:mb-6">
+                                  <VideoPlayer playbackId={muxVideo.mux_playback_id} />
+                                </div>
+                              ) : item.videoId ? (
+                                <div className="aspect-video w-full mb-4 md:mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
+                                  <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
+                                </div>
+                              ) : null}
+                              {(item.sets || item.repsOrHoldTime) ? (
+                                <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
+                                  {item.sets ? (
+                                    <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {item.sets}</p>
+                                  ) : null}
+                                  {item.repsOrHoldTime ? (
+                                    <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {item.repsOrHoldTime}</p>
+                                  ) : null}
+                                </div>
+                              ) : null}
+                              {displayDescription ? (
+                                <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{displayDescription}</p>
+                              ) : null}
+                            </div>
+                          );
+                        })
+                      : workout.reduce<Array<{ frequency: string; steps: WorkoutStep[] }>>((groups, step) => {
+                          if (isWorkoutBanner(step)) return groups;
+
+                          const frequency = getWorkoutFrequency(step);
+                          const existingGroup = groups.find(group => group.frequency === frequency);
+                          if (existingGroup) {
+                            existingGroup.steps.push(step);
+                          } else {
+                            groups.push({ frequency, steps: [step] });
+                          }
+                          return groups;
+                        }, []).map((group, groupIndex) => (
+                          <section key={`${group.frequency}-${groupIndex}`} className="space-y-4 md:space-y-6">
+                            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                              <h2
+                                className="text-white uppercase tracking-wide"
+                                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
+                              >
+                                {group.frequency}
+                              </h2>
+                            </div>
+
+                            {group.steps.map((step, i) => {
+                              const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
+                              const displayDescription = step.description || muxVideo?.description || "";
+                              return (
+                                <div key={`${groupIndex}-${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+                                  <h3
+                                    className="text-white uppercase tracking-wide mb-4 md:mb-6"
+                                    style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
+                                  >
+                                    Step {i + 1}: {step.title}
+                                  </h3>
+                                  {muxVideo ? (
+                                    <div className="mb-4 md:mb-6">
+                                      <VideoPlayer playbackId={muxVideo.mux_playback_id} />
+                                    </div>
+                                  ) : step.videoId ? (
+                                    <div className="aspect-video w-full mb-4 md:mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
+                                      <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
+                                    </div>
+                                  ) : null}
+                                  {(step.sets || step.repsOrHoldTime) ? (
+                                    <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
+                                      {step.sets ? (
+                                        <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
+                                      ) : null}
+                                      {step.repsOrHoldTime ? (
+                                        <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
+                                      ) : null}
+                                    </div>
+                                  ) : null}
+                                  {displayDescription ? (
+                                    <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{displayDescription}</p>
+                                  ) : null}
+                                </div>
+                              );
+                            })}
+                          </section>
+                        ))}
                   </div>
                 )}
               </>
