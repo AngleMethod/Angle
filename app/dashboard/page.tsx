@@ -87,7 +87,7 @@ function getWorkoutFrequency(step: WorkoutStep): string {
 }
 
 function isWorkoutBanner(item: WorkoutItem): item is WorkoutBanner {
-  return item.type === "banner";
+  return item.type === "banner" || ("text" in item && !("title" in item));
 }
 
 function formatFileSize(bytes: number): string {
@@ -656,18 +656,12 @@ export default function Dashboard() {
                 ) : (
                   <div className="space-y-8 md:space-y-10">
                     {workout.some(isWorkoutBanner)
-                      ? workout.reduce<Array<{ item: WorkoutItem; itemIndex: number; stepNumber: number }>>((items, item, itemIndex) => {
-                          const previousItem = items[items.length - 1];
-                          const stepNumber = isWorkoutBanner(item)
-                            ? 0
-                            : previousItem && !isWorkoutBanner(previousItem.item)
-                              ? previousItem.stepNumber + 1
-                              : 1;
+                      ? (() => {
+                          let stepNumber = 0;
 
-                          items.push({ item, itemIndex, stepNumber });
-                          return items;
-                        }, []).map(({ item, itemIndex, stepNumber }) => {
+                          return workout.map((item, itemIndex) => {
                           if (isWorkoutBanner(item)) {
+                            stepNumber = 0;
                             return (
                               <div
                                 key={`banner-${item.text || "empty"}-${itemIndex}`}
@@ -683,6 +677,7 @@ export default function Dashboard() {
                             );
                           }
 
+                          stepNumber += 1;
                           const muxVideo = item.videoId ? muxVideoMap[item.videoId] : undefined;
                           const displayDescription = item.description || muxVideo?.description || "";
                           return (
@@ -717,7 +712,8 @@ export default function Dashboard() {
                               ) : null}
                             </div>
                           );
-                        })
+                        });
+                      })()
                       : workout.reduce<Array<{ frequency: string; steps: WorkoutStep[] }>>((groups, step) => {
                           if (isWorkoutBanner(step)) return groups;
 
