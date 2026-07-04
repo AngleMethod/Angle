@@ -656,7 +656,17 @@ export default function Dashboard() {
                 ) : (
                   <div className="space-y-8 md:space-y-10">
                     {workout.some(isWorkoutBanner)
-                      ? workout.map((item, itemIndex) => {
+                      ? workout.reduce<Array<{ item: WorkoutItem; itemIndex: number; stepNumber: number }>>((items, item, itemIndex) => {
+                          const previousItem = items[items.length - 1];
+                          const stepNumber = isWorkoutBanner(item)
+                            ? 0
+                            : previousItem && !isWorkoutBanner(previousItem.item)
+                              ? previousItem.stepNumber + 1
+                              : 1;
+
+                          items.push({ item, itemIndex, stepNumber });
+                          return items;
+                        }, []).map(({ item, itemIndex, stepNumber }) => {
                           if (isWorkoutBanner(item)) {
                             return (
                               <div
@@ -673,7 +683,6 @@ export default function Dashboard() {
                             );
                           }
 
-                          const stepNumber = workout.slice(0, itemIndex + 1).filter(step => !isWorkoutBanner(step)).length;
                           const muxVideo = item.videoId ? muxVideoMap[item.videoId] : undefined;
                           const displayDescription = item.description || muxVideo?.description || "";
                           return (
