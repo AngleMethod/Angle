@@ -54,6 +54,32 @@ function isMuxNotFoundError(err: unknown) {
     || (typeof maybeStatus.message === 'string' && maybeStatus.message.includes('404'))
 }
 
+function isMuxUploadAlreadyCompletedError(err: unknown) {
+  const message = describeError(err).toLowerCase()
+  return message.includes('upload has already completed')
+    || (message.includes('already completed') && message.includes('upload'))
+}
+
+async function deleteMuxAsset(assetId: string): Promise<NextResponse | null> {
+  try {
+    const mux = getMuxClient()
+    await mux.video.assets.delete(assetId)
+  } catch (err) {
+    if (isMuxNotFoundError(err)) {
+      console.warn('[admin/reviews DELETE] Mux asset was already deleted:', assetId)
+      return null
+    }
+
+    console.error('[admin/reviews DELETE] Failed to delete Mux asset:', describeError(err))
+    return NextResponse.json(
+      { error: `Failed to delete video from Mux: ${describeError(err)}` },
+      { status: 502 }
+    )
+  }
+
+  return null
+}
+
 export async function GET(req: NextRequest) {
   const auth = await getAuthedAdminReviewUser(req)
   if ('response' in auth) return auth.response
@@ -209,21 +235,11 @@ export async function DELETE(req: NextRequest) {
     )
   }
 
-  if (existing.mux_asset_id) {
-    try {
-      const mux = getMuxClient()
-      await mux.video.assets.delete(existing.mux_asset_id)
-    } catch (err) {
-      if (isMuxNotFoundError(err)) {
-        console.warn('[admin/reviews DELETE] Mux asset was already deleted:', existing.mux_asset_id)
-      } else {
-        console.error('[admin/reviews DELETE] Failed to delete Mux asset:', describeError(err))
-        return NextResponse.json(
-          { error: `Failed to delete video from Mux: ${describeError(err)}` },
-          { status: 502 }
-        )
-      }
-    }
+  let muxAssetId = existing.mux_asset_id as string | null
+
+  if (muxAssetId) {
+    const assetDeleteResponse = await deleteMuxAsset(muxAssetId)
+    if (assetDeleteResponse) return assetDeleteResponse
   } else if (existing.mux_upload_id) {
     try {
       const mux = getMuxClient()
@@ -231,6 +247,28 @@ export async function DELETE(req: NextRequest) {
     } catch (err) {
       if (isMuxNotFoundError(err)) {
         console.warn('[admin/reviews DELETE] Mux upload was already gone:', existing.mux_upload_id)
+      } else if (isMuxUploadAlreadyCompletedError(err)) {
+        console.warn('[admin/reviews DELETE] Mux upload already completed, resolving asset before row delete:', existing.mux_upload_id)
+
+        try {
+          const mux = getMuxClient()
+          const upload = await mux.video.uploads.retrieve(existing.mux_upload_id)
+          muxAssetId = upload.asset_id ?? null
+        } catch (retrieveErr) {
+          if (isMuxNotFoundError(retrieveErr)) {
+            console.warn('[admin/reviews DELETE] Mux upload was already gone after completed response:', existing.mux_upload_id)
+          } else {
+            console.warn('[admin/reviews DELETE] Could not resolve completed Mux upload asset:', {
+              uploadId: existing.mux_upload_id,
+              error: describeError(retrieveErr),
+            })
+          }
+        }
+
+        if (muxAssetId) {
+          const assetDeleteResponse = await deleteMuxAsset(muxAssetId)
+          if (assetDeleteResponse) return assetDeleteResponse
+        }
       } else {
         console.error('[admin/reviews DELETE] Failed to cancel Mux upload:', describeError(err))
         return NextResponse.json(
