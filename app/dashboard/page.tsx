@@ -17,6 +17,7 @@ type WorkoutStep = {
   sets?: string;
   repsOrHoldTime?: string;
   section?: WorkoutSection;
+  sectionTitle?: string;
   sectionDescription?: string;
 };
 
@@ -644,6 +645,7 @@ export default function Dashboard() {
                     {WORKOUT_SECTION_DISPLAY.map((sectionConfig) => {
                       const sectionSteps = workout.filter(step => normalizeWorkoutSection(step.section) === sectionConfig.value);
                       if (sectionSteps.length === 0) return null;
+                      const sectionTitle = sectionSteps.find(step => step.sectionTitle?.trim())?.sectionTitle?.trim() || sectionConfig.title;
                       const sectionDescription = sectionSteps.find(step => step.sectionDescription?.trim())?.sectionDescription?.trim() || sectionConfig.description;
 
                       return (
@@ -653,7 +655,7 @@ export default function Dashboard() {
                               className="text-white uppercase tracking-wide"
                               style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
                             >
-                              {sectionConfig.title}
+                              {sectionTitle}
                             </h2>
                             <p className="text-xs font-medium uppercase tracking-widest text-[#777]">
                               {sectionDescription}

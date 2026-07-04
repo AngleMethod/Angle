@@ -15,6 +15,7 @@ type WorkoutStep = {
   sets?: string;
   repsOrHoldTime?: string;
   section?: WorkoutSection;
+  sectionTitle?: string;
   sectionDescription?: string;
 };
 
@@ -93,6 +94,11 @@ const WORKOUT_SECTION_OPTIONS: { value: WorkoutSection; label: string; frequency
   { value: "flexibility", label: "Flexibility", frequency: "3x/week" },
 ];
 
+const DEFAULT_SECTION_TITLES: Record<WorkoutSection, string> = {
+  handstand: "Handstand Practice",
+  flexibility: "Flexibility",
+};
+
 const DEFAULT_SECTION_DESCRIPTIONS: Record<WorkoutSection, string> = {
   handstand: "Handstand Practice - 6x/week",
   flexibility: "Do 3x/week",
@@ -100,6 +106,10 @@ const DEFAULT_SECTION_DESCRIPTIONS: Record<WorkoutSection, string> = {
 
 function normalizeWorkoutSection(value: unknown): WorkoutSection {
   return value === "flexibility" ? "flexibility" : "handstand";
+}
+
+function getSectionTitle(section: WorkoutSection, titles: Record<WorkoutSection, string>): string {
+  return titles[section].trim() || DEFAULT_SECTION_TITLES[section];
 }
 
 function getSectionDescription(section: WorkoutSection, descriptions: Record<WorkoutSection, string>): string {
@@ -150,6 +160,7 @@ export default function AdminPage() {
   const [sets, setSets] = useState("");
   const [repsOrHoldTime, setRepsOrHoldTime] = useState("");
   const [section, setSection] = useState<WorkoutSection>("handstand");
+  const [sectionTitles, setSectionTitles] = useState<Record<WorkoutSection, string>>(DEFAULT_SECTION_TITLES);
   const [sectionDescriptions, setSectionDescriptions] = useState<Record<WorkoutSection, string>>(DEFAULT_SECTION_DESCRIPTIONS);
   const [addStepError, setAddStepError] = useState("");
 
@@ -244,6 +255,7 @@ export default function AdminPage() {
     setAssignedUserId(null);
     setAssignedUserEmail(null);
     setWorkout([]);
+    setSectionTitles(DEFAULT_SECTION_TITLES);
     setSectionDescriptions(DEFAULT_SECTION_DESCRIPTIONS);
     setGoals("");
     setIsGoalsOpen(false);
@@ -294,15 +306,21 @@ export default function AdminPage() {
       sets: s.sets ?? "",
       repsOrHoldTime: s.repsOrHoldTime ?? "",
       section: normalizeWorkoutSection(s.section),
+      sectionTitle: typeof s.sectionTitle === "string" ? s.sectionTitle : undefined,
       sectionDescription: typeof s.sectionDescription === "string" ? s.sectionDescription : undefined,
     }));
+    const loadedSectionTitles = { ...DEFAULT_SECTION_TITLES };
     const loadedSectionDescriptions = { ...DEFAULT_SECTION_DESCRIPTIONS };
     loadedSteps.forEach((step: WorkoutStep) => {
       const normalizedSection = normalizeWorkoutSection(step.section);
+      if (step.sectionTitle?.trim()) {
+        loadedSectionTitles[normalizedSection] = step.sectionTitle.trim();
+      }
       if (step.sectionDescription?.trim()) {
         loadedSectionDescriptions[normalizedSection] = step.sectionDescription.trim();
       }
     });
+    setSectionTitles(loadedSectionTitles);
     setSectionDescriptions(loadedSectionDescriptions);
     setWorkout(loadedSteps);
     setLookupStatus("found");
@@ -352,6 +370,7 @@ export default function AdminPage() {
         sets: sets.trim(),
         repsOrHoldTime: repsOrHoldTime.trim(),
         section,
+        sectionTitle: getSectionTitle(section, sectionTitles),
         sectionDescription: getSectionDescription(section, sectionDescriptions),
       };
       if (pendingVideoId) pendingStep.videoId = pendingVideoId;
@@ -380,6 +399,7 @@ export default function AdminPage() {
       return {
         ...step,
         section: normalizedSection,
+        sectionTitle: getSectionTitle(normalizedSection, sectionTitles),
         sectionDescription: getSectionDescription(normalizedSection, sectionDescriptions),
       };
     });
@@ -428,6 +448,7 @@ export default function AdminPage() {
       sets: sets.trim(),
       repsOrHoldTime: repsOrHoldTime.trim(),
       section,
+      sectionTitle: getSectionTitle(section, sectionTitles),
       sectionDescription: getSectionDescription(section, sectionDescriptions),
     };
     if (videoId) newStep.videoId = videoId;
@@ -450,6 +471,13 @@ export default function AdminPage() {
     setWorkout(prev => prev.map((step, i) => (
       i === index ? { ...step, ...patch } : step
     )));
+  }
+
+  function updateSectionTitle(sectionToUpdate: WorkoutSection, value: string) {
+    setSectionTitles(prev => ({
+      ...prev,
+      [sectionToUpdate]: value,
+    }));
   }
 
   function updateSectionDescription(sectionToUpdate: WorkoutSection, value: string) {
@@ -849,7 +877,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Section</label>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Section type</label>
                       <select
                         value={section}
                         onChange={(e) => setSection(normalizeWorkoutSection(e.target.value))}
@@ -861,6 +889,15 @@ export default function AdminPage() {
                           </option>
                         ))}
                       </select>
+                    </div>
+                    <div>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Section</label>
+                      <input
+                        value={sectionTitles[section]}
+                        onChange={(e) => updateSectionTitle(section, e.target.value)}
+                        placeholder={DEFAULT_SECTION_TITLES[section]}
+                        className={inputClass}
+                      />
                     </div>
                     <div>
                       <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Section description</label>
@@ -1033,6 +1070,15 @@ export default function AdminPage() {
                           </div>
                           <div>
                             <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Section</label>
+                            <input
+                              value={sectionTitles[normalizeWorkoutSection(step.section)]}
+                              onChange={(e) => updateSectionTitle(normalizeWorkoutSection(step.section), e.target.value)}
+                              placeholder={DEFAULT_SECTION_TITLES[normalizeWorkoutSection(step.section)]}
+                              className={inputClass}
+                            />
+                          </div>
+                          <div>
+                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Section type</label>
                             <select
                               value={normalizeWorkoutSection(step.section)}
                               onChange={(e) => updateStep(i, { section: normalizeWorkoutSection(e.target.value) })}
