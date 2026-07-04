@@ -1023,8 +1023,12 @@ export default function AdminPage() {
                       <p className="text-[#777] text-sm">No steps yet. Add the first step above.</p>
                     </div>
                   ) : (
-                    workout.map((step, i) => {
+                    (() => {
+                      let stepNumber = 0;
+
+                      return workout.map((step, i) => {
                       if (isWorkoutBanner(step)) {
+                        stepNumber = 0;
                         return (
                           <div
                             key={`banner-${step.text || "empty"}-${i}`}
@@ -1074,6 +1078,7 @@ export default function AdminPage() {
                         );
                       }
 
+                      stepNumber += 1;
                       const stepVideo = step.videoId ? videoLibrary.find(v => v.id === step.videoId) ?? null : null;
                       return (
                       <div
@@ -1082,7 +1087,7 @@ export default function AdminPage() {
                       >
                         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                           <h3 className="min-w-0 break-words text-white uppercase tracking-wide" style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(20px, 2vw, 24px)" }}>
-                            Step {i + 1}
+                            Step {stepNumber}
                           </h3>
                           <div className="flex flex-wrap gap-2">
                             <button
@@ -1169,7 +1174,8 @@ export default function AdminPage() {
                         </div>
                       </div>
                       );
-                    })
+                    });
+                    })()
                   )}
                 </div>
 
