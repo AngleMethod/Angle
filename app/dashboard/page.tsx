@@ -645,28 +645,39 @@ export default function Dashboard() {
                     {WORKOUT_SECTION_DISPLAY.map((sectionConfig) => {
                       const sectionSteps = workout.filter(step => normalizeWorkoutSection(step.section) === sectionConfig.value);
                       if (sectionSteps.length === 0) return null;
-                      const sectionTitle = sectionSteps.find(step => step.sectionTitle?.trim())?.sectionTitle?.trim() || sectionConfig.title;
-                      const sectionDescription = sectionSteps.find(step => step.sectionDescription?.trim())?.sectionDescription?.trim() || sectionConfig.description;
+                      const sectionGroups = sectionSteps.reduce<Array<{ title: string; description: string; steps: WorkoutStep[] }>>((groups, step) => {
+                        const title = step.sectionTitle?.trim() || sectionConfig.title;
+                        const description = step.sectionDescription?.trim() || sectionConfig.description;
+                        const existingGroup = groups.find(group => group.title === title && group.description === description);
+                        if (existingGroup) {
+                          existingGroup.steps.push(step);
+                        } else {
+                          groups.push({ title, description, steps: [step] });
+                        }
+                        return groups;
+                      }, []);
 
                       return (
-                        <section key={sectionConfig.value} className="space-y-4 md:space-y-6">
+                        <div key={sectionConfig.value} className="space-y-8 md:space-y-10">
+                          {sectionGroups.map((group, groupIndex) => (
+                        <section key={`${sectionConfig.value}-${group.title}-${groupIndex}`} className="space-y-4 md:space-y-6">
                           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                             <h2
                               className="text-white uppercase tracking-wide"
                               style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
                             >
-                              {sectionTitle}
+                              {group.title}
                             </h2>
                             <p className="text-xs font-medium uppercase tracking-widest text-[#777]">
-                              {sectionDescription}
+                              {group.description}
                             </p>
                           </div>
 
-                          {sectionSteps.map((step, i) => {
+                          {group.steps.map((step, i) => {
                             const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
                             const displayDescription = step.description || muxVideo?.description || "";
                             return (
-                              <div key={`${sectionConfig.value}-${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+                              <div key={`${sectionConfig.value}-${groupIndex}-${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
                                 <h3
                                   className="text-white uppercase tracking-wide mb-4 md:mb-6"
                                   style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
@@ -699,6 +710,8 @@ export default function Dashboard() {
                             );
                           })}
                         </section>
+                          ))}
+                        </div>
                       );
                     })}
                   </div>
