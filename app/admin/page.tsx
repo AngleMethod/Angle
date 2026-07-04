@@ -88,7 +88,7 @@ const REVIEW_STATUS_STYLES: Record<ReviewSubmissionStatus, string> = {
   error: "border-[#dc2626] text-[#dc2626]",
 };
 
-const DEFAULT_FREQUENCY = "Handstand Practice - 6x/week";
+const DEFAULT_FREQUENCY = "Handbalancing - 6x/week";
 
 function getWorkoutFrequency(step: Partial<WorkoutStep>): string {
   if (step.frequency?.trim()) return step.frequency.trim();

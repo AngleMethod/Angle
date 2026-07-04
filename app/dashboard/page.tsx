@@ -67,7 +67,7 @@ const ADMIN_EMAILS = [
 ];
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
-const DEFAULT_FREQUENCY = "Handstand Practice - 6x/week";
+const DEFAULT_FREQUENCY = "Handbalancing - 6x/week";
 
 function getWorkoutFrequency(step: WorkoutStep): string {
   if (step.frequency?.trim()) return step.frequency.trim();
