@@ -15,6 +15,7 @@ type WorkoutStep = {
   sets?: string;
   repsOrHoldTime?: string;
   section?: WorkoutSection;
+  sectionDescription?: string;
 };
 
 type WorkoutSection = "handstand" | "flexibility";
@@ -88,12 +89,21 @@ const REVIEW_STATUS_STYLES: Record<ReviewSubmissionStatus, string> = {
 };
 
 const WORKOUT_SECTION_OPTIONS: { value: WorkoutSection; label: string; frequency: string }[] = [
-  { value: "handstand", label: "Handstand Practice", frequency: "5x/week" },
+  { value: "handstand", label: "Handstand Practice", frequency: "6x/week" },
   { value: "flexibility", label: "Flexibility", frequency: "3x/week" },
 ];
 
+const DEFAULT_SECTION_DESCRIPTIONS: Record<WorkoutSection, string> = {
+  handstand: "Handstand Practice - 6x/week",
+  flexibility: "Do 3x/week",
+};
+
 function normalizeWorkoutSection(value: unknown): WorkoutSection {
   return value === "flexibility" ? "flexibility" : "handstand";
+}
+
+function getSectionDescription(section: WorkoutSection, descriptions: Record<WorkoutSection, string>): string {
+  return descriptions[section].trim() || DEFAULT_SECTION_DESCRIPTIONS[section];
 }
 
 function formatSubmissionDate(value: string | null): string {
@@ -140,6 +150,7 @@ export default function AdminPage() {
   const [sets, setSets] = useState("");
   const [repsOrHoldTime, setRepsOrHoldTime] = useState("");
   const [section, setSection] = useState<WorkoutSection>("handstand");
+  const [sectionDescriptions, setSectionDescriptions] = useState<Record<WorkoutSection, string>>(DEFAULT_SECTION_DESCRIPTIONS);
   const [addStepError, setAddStepError] = useState("");
 
   const [videoLibrary, setVideoLibrary] = useState<VideoOption[]>([]);
@@ -233,6 +244,7 @@ export default function AdminPage() {
     setAssignedUserId(null);
     setAssignedUserEmail(null);
     setWorkout([]);
+    setSectionDescriptions(DEFAULT_SECTION_DESCRIPTIONS);
     setGoals("");
     setIsGoalsOpen(false);
     setRecentSubmissions([]);
@@ -276,13 +288,23 @@ export default function AdminPage() {
     setRecentSubmissions((reviewsData.submissions ?? []) as RecentSubmission[]);
     setRecentSubmissionsLoaded(true);
     setRecentSubmissionsError(reviewsRes.ok ? "" : "Could not load recent submissions.");
-    setWorkout((workoutData.steps ?? []).map((s: WorkoutStep) => ({
+    const loadedSteps = (workoutData.steps ?? []).map((s: WorkoutStep) => ({
       ...s,
       videoId: s.videoId || undefined,
       sets: s.sets ?? "",
       repsOrHoldTime: s.repsOrHoldTime ?? "",
       section: normalizeWorkoutSection(s.section),
-    })));
+      sectionDescription: typeof s.sectionDescription === "string" ? s.sectionDescription : undefined,
+    }));
+    const loadedSectionDescriptions = { ...DEFAULT_SECTION_DESCRIPTIONS };
+    loadedSteps.forEach((step: WorkoutStep) => {
+      const normalizedSection = normalizeWorkoutSection(step.section);
+      if (step.sectionDescription?.trim()) {
+        loadedSectionDescriptions[normalizedSection] = step.sectionDescription.trim();
+      }
+    });
+    setSectionDescriptions(loadedSectionDescriptions);
+    setWorkout(loadedSteps);
     setLookupStatus("found");
   }
 
@@ -330,6 +352,7 @@ export default function AdminPage() {
         sets: sets.trim(),
         repsOrHoldTime: repsOrHoldTime.trim(),
         section,
+        sectionDescription: getSectionDescription(section, sectionDescriptions),
       };
       if (pendingVideoId) pendingStep.videoId = pendingVideoId;
 
@@ -351,6 +374,16 @@ export default function AdminPage() {
         setSection("handstand");
       }
     }
+
+    stepsToSave = stepsToSave.map((step) => {
+      const normalizedSection = normalizeWorkoutSection(step.section);
+      return {
+        ...step,
+        section: normalizedSection,
+        sectionDescription: getSectionDescription(normalizedSection, sectionDescriptions),
+      };
+    });
+    setWorkout(stepsToSave);
 
     const token = await getAccessToken();
     const res = await fetch("/api/admin/workout", {
@@ -395,6 +428,7 @@ export default function AdminPage() {
       sets: sets.trim(),
       repsOrHoldTime: repsOrHoldTime.trim(),
       section,
+      sectionDescription: getSectionDescription(section, sectionDescriptions),
     };
     if (videoId) newStep.videoId = videoId;
 
@@ -416,6 +450,13 @@ export default function AdminPage() {
     setWorkout(prev => prev.map((step, i) => (
       i === index ? { ...step, ...patch } : step
     )));
+  }
+
+  function updateSectionDescription(sectionToUpdate: WorkoutSection, value: string) {
+    setSectionDescriptions(prev => ({
+      ...prev,
+      [sectionToUpdate]: value,
+    }));
   }
 
   function moveStepUp(index: number) {
@@ -820,6 +861,15 @@ export default function AdminPage() {
                           </option>
                         ))}
                       </select>
+                    </div>
+                    <div>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Section description</label>
+                      <input
+                        value={sectionDescriptions[section]}
+                        onChange={(e) => updateSectionDescription(section, e.target.value)}
+                        placeholder={DEFAULT_SECTION_DESCRIPTIONS[section]}
+                        className={inputClass}
+                      />
                     </div>
                     <div>
                       <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video (optional)</label>

@@ -17,6 +17,7 @@ type WorkoutStep = {
   sets?: string;
   repsOrHoldTime?: string;
   section?: WorkoutSection;
+  sectionDescription?: string;
 };
 
 type WorkoutSection = "handstand" | "flexibility";
@@ -66,9 +67,9 @@ const ADMIN_EMAILS = [
 ];
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
-const WORKOUT_SECTION_DISPLAY: { value: WorkoutSection; title: string; frequency: string }[] = [
-  { value: "handstand", title: "Handstand Practice", frequency: "Do 5x/week" },
-  { value: "flexibility", title: "Flexibility", frequency: "Do 3x/week" },
+const WORKOUT_SECTION_DISPLAY: { value: WorkoutSection; title: string; description: string }[] = [
+  { value: "handstand", title: "Handstand Practice", description: "Handstand Practice - 6x/week" },
+  { value: "flexibility", title: "Flexibility", description: "Do 3x/week" },
 ];
 
 function normalizeWorkoutSection(value: unknown): WorkoutSection {
@@ -643,6 +644,7 @@ export default function Dashboard() {
                     {WORKOUT_SECTION_DISPLAY.map((sectionConfig) => {
                       const sectionSteps = workout.filter(step => normalizeWorkoutSection(step.section) === sectionConfig.value);
                       if (sectionSteps.length === 0) return null;
+                      const sectionDescription = sectionSteps.find(step => step.sectionDescription?.trim())?.sectionDescription?.trim() || sectionConfig.description;
 
                       return (
                         <section key={sectionConfig.value} className="space-y-4 md:space-y-6">
@@ -654,7 +656,7 @@ export default function Dashboard() {
                               {sectionConfig.title}
                             </h2>
                             <p className="text-xs font-medium uppercase tracking-widest text-[#777]">
-                              {sectionConfig.frequency}
+                              {sectionDescription}
                             </p>
                           </div>
 
