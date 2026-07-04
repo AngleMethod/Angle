@@ -14,7 +14,10 @@ type WorkoutStep = {
   videoId?: string;
   sets?: string;
   repsOrHoldTime?: string;
+  section?: WorkoutSection;
 };
+
+type WorkoutSection = "handstand" | "flexibility";
 
 type VideoOption = {
   id: string;
@@ -84,6 +87,15 @@ const REVIEW_STATUS_STYLES: Record<ReviewSubmissionStatus, string> = {
   error: "border-[#dc2626] text-[#dc2626]",
 };
 
+const WORKOUT_SECTION_OPTIONS: { value: WorkoutSection; label: string; frequency: string }[] = [
+  { value: "handstand", label: "Handstand Practice", frequency: "5x/week" },
+  { value: "flexibility", label: "Flexibility", frequency: "3x/week" },
+];
+
+function normalizeWorkoutSection(value: unknown): WorkoutSection {
+  return value === "flexibility" ? "flexibility" : "handstand";
+}
+
 function formatSubmissionDate(value: string | null): string {
   if (!value) return "No date";
   const date = new Date(value);
@@ -127,6 +139,7 @@ export default function AdminPage() {
   const [video, setVideo] = useState("");
   const [sets, setSets] = useState("");
   const [repsOrHoldTime, setRepsOrHoldTime] = useState("");
+  const [section, setSection] = useState<WorkoutSection>("handstand");
   const [addStepError, setAddStepError] = useState("");
 
   const [videoLibrary, setVideoLibrary] = useState<VideoOption[]>([]);
@@ -268,6 +281,7 @@ export default function AdminPage() {
       videoId: s.videoId || undefined,
       sets: s.sets ?? "",
       repsOrHoldTime: s.repsOrHoldTime ?? "",
+      section: normalizeWorkoutSection(s.section),
     })));
     setLookupStatus("found");
   }
@@ -315,6 +329,7 @@ export default function AdminPage() {
         description: description.trim() || pendingVideoDescription,
         sets: sets.trim(),
         repsOrHoldTime: repsOrHoldTime.trim(),
+        section,
       };
       if (pendingVideoId) pendingStep.videoId = pendingVideoId;
 
@@ -333,6 +348,7 @@ export default function AdminPage() {
         setVideoSearch("");
         setSets("");
         setRepsOrHoldTime("");
+        setSection("handstand");
       }
     }
 
@@ -378,6 +394,7 @@ export default function AdminPage() {
       description: description.trim() || videoDescription,
       sets: sets.trim(),
       repsOrHoldTime: repsOrHoldTime.trim(),
+      section,
     };
     if (videoId) newStep.videoId = videoId;
 
@@ -388,6 +405,7 @@ export default function AdminPage() {
     setVideoSearch("");
     setSets("");
     setRepsOrHoldTime("");
+    setSection("handstand");
   }
 
   function removeStep(index: number) {
@@ -790,6 +808,20 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Section</label>
+                      <select
+                        value={section}
+                        onChange={(e) => setSection(normalizeWorkoutSection(e.target.value))}
+                        className={inputClass}
+                      >
+                        {WORKOUT_SECTION_OPTIONS.map(option => (
+                          <option key={option.value} value={option.value}>
+                            {option.label} - {option.frequency}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
                       <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video (optional)</label>
                       {(() => {
                         const selected = videoLibrary.find(v => v.id === video) ?? null;
@@ -948,6 +980,20 @@ export default function AdminPage() {
                               placeholder={stepVideo?.title || `Step ${i + 1}`}
                               className={inputClass}
                             />
+                          </div>
+                          <div>
+                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Section</label>
+                            <select
+                              value={normalizeWorkoutSection(step.section)}
+                              onChange={(e) => updateStep(i, { section: normalizeWorkoutSection(e.target.value) })}
+                              className={inputClass}
+                            >
+                              {WORKOUT_SECTION_OPTIONS.map(option => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label} - {option.frequency}
+                                </option>
+                              ))}
+                            </select>
                           </div>
                           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>

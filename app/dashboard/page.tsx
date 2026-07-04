@@ -16,7 +16,10 @@ type WorkoutStep = {
   videoId?: string;
   sets?: string;
   repsOrHoldTime?: string;
+  section?: WorkoutSection;
 };
+
+type WorkoutSection = "handstand" | "flexibility";
 
 type OnboardingStatus = "not_booked" | "booked" | "completed";
 type ReviewUploadStage = "idle" | "uploading" | "saving" | "success" | "error";
@@ -63,6 +66,14 @@ const ADMIN_EMAILS = [
 ];
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
+const WORKOUT_SECTION_DISPLAY: { value: WorkoutSection; title: string; frequency: string }[] = [
+  { value: "handstand", title: "Handstand Practice", frequency: "Do 5x/week" },
+  { value: "flexibility", title: "Flexibility", frequency: "Do 3x/week" },
+];
+
+function normalizeWorkoutSection(value: unknown): WorkoutSection {
+  return value === "flexibility" ? "flexibility" : "handstand";
+}
 
 function formatFileSize(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
@@ -628,41 +639,62 @@ export default function Dashboard() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-4 md:space-y-6">
-                    {workout.map((step, i) => {
-                      const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
-                      const displayDescription = step.description || muxVideo?.description || "";
+                  <div className="space-y-8 md:space-y-10">
+                    {WORKOUT_SECTION_DISPLAY.map((sectionConfig) => {
+                      const sectionSteps = workout.filter(step => normalizeWorkoutSection(step.section) === sectionConfig.value);
+                      if (sectionSteps.length === 0) return null;
+
                       return (
-                        <div key={`${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
-                          <h2
-                            className="text-white uppercase tracking-wide mb-4 md:mb-6"
-                            style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
-                          >
-                            Step {i + 1}: {step.title}
-                          </h2>
-                          {muxVideo ? (
-                            <div className="mb-4 md:mb-6">
-                              <VideoPlayer playbackId={muxVideo.mux_playback_id} />
-                            </div>
-                          ) : step.videoId ? (
-                            <div className="aspect-video w-full mb-4 md:mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                              <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
-                            </div>
-                          ) : null}
-                          {(step.sets || step.repsOrHoldTime) ? (
-                            <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
-                              {step.sets ? (
-                                <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
-                              ) : null}
-                              {step.repsOrHoldTime ? (
-                                <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
-                              ) : null}
-                            </div>
-                          ) : null}
-                          {displayDescription ? (
-                            <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{displayDescription}</p>
-                          ) : null}
-                        </div>
+                        <section key={sectionConfig.value} className="space-y-4 md:space-y-6">
+                          <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                            <h2
+                              className="text-white uppercase tracking-wide"
+                              style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
+                            >
+                              {sectionConfig.title}
+                            </h2>
+                            <p className="text-xs font-medium uppercase tracking-widest text-[#777]">
+                              {sectionConfig.frequency}
+                            </p>
+                          </div>
+
+                          {sectionSteps.map((step, i) => {
+                            const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
+                            const displayDescription = step.description || muxVideo?.description || "";
+                            return (
+                              <div key={`${sectionConfig.value}-${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+                                <h3
+                                  className="text-white uppercase tracking-wide mb-4 md:mb-6"
+                                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
+                                >
+                                  Step {i + 1}: {step.title}
+                                </h3>
+                                {muxVideo ? (
+                                  <div className="mb-4 md:mb-6">
+                                    <VideoPlayer playbackId={muxVideo.mux_playback_id} />
+                                  </div>
+                                ) : step.videoId ? (
+                                  <div className="aspect-video w-full mb-4 md:mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
+                                    <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
+                                  </div>
+                                ) : null}
+                                {(step.sets || step.repsOrHoldTime) ? (
+                                  <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
+                                    {step.sets ? (
+                                      <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
+                                    ) : null}
+                                    {step.repsOrHoldTime ? (
+                                      <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
+                                    ) : null}
+                                  </div>
+                                ) : null}
+                                {displayDescription ? (
+                                  <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{displayDescription}</p>
+                                ) : null}
+                              </div>
+                            );
+                          })}
+                        </section>
                       );
                     })}
                   </div>
