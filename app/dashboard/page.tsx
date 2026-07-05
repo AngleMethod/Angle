@@ -680,6 +680,7 @@ export default function Dashboard() {
                           stepNumber += 1;
                           const muxVideo = item.videoId ? muxVideoMap[item.videoId] : undefined;
                           const displayDescription = item.description || muxVideo?.description || "";
+                          const displayFrequency = getWorkoutFrequency(item);
                           return (
                             <div key={`${itemIndex}-${item.videoId ?? "missing"}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
                               <h3
@@ -697,8 +698,11 @@ export default function Dashboard() {
                                   <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
                                 </div>
                               ) : null}
-                              {(item.sets || item.repsOrHoldTime) ? (
+                              {(displayFrequency || item.sets || item.repsOrHoldTime) ? (
                                 <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
+                                  {displayFrequency ? (
+                                    <p className="text-[#aaa]"><span className="text-[#666]">Frequency:</span> {displayFrequency}</p>
+                                  ) : null}
                                   {item.sets ? (
                                     <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {item.sets}</p>
                                   ) : null}
@@ -739,6 +743,7 @@ export default function Dashboard() {
                             {group.steps.map((step, i) => {
                               const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
                               const displayDescription = step.description || muxVideo?.description || "";
+                              const displayFrequency = getWorkoutFrequency(step);
                               return (
                                 <div key={`${groupIndex}-${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
                                   <h3
@@ -756,8 +761,11 @@ export default function Dashboard() {
                                       <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
                                     </div>
                                   ) : null}
-                                  {(step.sets || step.repsOrHoldTime) ? (
+                                  {(displayFrequency || step.sets || step.repsOrHoldTime) ? (
                                     <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
+                                      {displayFrequency ? (
+                                        <p className="text-[#aaa]"><span className="text-[#666]">Frequency:</span> {displayFrequency}</p>
+                                      ) : null}
                                       {step.sets ? (
                                         <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
                                       ) : null}
