@@ -546,6 +546,108 @@ export default function Dashboard() {
     (submission) => submission.status === "reviewed" && !!submission.coachNote?.trim()
   ).length;
   const latestCoachMessage = coachMessages[coachMessages.length - 1] ?? null;
+  const coachMessagesCard = (
+    <div className="mb-8 md:mb-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+      <div className={`${isMessagesOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
+        <div className="min-w-0">
+          <p className="text-[#666] text-xs tracking-widest uppercase mb-3">Messages</p>
+          <h2
+            className="text-white uppercase tracking-wide mb-2"
+            style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 34px)" }}
+          >
+            Message Coach
+          </h2>
+          <p className="text-[#777] text-sm md:text-base">
+            Send a text note or question.
+          </p>
+          {latestCoachMessage ? (
+            <p className="mt-2 truncate text-xs text-[#555]">
+              Latest: {latestCoachMessage.senderRole === "admin" ? "Coach" : "You"} - {new Date(latestCoachMessage.createdAt).toLocaleDateString()}
+            </p>
+          ) : null}
+        </div>
+        <button
+          type="button"
+          aria-label={isMessagesOpen ? "Collapse messages" : "Expand messages"}
+          aria-expanded={isMessagesOpen}
+          aria-controls="coach-message-panel"
+          onClick={() => setIsMessagesOpen(prev => !prev)}
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+        >
+          <span
+            aria-hidden="true"
+            className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isMessagesOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+          />
+        </button>
+      </div>
+
+      {isMessagesOpen ? (
+        <div id="coach-message-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Message</label>
+              <textarea
+                value={coachMessageBody}
+                onChange={(e) => setCoachMessageBody(e.target.value)}
+                rows={5}
+                maxLength={4000}
+                placeholder="Ask a question or send an update."
+                disabled={coachMessageStatus === "sending"}
+                className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+              />
+            </div>
+
+            {coachMessageError ? (
+              <p className="text-sm text-[#dc2626]">{coachMessageError}</p>
+            ) : null}
+            {coachMessageStatus === "sent" ? (
+              <p className="text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Message sent.</p>
+            ) : null}
+
+            <Button
+              onClick={handleSendCoachMessage}
+              disabled={coachMessageStatus === "sending"}
+              size="md"
+              className="w-full sm:w-auto"
+            >
+              {coachMessageStatus === "sending" ? "Sending..." : "Send Message"}
+            </Button>
+          </div>
+
+          <div>
+            <h3 className="text-[#777] text-xs tracking-widest uppercase mb-4">Thread</h3>
+            {!coachMessagesLoaded ? (
+              <p className="text-[#777] text-sm">Loading messages...</p>
+            ) : coachMessages.length === 0 ? (
+              <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-5">
+                <p className="text-[#777] text-sm">No messages yet.</p>
+              </div>
+            ) : (
+              <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
+                {coachMessages.map((message) => {
+                  const isAdminMessage = message.senderRole === "admin";
+                  return (
+                    <div
+                      key={message.id}
+                      className={`rounded-lg border p-4 ${isAdminMessage ? "border-blue-900 bg-[oklch(0.18_0.06_240)]" : "border-[#1e1e1e] bg-[#0a0a0a]"}`}
+                    >
+                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <p className={`text-xs font-medium ${isAdminMessage ? "text-[oklch(0.65_0.14_240)]" : "text-[#aaa]"}`}>
+                          {isAdminMessage ? "Coach" : "You"}
+                        </p>
+                        <p className="text-xs text-[#555]">{new Date(message.createdAt).toLocaleDateString()}</p>
+                      </div>
+                      <p className="whitespace-pre-line text-sm leading-relaxed text-white">{message.body}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 
   if (!isLoaded) {
     return (
@@ -651,6 +753,8 @@ export default function Dashboard() {
                 </Link>
               ) : null}
             </div>
+
+            {coachMessagesCard}
 
             {onboardingStatus === "not_booked" && (
               <>
@@ -871,7 +975,7 @@ export default function Dashboard() {
               </>
             )}
 
-            <div className="mt-8 md:mt-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+            <div className="hidden">
               <div className={`${isMessagesOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
                 <div className="min-w-0">
                   <p className="text-[#666] text-xs tracking-widest uppercase mb-3">Messages</p>
@@ -905,7 +1009,7 @@ export default function Dashboard() {
                 </button>
               </div>
 
-              {isMessagesOpen ? (
+              {false && isMessagesOpen ? (
                 <div id="coach-message-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                   <div className="space-y-4">
                     <div>
