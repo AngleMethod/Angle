@@ -68,6 +68,24 @@ type RecentSubmission = {
   createdAt: string;
 };
 
+type CoachMessage = {
+  id: string;
+  userId: string;
+  userEmail: string;
+  senderRole: "user" | "admin";
+  senderEmail: string;
+  body: string;
+  createdAt: string;
+};
+
+type MessageThread = {
+  userId: string;
+  userEmail: string;
+  latestMessage: string;
+  latestAt: string;
+  unreadCount: number;
+};
+
 const ADMIN_EMAILS = [
   "josh@anglemethod.com",
   "morgan@anglemethod.com",
@@ -148,6 +166,13 @@ export default function AdminPage() {
   const [recentSubmissionsError, setRecentSubmissionsError] = useState("");
   const [isRecentSubmissionsOpen, setIsRecentSubmissionsOpen] = useState(false);
   const [openSubmissionIds, setOpenSubmissionIds] = useState<Record<string, boolean>>({});
+  const [messageThreads, setMessageThreads] = useState<MessageThread[]>([]);
+  const [coachMessages, setCoachMessages] = useState<CoachMessage[]>([]);
+  const [coachMessagesLoaded, setCoachMessagesLoaded] = useState(false);
+  const [coachMessageReply, setCoachMessageReply] = useState("");
+  const [coachMessageStatus, setCoachMessageStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [coachMessageError, setCoachMessageError] = useState("");
+  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   const [title, setTitle] = useState("");
@@ -211,11 +236,14 @@ export default function AdminPage() {
     const loadAdminData = async () => {
       const token = await getAccessToken();
 
-      const [videosRes, activeUsersRes] = await Promise.all([
+      const [videosRes, activeUsersRes, messagesRes] = await Promise.all([
         fetch("/api/admin/videos", {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch("/api/admin/active-users", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch("/api/admin/messages", {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ]);
@@ -233,6 +261,11 @@ export default function AdminPage() {
         if (!cancelled) setActiveUsers(data.users ?? []);
       }
       setActiveUsersLoaded(true);
+
+      if (messagesRes.ok) {
+        const data = await messagesRes.json();
+        if (!cancelled) setMessageThreads((data.threads ?? []) as MessageThread[]);
+      }
     };
 
     loadAdminData();
@@ -258,6 +291,12 @@ export default function AdminPage() {
     setRecentSubmissionsError("");
     setIsRecentSubmissionsOpen(false);
     setOpenSubmissionIds({});
+    setCoachMessages([]);
+    setCoachMessagesLoaded(false);
+    setCoachMessageReply("");
+    setCoachMessageStatus("idle");
+    setCoachMessageError("");
+    setIsMessagesOpen(false);
 
     const token = await getAccessToken();
     const res = await fetch("/api/admin/lookup-user", {
@@ -276,16 +315,20 @@ export default function AdminPage() {
 
     const { userId, onboardingStatus } = await res.json();
 
-    const [workoutRes, reviewsRes] = await Promise.all([
+    const [workoutRes, reviewsRes, messagesRes] = await Promise.all([
       fetch(`/api/admin/workout?userId=${encodeURIComponent(userId)}`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
       fetch(`/api/admin/reviews?userId=${encodeURIComponent(userId)}&limit=5`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
+      fetch(`/api/admin/messages?userId=${encodeURIComponent(userId)}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }),
     ]);
     const workoutData = workoutRes.ok ? await workoutRes.json() : { steps: [], goals: "" };
     const reviewsData = reviewsRes.ok ? await reviewsRes.json() : { submissions: [] };
+    const messagesData = messagesRes.ok ? await messagesRes.json() : { messages: [] };
 
     setAssignedUserId(userId);
     setAssignedUserEmail(emailToLookup);
@@ -294,6 +337,11 @@ export default function AdminPage() {
     setRecentSubmissions((reviewsData.submissions ?? []) as RecentSubmission[]);
     setRecentSubmissionsLoaded(true);
     setRecentSubmissionsError(reviewsRes.ok ? "" : "Could not load recent submissions.");
+    setCoachMessages((messagesData.messages ?? []) as CoachMessage[]);
+    setCoachMessagesLoaded(true);
+    setMessageThreads(prev => prev.map(thread => (
+      thread.userId === userId ? { ...thread, unreadCount: 0 } : thread
+    )));
     const loadedSteps = (workoutData.steps ?? []).map((s: WorkoutItem) => {
       if (isWorkoutBanner(s)) {
         return {
@@ -498,6 +546,51 @@ export default function AdminPage() {
     }));
   }
 
+  async function handleSendCoachReply() {
+    if (!assignedUserId) return;
+    const body = coachMessageReply.trim();
+
+    if (!body) {
+      setCoachMessageError("Write a reply first.");
+      return;
+    }
+
+    if (body.length > 4000) {
+      setCoachMessageError("Reply must be 4000 characters or fewer.");
+      return;
+    }
+
+    const token = await getAccessToken();
+    if (!token) {
+      setCoachMessageError("Sign in again before replying.");
+      return;
+    }
+
+    setCoachMessageStatus("sending");
+    setCoachMessageError("");
+
+    const res = await fetch("/api/admin/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userId: assignedUserId, body }),
+    });
+
+    const data = await res.json().catch(() => ({} as { error?: string; message?: CoachMessage }));
+    if (!res.ok || !data.message) {
+      setCoachMessageStatus("error");
+      setCoachMessageError(data?.error || "Failed to send reply.");
+      return;
+    }
+
+    setCoachMessages(prev => [...prev, data.message as CoachMessage]);
+    setCoachMessageReply("");
+    setCoachMessageStatus("sent");
+    setTimeout(() => setCoachMessageStatus("idle"), 2000);
+  }
+
   const MinimalNav = (
     <Nav variant="minimal" isLoggedIn={!!userEmail} authReady={isLoaded} />
   );
@@ -512,6 +605,8 @@ export default function AdminPage() {
       ? activeUsers.filter(user => user.email.toLowerCase().includes(term))
       : activeUsers;
   })();
+  const unreadByUserId = new Map(messageThreads.map(thread => [thread.userId, thread.unreadCount]));
+  const selectedUnreadCount = assignedUserId ? unreadByUserId.get(assignedUserId) ?? 0 : 0;
 
   if (!isLoaded) {
     return (
@@ -609,10 +704,19 @@ export default function AdminPage() {
                             onClick={() => handleLookupUser(user.email)}
                             className="w-full overflow-hidden border-b border-[#1e1e1e] px-4 py-3 text-left last:border-b-0 hover:bg-[#111110] transition-colors"
                           >
-                            <p className="truncate text-sm text-white">{user.email}</p>
-                            <p className="mt-1 text-[11px] uppercase tracking-widest text-[#666]">
-                              {STATUS_LABELS[user.onboardingStatus] ?? user.onboardingStatus}
-                            </p>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="truncate text-sm text-white">{user.email}</p>
+                                <p className="mt-1 text-[11px] uppercase tracking-widest text-[#666]">
+                                  {STATUS_LABELS[user.onboardingStatus] ?? user.onboardingStatus}
+                                </p>
+                              </div>
+                              {(unreadByUserId.get(user.userId) ?? 0) > 0 ? (
+                                <span className="flex h-6 min-w-6 flex-shrink-0 items-center justify-center rounded-full border border-blue-900 bg-[oklch(0.18_0.06_240)] px-2 text-xs font-medium text-[oklch(0.65_0.14_240)]">
+                                  {unreadByUserId.get(user.userId)}
+                                </span>
+                              ) : null}
+                            </div>
                           </button>
                         ))
                       )}
@@ -700,6 +804,105 @@ export default function AdminPage() {
                         placeholder="e.g. Build toward a cleaner two-arm flag line while improving compression and shoulder control."
                         className={`${inputClass} min-h-[110px] resize-y`}
                       />
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Messages */}
+                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                  <div className={`${isMessagesOpen ? "mb-5" : ""} flex items-start justify-between gap-4`}>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-3">
+                        <h2 className={sectionTitleClass} style={sectionTitleStyle}>
+                          Messages
+                        </h2>
+                        {selectedUnreadCount > 0 ? (
+                          <span className="rounded-full border border-blue-900 bg-[oklch(0.18_0.06_240)] px-3 py-1 text-xs font-medium text-[oklch(0.65_0.14_240)]">
+                            {selectedUnreadCount} unread
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="mt-2 text-xs text-[#555]">
+                        Text thread with this member.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={isMessagesOpen ? "Collapse messages" : "Expand messages"}
+                      aria-expanded={isMessagesOpen}
+                      aria-controls="admin-messages-panel"
+                      onClick={() => setIsMessagesOpen(prev => !prev)}
+                      className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isMessagesOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                      />
+                    </button>
+                  </div>
+
+                  {isMessagesOpen ? (
+                    <div id="admin-messages-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                      <div>
+                        <h3 className="mb-4 text-xs tracking-widest uppercase text-[#777]">Thread</h3>
+                        {!coachMessagesLoaded ? (
+                          <p className="text-sm text-[#777]">Loading messages...</p>
+                        ) : coachMessages.length === 0 ? (
+                          <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-5">
+                            <p className="text-sm text-[#777]">No messages yet.</p>
+                          </div>
+                        ) : (
+                          <div className="max-h-[440px] space-y-3 overflow-y-auto pr-1">
+                            {coachMessages.map((message) => {
+                              const isAdminMessage = message.senderRole === "admin";
+                              return (
+                                <div
+                                  key={message.id}
+                                  className={`rounded-lg border p-4 ${isAdminMessage ? "border-blue-900 bg-[oklch(0.18_0.06_240)]" : "border-[#1e1e1e] bg-[#0a0a0a]"}`}
+                                >
+                                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                                    <p className={`text-xs font-medium ${isAdminMessage ? "text-[oklch(0.65_0.14_240)]" : "text-[#aaa]"}`}>
+                                      {isAdminMessage ? "Coach" : assignedUserEmail}
+                                    </p>
+                                    <p className="text-xs text-[#555]">{new Date(message.createdAt).toLocaleDateString()}</p>
+                                  </div>
+                                  <p className="whitespace-pre-line text-sm leading-relaxed text-white">{message.body}</p>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Reply</label>
+                          <textarea
+                            value={coachMessageReply}
+                            onChange={(e) => setCoachMessageReply(e.target.value)}
+                            rows={6}
+                            maxLength={4000}
+                            placeholder="Write a reply..."
+                            disabled={coachMessageStatus === "sending"}
+                            className={`${inputClass} min-h-[140px] resize-y`}
+                          />
+                        </div>
+
+                        {coachMessageError ? (
+                          <p className="text-sm text-[#dc2626]">{coachMessageError}</p>
+                        ) : null}
+                        {coachMessageStatus === "sent" ? (
+                          <p className="text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Reply sent and email attempted.</p>
+                        ) : null}
+
+                        <Button
+                          onClick={handleSendCoachReply}
+                          disabled={coachMessageStatus === "sending"}
+                          size="md"
+                        >
+                          {coachMessageStatus === "sending" ? "Sending..." : "Send Reply"}
+                        </Button>
+                      </div>
                     </div>
                   ) : null}
                 </div>
