@@ -735,9 +735,19 @@ export default function AdminPage() {
                 <p className="mt-4 text-sm text-[#dc2626]">No user found with that email.</p>
               )}
               {lookupStatus === "found" && assignedUserEmail && (
-                <p className="mt-4 min-w-0 text-sm break-words" style={{ color: "oklch(0.68 0.14 155)" }}>
-                  Editing: <span className="font-medium break-all">{assignedUserEmail}</span>
-                </p>
+                <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="min-w-0 text-sm break-words" style={{ color: "oklch(0.68 0.14 155)" }}>
+                    Editing: <span className="font-medium break-all">{assignedUserEmail}</span>
+                  </p>
+                  {assignedUserId ? (
+                    <Link
+                      href={`/admin/preview?userId=${encodeURIComponent(assignedUserId)}&email=${encodeURIComponent(assignedUserEmail)}`}
+                      className="self-start rounded-[4px] border border-[#222] px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#999] transition-colors hover:border-[#444] hover:text-white sm:self-auto"
+                    >
+                      Preview Dashboard
+                    </Link>
+                  ) : null}
+                </div>
               )}
             </div>
 
