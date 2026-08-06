@@ -146,6 +146,9 @@ export default function Dashboard() {
   const [coachMessageStatus, setCoachMessageStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
   const [coachMessageError, setCoachMessageError] = useState("");
   const [isMessagesOpen, setIsMessagesOpen] = useState(false);
+  const [reviewReplyBodies, setReviewReplyBodies] = useState<Record<string, string>>({});
+  const [reviewReplyStatus, setReviewReplyStatus] = useState<Record<string, "idle" | "sending" | "sent" | "error">>({});
+  const [reviewReplyErrors, setReviewReplyErrors] = useState<Record<string, string>>({});
 
   const getAccessToken = useCallback(async (): Promise<string | null> => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -471,26 +474,11 @@ export default function Dashboard() {
     }
   }
 
-  async function handleSendCoachMessage() {
-    const body = coachMessageBody.trim();
-    if (!body) {
-      setCoachMessageError("Write a message first.");
-      return;
-    }
-
-    if (body.length > 4000) {
-      setCoachMessageError("Message must be 4000 characters or fewer.");
-      return;
-    }
-
+  async function sendCoachMessage(body: string): Promise<CoachMessage> {
     const token = await getAccessToken();
     if (!token) {
-      setCoachMessageError("Sign in again before sending.");
-      return;
+      throw new Error("Sign in again before sending.");
     }
-
-    setCoachMessageStatus("sending");
-    setCoachMessageError("");
 
     const res = await fetch("/api/dashboard/messages", {
       method: "POST",
@@ -503,15 +491,73 @@ export default function Dashboard() {
 
     const data = await res.json().catch(() => ({} as { error?: string; message?: CoachMessage }));
     if (!res.ok || !data.message) {
-      setCoachMessageStatus("error");
-      setCoachMessageError(data?.error || "Failed to send message.");
+      throw new Error(data?.error || "Failed to send message.");
+    }
+
+    return data.message as CoachMessage;
+  }
+
+  async function handleSendCoachMessage() {
+    const body = coachMessageBody.trim();
+    if (!body) {
+      setCoachMessageError("Write a message first.");
       return;
     }
 
-    setCoachMessages(prev => [...prev, data.message as CoachMessage]);
-    setCoachMessageBody("");
-    setCoachMessageStatus("sent");
-    setTimeout(() => setCoachMessageStatus("idle"), 2000);
+    if (body.length > 4000) {
+      setCoachMessageError("Message must be 4000 characters or fewer.");
+      return;
+    }
+
+    setCoachMessageStatus("sending");
+    setCoachMessageError("");
+
+    try {
+      const message = await sendCoachMessage(body);
+      setCoachMessages(prev => [...prev, message]);
+      setCoachMessageBody("");
+      setCoachMessageStatus("sent");
+      setTimeout(() => setCoachMessageStatus("idle"), 2000);
+    } catch (err) {
+      setCoachMessageStatus("error");
+      setCoachMessageError(err instanceof Error ? err.message : "Failed to send message.");
+    }
+  }
+
+  async function handleSendReviewReply(submission: ReviewSubmission) {
+    const reply = (reviewReplyBodies[submission.id] ?? "").trim();
+    if (!reply) {
+      setReviewReplyErrors(prev => ({ ...prev, [submission.id]: "Write a reply first." }));
+      return;
+    }
+
+    const submittedDate = new Date(submission.submittedAt ?? submission.createdAt).toLocaleDateString();
+    const context = submission.fileName ? `${submission.fileName} (${submittedDate})` : `video from ${submittedDate}`;
+    const body = `Reply to coach feedback on ${context}:\n\n${reply}`;
+
+    if (body.length > 4000) {
+      setReviewReplyErrors(prev => ({ ...prev, [submission.id]: "Reply is too long." }));
+      return;
+    }
+
+    setReviewReplyStatus(prev => ({ ...prev, [submission.id]: "sending" }));
+    setReviewReplyErrors(prev => ({ ...prev, [submission.id]: "" }));
+
+    try {
+      const message = await sendCoachMessage(body);
+      setCoachMessages(prev => [...prev, message]);
+      setReviewReplyBodies(prev => ({ ...prev, [submission.id]: "" }));
+      setReviewReplyStatus(prev => ({ ...prev, [submission.id]: "sent" }));
+      setTimeout(() => {
+        setReviewReplyStatus(prev => ({ ...prev, [submission.id]: "idle" }));
+      }, 2000);
+    } catch (err) {
+      setReviewReplyStatus(prev => ({ ...prev, [submission.id]: "error" }));
+      setReviewReplyErrors(prev => ({
+        ...prev,
+        [submission.id]: err instanceof Error ? err.message : "Failed to send reply.",
+      }));
+    }
   }
 
   const DashboardNav = (
@@ -1195,6 +1241,35 @@ export default function Dashboard() {
                             <div className="rounded-lg border border-blue-900 bg-[oklch(0.18_0.06_240)] p-4">
                               <p className="text-[oklch(0.65_0.14_240)] text-xs font-medium mb-2">Coach note</p>
                               <p className="text-white text-sm leading-relaxed">{submission.coachNote}</p>
+                              <div className="mt-4 border-t border-blue-900/60 pt-4">
+                                <label className="mb-2 block text-xs tracking-widest text-[oklch(0.65_0.14_240)] uppercase">Reply</label>
+                                <textarea
+                                  value={reviewReplyBodies[submission.id] ?? ""}
+                                  onChange={(e) => {
+                                    setReviewReplyBodies(prev => ({ ...prev, [submission.id]: e.target.value }));
+                                    setReviewReplyErrors(prev => ({ ...prev, [submission.id]: "" }));
+                                  }}
+                                  rows={3}
+                                  maxLength={3000}
+                                  placeholder="Ask a question about this feedback."
+                                  disabled={reviewReplyStatus[submission.id] === "sending"}
+                                  className="w-full rounded-lg border border-blue-900/70 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-[#555] focus:border-blue-500 focus:outline-none disabled:opacity-40"
+                                />
+                                {reviewReplyErrors[submission.id] ? (
+                                  <p className="mt-2 text-sm text-[#dc2626]">{reviewReplyErrors[submission.id]}</p>
+                                ) : null}
+                                {reviewReplyStatus[submission.id] === "sent" ? (
+                                  <p className="mt-2 text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Reply sent.</p>
+                                ) : null}
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendReviewReply(submission)}
+                                  disabled={reviewReplyStatus[submission.id] === "sending"}
+                                  className="mt-3 rounded-[4px] bg-white px-4 py-2 text-xs font-bold tracking-widest text-black uppercase transition-colors hover:bg-[#e0e0e0] disabled:cursor-not-allowed disabled:opacity-40"
+                                >
+                                  {reviewReplyStatus[submission.id] === "sending" ? "Sending..." : "Send Reply"}
+                                </button>
+                              </div>
                             </div>
                           ) : submission.status === "submitted" ? (
                             <p className="text-[#666] text-sm">Coach review pending.</p>

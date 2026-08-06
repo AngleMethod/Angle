@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase'
 import {
   describeError,
@@ -47,6 +48,121 @@ type ResolveOk = {
 type ResolvePending = { kind: 'pending'; uploadStatus: string | null; assetId?: string | null; assetStatus?: string | null }
 type ResolveError = { kind: 'error'; message: string; uploadStatus: string | null; assetId?: string | null; assetStatus?: string | null }
 type ResolveResult = ResolveOk | ResolvePending | ResolveError
+
+const FROM_EMAIL = 'Angle <hello@angle.coach>'
+const ADMIN_NOTIFICATION_EMAIL = 'josh@anglemethod.com'
+const ADMIN_REVIEWS_URL = 'https://angle.coach/admin/reviews'
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br />')
+}
+
+function buildReviewUploadEmailHtml({
+  userEmail,
+  note,
+  durationSeconds,
+}: {
+  userEmail: string
+  note: string
+  durationSeconds: number | null
+}) {
+  const duration = durationSeconds ? `${durationSeconds}s` : 'Unknown'
+
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>New review video - Angle</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#0a0a0a;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0a0a0a;">
+      <tr>
+        <td align="center" style="padding:48px 24px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+            <tr><td style="padding-bottom:32px;"><span style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#666666;">Angle</span></td></tr>
+            <tr><td style="padding-bottom:18px;"><h1 style="margin:0;font-size:32px;line-height:1.1;text-transform:uppercase;color:#ffffff;">New review video</h1></td></tr>
+            <tr><td style="padding-bottom:16px;"><p style="margin:0;font-size:15px;line-height:1.6;color:#aaaaaa;">${escapeHtml(userEmail)} uploaded a progress video.</p></td></tr>
+            <tr><td style="padding:20px;border:1px solid #1e1e1e;background:#111110;">
+              <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:#aaaaaa;">Duration: <strong style="color:#ffffff;">${escapeHtml(duration)}</strong></p>
+              ${note ? `<p style="margin:0;font-size:14px;line-height:1.7;color:#ffffff;">${escapeHtml(note)}</p>` : '<p style="margin:0;font-size:14px;line-height:1.7;color:#777777;">No note added.</p>'}
+            </td></tr>
+            <tr><td style="padding-top:32px;"><a href="${ADMIN_REVIEWS_URL}" style="display:inline-block;background-color:#ffffff;color:#000000;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;padding:16px 32px;border-radius:4px;">Open Reviews</a></td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`
+}
+
+function buildReviewUploadEmailText({
+  userEmail,
+  note,
+  durationSeconds,
+}: {
+  userEmail: string
+  note: string
+  durationSeconds: number | null
+}) {
+  return `New review video from ${userEmail}
+
+Duration: ${durationSeconds ? `${durationSeconds}s` : 'Unknown'}
+${note ? `Note:\n${note}\n` : 'No note added.\n'}
+Open reviews:
+${ADMIN_REVIEWS_URL}`
+}
+
+async function sendReviewUploadEmail({
+  submissionId,
+  userEmail,
+  note,
+  durationSeconds,
+}: {
+  submissionId: string
+  userEmail: string
+  note: string
+  durationSeconds: number | null
+}) {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    console.error('[dashboard/reviews POST] Review upload email skipped: RESEND_API_KEY not set')
+    return false
+  }
+
+  try {
+    const resend = new Resend(apiKey)
+    const { error } = await resend.emails.send(
+      {
+        from: FROM_EMAIL,
+        to: ADMIN_NOTIFICATION_EMAIL,
+        replyTo: userEmail,
+        subject: `New review video from ${userEmail}`,
+        html: buildReviewUploadEmailHtml({ userEmail, note, durationSeconds }),
+        text: buildReviewUploadEmailText({ userEmail, note, durationSeconds }),
+      },
+      {
+        headers: {
+          'Idempotency-Key': `review-upload-${submissionId}`,
+        },
+      }
+    )
+
+    if (error) {
+      console.error('[dashboard/reviews POST] Review upload email failed:', error)
+      return false
+    }
+
+    return true
+  } catch (err) {
+    console.error('[dashboard/reviews POST] Review upload email threw:', err)
+    return false
+  }
+}
 
 function isViewableStatus(status: ReviewSubmissionRow['status']) {
   return status === 'submitted' || status === 'reviewed'
@@ -264,6 +380,18 @@ export async function POST(req: NextRequest) {
     }
 
     const now = new Date().toISOString()
+    const { count: pendingReviewCount, error: pendingReviewErr } = await admin
+      .from('coach_review_submissions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', auth.user.id)
+      .eq('status', 'submitted')
+      .neq('id', submissionId)
+
+    if (pendingReviewErr) {
+      console.error('[dashboard/reviews POST] Failed to check pending review count:', pendingReviewErr)
+    }
+
+    const shouldEmailCoach = !pendingReviewErr && (pendingReviewCount ?? 0) === 0
     const { data: updated, error: updateErr } = await admin
       .from('coach_review_submissions')
       .update({
@@ -284,6 +412,15 @@ export async function POST(req: NextRequest) {
     if (updateErr || !updated) {
       console.error('[dashboard/reviews POST] Failed to save submitted review:', updateErr)
       return NextResponse.json({ error: 'Failed to save review submission' }, { status: 500 })
+    }
+
+    if (shouldEmailCoach) {
+      await sendReviewUploadEmail({
+        submissionId: updated.id,
+        userEmail: auth.user.email,
+        note,
+        durationSeconds: updated.duration_seconds,
+      })
     }
 
     return NextResponse.json({
