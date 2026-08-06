@@ -1253,7 +1253,7 @@ export default function AdminPage() {
                         stepNumber = 0;
                         return (
                           <div
-                            key={`banner-${step.text || "empty"}-${i}`}
+                            key={`banner-${i}`}
                             className="min-w-0 overflow-hidden rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
                           >
                             <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -1304,7 +1304,7 @@ export default function AdminPage() {
                       const stepVideo = step.videoId ? videoLibrary.find(v => v.id === step.videoId) ?? null : null;
                       return (
                       <div
-                        key={`${step.videoId || step.title || "text-step"}-${i}`}
+                        key={`step-${step.videoId || "text"}-${i}`}
                         className="min-w-0 overflow-hidden rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
                       >
                         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
