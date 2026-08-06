@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase'
+import { SUBSCRIPTION_ACCESS_STATUSES } from '@/lib/subscriptionStatus'
 
 const ADMIN_EMAILS = [
   'josh@anglemethod.com',
@@ -34,7 +35,7 @@ export async function GET(req: NextRequest) {
   const { data: subscriptions, error } = await admin
     .from('subscriptions')
     .select('user_id, onboarding_status')
-    .eq('status', 'active')
+    .in('status', [...SUBSCRIPTION_ACCESS_STATUSES])
 
   if (error) {
     console.error('[active-users GET] Failed to load subscriptions:', error)

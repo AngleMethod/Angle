@@ -10,9 +10,10 @@ type Props = {
   poster?: string;
   objectFit?: "contain" | "cover";
   tokens?: MuxPlayerProps["tokens"];
+  onError?: MuxPlayerProps["onError"];
 };
 
-export default function VideoPlayer({ playbackId, aspect = "16/9", autoPlay = false, poster, objectFit = "contain", tokens }: Props) {
+export default function VideoPlayer({ playbackId, aspect = "16/9", autoPlay = false, poster, objectFit = "contain", tokens, onError }: Props) {
   const aspectClass = aspect === "4/5" ? "aspect-[4/5]" : "aspect-video";
   const playerStyle = {
     display: "block",
@@ -32,6 +33,7 @@ export default function VideoPlayer({ playbackId, aspect = "16/9", autoPlay = fa
           autoPlay={autoPlay}
           poster={poster}
           tokens={tokens}
+          onError={onError}
           className="block h-full w-full"
           style={playerStyle}
         />

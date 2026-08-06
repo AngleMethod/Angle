@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Mux from '@mux/mux-node'
 import { createAdminClient } from '@/lib/supabase'
+import { hasSubscriptionAccess } from '@/lib/subscriptionStatus'
 
 export const MAX_REVIEW_VIDEO_DURATION_SECONDS = 120
 export const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024
@@ -111,7 +112,7 @@ export async function getActiveReviewUser(req: NextRequest): Promise<
     return { response: NextResponse.json({ error: 'Unable to verify subscription' }, { status: 500 }) }
   }
 
-  if (subscription?.status !== 'active') {
+  if (!hasSubscriptionAccess(subscription?.status)) {
     return { response: NextResponse.json({ error: 'Active subscription required' }, { status: 403 }) }
   }
 

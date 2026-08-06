@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase'
+import { hasSubscriptionAccess } from '@/lib/subscriptionStatus'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
@@ -52,7 +53,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unable to verify subscription' }, { status: 500 })
     }
 
-    if (subscription?.status !== 'active') {
+    if (!hasSubscriptionAccess(subscription?.status)) {
       return NextResponse.json({ error: 'Active subscription required' }, { status: 403 })
     }
   }

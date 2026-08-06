@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import Nav from './Nav'
 import Button from './ui/Button'
 import VideoPlayer from './VideoPlayer'
+import { hasSubscriptionAccess } from '@/lib/subscriptionStatus'
 
 const ADMIN_EMAILS = [
   'josh@anglemethod.com',
@@ -46,6 +47,13 @@ function useReveal(): [RefObject<HTMLElement | null>, boolean] {
 }
 
 // ── Hero ──────────────────────────────────────────────────────────────────────
+const HERO_PILLS = [
+  { label: 'Assessment',    border: 'border border-purple-900', bg: 'oklch(0.18 0.06 290)', text: 'oklch(0.65 0.14 290)' },
+  { label: 'Built for you', border: 'border border-green-900',  bg: 'oklch(0.18 0.06 155)', text: 'oklch(0.68 0.14 155)' },
+  { label: 'Progressions',  border: 'border border-orange-900', bg: 'oklch(0.18 0.06 50)',  text: 'oklch(0.72 0.14 50)'  },
+  { label: 'Coach-led',     border: 'border border-blue-900',   bg: 'oklch(0.18 0.06 240)', text: 'oklch(0.65 0.14 240)' },
+]
+
 function Hero({
   isStartingTraining,
   ctaLabel,
@@ -73,15 +81,9 @@ function Hero({
     }
   }, [])
 
-  const heroPills = [
-    { label: 'Assessment',    border: 'border border-purple-900', bg: 'oklch(0.18 0.06 290)', text: 'oklch(0.65 0.14 290)' },
-    { label: 'Built for you', border: 'border border-green-900',  bg: 'oklch(0.18 0.06 155)', text: 'oklch(0.68 0.14 155)' },
-    { label: 'Progressions',  border: 'border border-orange-900', bg: 'oklch(0.18 0.06 50)',  text: 'oklch(0.72 0.14 50)'  },
-    { label: 'Coach-led',     border: 'border border-blue-900',   bg: 'oklch(0.18 0.06 240)', text: 'oklch(0.65 0.14 240)' },
-  ]
   const [activePill, setActivePill] = useState(0)
   useEffect(() => {
-    const interval = setInterval(() => setActivePill(prev => (prev + 1) % heroPills.length), 1500)
+    const interval = setInterval(() => setActivePill(prev => (prev + 1) % HERO_PILLS.length), 1500)
     return () => clearInterval(interval)
   }, [])
 
@@ -91,7 +93,7 @@ function Hero({
       <div className="relative z-10 flex flex-col justify-center px-6 pt-28 pb-8 md:pt-24 md:pb-0 md:pl-16 md:pr-8 md:w-[50%]">
 
         <div className="relative h-7 mb-4 md:mb-6">
-          {heroPills.map((pill, i) => (
+          {HERO_PILLS.map((pill, i) => (
             <span
               key={pill.label}
               className={`absolute text-xs px-3 py-1 rounded-full font-medium transition-opacity duration-500 ${pill.border} ${i === activePill ? 'opacity-100' : 'opacity-0'}`}
@@ -633,7 +635,9 @@ function Footer({ authReady, isLoggedIn }: { authReady: boolean; isLoggedIn: boo
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function AnglePage() {
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(() => (
+    typeof window === 'undefined' ? '' : localStorage.getItem('lastSignInEmail') ?? ''
+  ))
   const [message, setMessage] = useState('')
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [subscriptionStatus, setSubscriptionStatus] = useState<'unknown' | 'none' | 'active' | 'inactive'>('unknown')
@@ -641,9 +645,6 @@ export default function AnglePage() {
   const [isStartingTraining, setIsStartingTraining] = useState(false)
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem('lastSignInEmail')
-    if (savedEmail) setEmail(savedEmail)
-
     const syncSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       const nextEmail = session?.user?.email ?? null
@@ -673,7 +674,7 @@ export default function AnglePage() {
         console.error('[homepage] Failed to load subscription state:', error)
       }
 
-      setSubscriptionStatus(subscription?.status === 'active' ? 'active' : 'inactive')
+      setSubscriptionStatus(hasSubscriptionAccess(subscription?.status) ? 'active' : 'inactive')
       setAuthReady(true)
       setIsStartingTraining(false)
     }
@@ -760,9 +761,10 @@ export default function AnglePage() {
         .eq('user_id', session.user.id)
         .single()
 
-      setSubscriptionStatus(subscription?.status === 'active' ? 'active' : 'inactive')
+      const hasAccess = hasSubscriptionAccess(subscription?.status)
+      setSubscriptionStatus(hasAccess ? 'active' : 'inactive')
 
-      if (subscription?.status === 'active') {
+      if (hasAccess) {
         window.location.href = '/dashboard'
         return
       }

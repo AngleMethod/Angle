@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { createAdminClient, findUserByEmail } from '@/lib/supabase'
+import { SUBSCRIPTION_ACCESS_STATUSES } from '@/lib/subscriptionStatus'
 
 const SIGNING_KEY = process.env.CALENDLY_WEBHOOK_SIGNING_KEY
 
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest) {
       .from('subscriptions')
       .update({ onboarding_status: 'booked' })
       .eq('user_id', user.id)
-      .eq('status', 'active')
+      .in('status', [...SUBSCRIPTION_ACCESS_STATUSES])
 
     if (error) {
       console.error('Failed to update subscription from Calendly created webhook:', error)
@@ -82,7 +83,7 @@ export async function POST(req: NextRequest) {
       .from('subscriptions')
       .update({ onboarding_status: 'not_booked' })
       .eq('user_id', user.id)
-      .eq('status', 'active')
+      .in('status', [...SUBSCRIPTION_ACCESS_STATUSES])
       .eq('onboarding_status', 'booked')
 
     if (error) {

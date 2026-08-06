@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
-import VideoPlayer from "@/components/VideoPlayer";
+import ReviewVideoPlayer from "@/components/ReviewVideoPlayer";
 
 const ADMIN_EMAILS = [
   "josh@anglemethod.com",
@@ -57,6 +57,30 @@ export default function AdminReviewsPage() {
   const [errorById, setErrorById] = useState<Record<string, string>>({});
   const [activeFilter, setActiveFilter] = useState<ReviewFilter>("needs_review");
 
+  const getAccessToken = useCallback(async (): Promise<string | null> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token ?? null;
+  }, []);
+
+  const fetchReviews = useCallback(async () => {
+    setLoadingSubmissions(true);
+    const token = await getAccessToken();
+    const res = await fetch("/api/admin/reviews", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      const nextSubmissions = (data.submissions ?? []) as ReviewSubmission[];
+      setSubmissions(nextSubmissions);
+      setCoachNotes(Object.fromEntries(
+        nextSubmissions.map((submission) => [submission.id, submission.coachNote ?? ""])
+      ));
+    }
+
+    setLoadingSubmissions(false);
+  }, [getAccessToken]);
+
   useEffect(() => {
     let isMounted = true;
 
@@ -86,32 +110,9 @@ export default function AdminReviewsPage() {
   }, [router]);
 
   useEffect(() => {
-    if (isLoaded) fetchReviews();
-  }, [isLoaded]);
-
-  async function getAccessToken(): Promise<string | null> {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token ?? null;
-  }
-
-  async function fetchReviews() {
-    setLoadingSubmissions(true);
-    const token = await getAccessToken();
-    const res = await fetch("/api/admin/reviews", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      const nextSubmissions = (data.submissions ?? []) as ReviewSubmission[];
-      setSubmissions(nextSubmissions);
-      setCoachNotes(Object.fromEntries(
-        nextSubmissions.map((submission) => [submission.id, submission.coachNote ?? ""])
-      ));
-    }
-
-    setLoadingSubmissions(false);
-  }
+    if (!isLoaded) return;
+    void Promise.resolve().then(() => fetchReviews());
+  }, [fetchReviews, isLoaded]);
 
   async function handleSaveReview(submissionId: string) {
     const coachNote = (coachNotes[submissionId] ?? "").trim();
@@ -359,7 +360,11 @@ export default function AdminReviewsPage() {
                     <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] gap-6">
                       <div>
                         {submission.playbackId && submission.playbackTokens ? (
-                          <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} />
+                          <ReviewVideoPlayer
+                            submissionId={submission.id}
+                            playbackId={submission.playbackId}
+                            tokens={submission.playbackTokens}
+                          />
                         ) : (
                           <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
                             <p className="text-[#666] text-xs tracking-widest uppercase">

@@ -112,12 +112,24 @@ export async function GET(req: NextRequest) {
   const auth = await getActiveReviewUser(req)
   if ('response' in auth) return auth.response
 
+  const { searchParams } = new URL(req.url)
+  const requestedLimit = Number.parseInt(searchParams.get('limit') ?? '', 10)
+  const limit = Number.isFinite(requestedLimit)
+    ? Math.min(Math.max(requestedLimit, 1), 25)
+    : null
+
   const admin = createAdminClient()
-  const { data, error } = await admin
+  let query = admin
     .from('coach_review_submissions')
     .select('id, user_id, user_email, note, status, mux_upload_id, mux_asset_id, mux_playback_id, mux_processing_status, duration_seconds, file_name, file_size_bytes, mime_type, submitted_at, coach_note, reviewed_at, error_message, created_at, updated_at')
     .eq('user_id', auth.user.id)
     .order('created_at', { ascending: false })
+
+  if (limit !== null) {
+    query = query.limit(limit)
+  }
+
+  const { data, error } = await query
 
   if (error) {
     console.error('[dashboard/reviews GET] Failed to list submissions:', error)

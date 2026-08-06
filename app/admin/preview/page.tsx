@@ -45,13 +45,17 @@ const ADMIN_EMAILS = [
 
 const DEFAULT_FREQUENCY = "Handbalancing - 6x/week";
 const DEFAULT_BANNER_TEXT = "Flexibility - 3x/week";
+const LEGACY_FREQUENCY_LABELS: Record<string, string> = {
+  "Handstand Practice - 6x/week": DEFAULT_FREQUENCY,
+};
 
 function getWorkoutFrequency(step: WorkoutStep): string {
-  if (step.frequency?.trim()) return step.frequency.trim();
-  if (step.sectionDescription?.trim()) return step.sectionDescription.trim();
-  if (step.sectionTitle?.trim()) return step.sectionTitle.trim();
-  if (step.section === "flexibility") return "Flexibility - 3x/week";
-  return DEFAULT_FREQUENCY;
+  const frequency = step.frequency?.trim()
+    || step.sectionDescription?.trim()
+    || step.sectionTitle?.trim()
+    || (step.section === "flexibility" ? "Flexibility - 3x/week" : DEFAULT_FREQUENCY);
+
+  return LEGACY_FREQUENCY_LABELS[frequency] ?? frequency;
 }
 
 function isWorkoutBanner(item: WorkoutItem): item is WorkoutBanner {
@@ -199,11 +203,10 @@ export default function AdminPreviewPage() {
               </div>
             ) : (
               <div className="space-y-8 md:space-y-10">
-                {workout.some(isWorkoutBanner)
-                  ? (() => {
-                      let stepNumber = 0;
+                {(() => {
+                  let stepNumber = 0;
 
-                      return workout.map((item, itemIndex) => {
+                  return workout.map((item, itemIndex) => {
                         if (isWorkoutBanner(item)) {
                           stepNumber = 0;
                           return (
@@ -261,71 +264,7 @@ export default function AdminPreviewPage() {
                           </div>
                         );
                       });
-                    })()
-                  : workout.reduce<Array<{ frequency: string; steps: WorkoutStep[] }>>((groups, step) => {
-                      if (isWorkoutBanner(step)) return groups;
-
-                      const frequency = getWorkoutFrequency(step);
-                      const existingGroup = groups.find(group => group.frequency === frequency);
-                      if (existingGroup) {
-                        existingGroup.steps.push(step);
-                      } else {
-                        groups.push({ frequency, steps: [step] });
-                      }
-                      return groups;
-                    }, []).map((group, groupIndex) => (
-                      <section key={`${group.frequency}-${groupIndex}`} className="space-y-4 md:space-y-6">
-                        <div>
-                          <h2
-                            className="text-white uppercase tracking-wide"
-                            style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
-                          >
-                            {group.frequency}
-                          </h2>
-                        </div>
-
-                        {group.steps.map((step, i) => {
-                          const muxVideo = step.videoId ? muxVideoMap[step.videoId] : undefined;
-                          const displayDescription = step.description || muxVideo?.description || "";
-                          const displayFrequency = getWorkoutFrequency(step);
-                          return (
-                            <div key={`${groupIndex}-${step.videoId ?? "missing"}-${i}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
-                              <h3
-                                className="text-white uppercase tracking-wide mb-4 md:mb-6"
-                                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
-                              >
-                                Step {i + 1}: {step.title}
-                              </h3>
-                              {muxVideo ? (
-                                <div className="mb-4 md:mb-6">
-                                  <VideoPlayer playbackId={muxVideo.mux_playback_id} />
-                                </div>
-                              ) : step.videoId ? (
-                                <div className="aspect-video w-full mb-4 md:mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                                  <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
-                                </div>
-                              ) : null}
-                              {(displayFrequency || step.sets || step.repsOrHoldTime) ? (
-                                <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
-                                  {displayFrequency ? (
-                                    <p className="text-[#aaa]"><span className="text-[#666]">Frequency:</span> {displayFrequency}</p>
-                                  ) : null}
-                                  {step.sets ? (
-                                    <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {step.sets}</p>
-                                  ) : null}
-                                  {step.repsOrHoldTime ? (
-                                    <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {step.repsOrHoldTime}</p>
-                                  ) : null}
-                                </div>
-                              ) : null}
-                              {displayDescription ? (
-                                <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{displayDescription}</p>
-                              ) : null}
-                            </div>
-                          );
-                        })}
-                      </section>
-                    ))}
+                })()}
               </div>
             )}
 

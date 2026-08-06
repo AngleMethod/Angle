@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
 import VideoPlayer from "@/components/VideoPlayer";
+import ReviewVideoPlayer from "@/components/ReviewVideoPlayer";
 
 type WorkoutStep = {
   type?: "video";
@@ -116,13 +117,17 @@ const REVIEW_STATUS_STYLES: Record<ReviewSubmissionStatus, string> = {
 
 const DEFAULT_FREQUENCY = "Handbalancing - 6x/week";
 const DEFAULT_BANNER_TEXT = "Flexibility - 3x/week";
+const LEGACY_FREQUENCY_LABELS: Record<string, string> = {
+  "Handstand Practice - 6x/week": DEFAULT_FREQUENCY,
+};
 
 function getWorkoutFrequency(step: Partial<WorkoutStep>): string {
-  if (step.frequency?.trim()) return step.frequency.trim();
-  if (step.sectionDescription?.trim()) return step.sectionDescription.trim();
-  if (step.sectionTitle?.trim()) return step.sectionTitle.trim();
-  if (step.section === "flexibility") return "Flexibility - 3x/week";
-  return DEFAULT_FREQUENCY;
+  const frequency = step.frequency?.trim()
+    || step.sectionDescription?.trim()
+    || step.sectionTitle?.trim()
+    || (step.section === "flexibility" ? "Flexibility - 3x/week" : DEFAULT_FREQUENCY);
+
+  return LEGACY_FREQUENCY_LABELS[frequency] ?? frequency;
 }
 
 function isWorkoutBanner(item: WorkoutItem): item is WorkoutBanner {
@@ -996,7 +1001,11 @@ export default function AdminPage() {
                                 {isOpen ? (
                                   <div id={`recent-submission-${submission.id}`} className="mt-4 space-y-4">
                                     {submission.playbackId && submission.playbackTokens ? (
-                                      <VideoPlayer playbackId={submission.playbackId} tokens={submission.playbackTokens} />
+                                      <ReviewVideoPlayer
+                                        submissionId={submission.id}
+                                        playbackId={submission.playbackId}
+                                        tokens={submission.playbackTokens}
+                                      />
                                     ) : (
                                       <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
                                         <p className="text-[#666] text-xs tracking-widest uppercase">
@@ -1336,7 +1345,7 @@ export default function AdminPage() {
                           <div>
                             <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Frequency</label>
                             <input
-                              value={step.frequency ?? getWorkoutFrequency(step)}
+                              value={getWorkoutFrequency(step)}
                               onChange={(e) => updateStep(i, { frequency: e.target.value })}
                               placeholder={DEFAULT_FREQUENCY}
                               className={inputClass}
