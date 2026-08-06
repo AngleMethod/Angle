@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase'
 import {
   describeError,
@@ -34,7 +35,102 @@ type ReviewRequestBody = {
   coachNote?: unknown
 }
 
+const FROM_EMAIL = 'Angle <hello@angle.coach>'
+const REPLY_TO_EMAIL = 'josh@anglemethod.com'
+const DASHBOARD_URL = 'https://angle.coach/dashboard'
 const DELETABLE_STATUSES: AdminReviewStatus[] = ['uploading', 'processing', 'submitted', 'reviewed', 'error']
+
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/\n/g, '<br />')
+}
+
+function buildFeedbackReadyEmailHtml(coachNote: string) {
+  return `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your video feedback is ready - Angle</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#0a0a0a;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0a0a0a;">
+      <tr>
+        <td align="center" style="padding:48px 24px;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+            <tr><td style="padding-bottom:32px;"><span style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#666666;">Angle</span></td></tr>
+            <tr><td style="padding-bottom:18px;"><h1 style="margin:0;font-size:32px;line-height:1.1;text-transform:uppercase;color:#ffffff;">Your video feedback is ready</h1></td></tr>
+            <tr><td style="padding-bottom:16px;"><p style="margin:0;font-size:15px;line-height:1.6;color:#aaaaaa;">Your coach reviewed your progress video. Open your dashboard to watch it back and reply.</p></td></tr>
+            <tr><td style="padding:20px;border:1px solid #1e1e1e;background:#111110;">
+              ${coachNote ? `<p style="margin:0;font-size:14px;line-height:1.7;color:#ffffff;">${escapeHtml(coachNote)}</p>` : '<p style="margin:0;font-size:14px;line-height:1.7;color:#777777;">No written note added.</p>'}
+            </td></tr>
+            <tr><td style="padding-top:32px;"><a href="${DASHBOARD_URL}" style="display:inline-block;background-color:#ffffff;color:#000000;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;padding:16px 32px;border-radius:4px;">Open Dashboard</a></td></tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`
+}
+
+function buildFeedbackReadyEmailText(coachNote: string) {
+  return `Your video feedback is ready.
+
+Your coach reviewed your progress video. Open your dashboard to watch it back and reply.
+
+${coachNote ? `Coach note:\n${coachNote}\n\n` : 'No written note added.\n\n'}Open your dashboard:
+${DASHBOARD_URL}`
+}
+
+async function sendFeedbackReadyEmail({
+  toEmail,
+  coachNote,
+  submissionId,
+  reviewedAt,
+}: {
+  toEmail: string
+  coachNote: string
+  submissionId: string
+  reviewedAt: string
+}) {
+  const apiKey = process.env.RESEND_API_KEY
+  if (!apiKey) {
+    console.error('[admin/reviews POST] Feedback-ready email skipped: RESEND_API_KEY not set')
+    return false
+  }
+
+  try {
+    const resend = new Resend(apiKey)
+    const { error } = await resend.emails.send(
+      {
+        from: FROM_EMAIL,
+        to: toEmail,
+        replyTo: REPLY_TO_EMAIL,
+        subject: 'Your video feedback is ready - Angle',
+        html: buildFeedbackReadyEmailHtml(coachNote),
+        text: buildFeedbackReadyEmailText(coachNote),
+      },
+      {
+        headers: {
+          'Idempotency-Key': `review-feedback-${submissionId}-${reviewedAt}`,
+        },
+      }
+    )
+
+    if (error) {
+      console.error('[admin/reviews POST] Feedback-ready email failed:', error)
+      return false
+    }
+
+    return true
+  } catch (err) {
+    console.error('[admin/reviews POST] Feedback-ready email threw:', err)
+    return false
+  }
+}
 
 function isPlayableStatus(status: AdminReviewRow['status']) {
   return status === 'submitted' || status === 'reviewed'
@@ -163,7 +259,7 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient()
   const { data: existing, error: existingErr } = await admin
     .from('coach_review_submissions')
-    .select('id, status, mux_playback_id')
+    .select('id, user_email, status, mux_playback_id')
     .eq('id', submissionId)
     .single()
 
@@ -194,6 +290,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save coach review' }, { status: 500 })
   }
 
+  const emailSent = await sendFeedbackReadyEmail({
+    toEmail: existing.user_email,
+    coachNote,
+    submissionId: updated.id,
+    reviewedAt: updated.reviewed_at,
+  })
+
   return NextResponse.json({
     submission: {
       id: updated.id,
@@ -202,6 +305,7 @@ export async function POST(req: NextRequest) {
       reviewedByEmail: updated.reviewed_by_email,
       reviewedAt: updated.reviewed_at,
     },
+    email: { attempted: true, sent: emailSent },
   })
 }
 
