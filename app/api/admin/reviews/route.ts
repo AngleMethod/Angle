@@ -39,6 +39,7 @@ const FROM_EMAIL = 'Angle <hello@angle.coach>'
 const REPLY_TO_EMAIL = 'josh@anglemethod.com'
 const DASHBOARD_URL = 'https://angle.coach/dashboard'
 const DELETABLE_STATUSES: AdminReviewStatus[] = ['uploading', 'processing', 'submitted', 'reviewed', 'error']
+const REVIEW_FEEDBACK_EMAIL_COOLDOWN_MS = 24 * 60 * 60 * 1000
 
 function escapeHtml(value: string) {
   return value
@@ -134,6 +135,13 @@ async function sendFeedbackReadyEmail({
 
 function isPlayableStatus(status: AdminReviewRow['status']) {
   return status === 'submitted' || status === 'reviewed'
+}
+
+function wasWrittenReviewSentRecently(reviewedAt: string | null, coachNote: string | null) {
+  if (!reviewedAt || !coachNote?.trim()) return false
+
+  const reviewedTime = new Date(reviewedAt).getTime()
+  return Number.isFinite(reviewedTime) && Date.now() - reviewedTime < REVIEW_FEEDBACK_EMAIL_COOLDOWN_MS
 }
 
 function isDeletableStatus(status: AdminReviewStatus) {
@@ -259,7 +267,7 @@ export async function POST(req: NextRequest) {
   const admin = createAdminClient()
   const { data: existing, error: existingErr } = await admin
     .from('coach_review_submissions')
-    .select('id, user_email, status, mux_playback_id')
+    .select('id, user_id, user_email, status, mux_playback_id, coach_note, reviewed_at')
     .eq('id', submissionId)
     .single()
 
@@ -290,14 +298,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save coach review' }, { status: 500 })
   }
 
-  const emailSent = coachNote
-    ? await sendFeedbackReadyEmail({
-      toEmail: existing.user_email,
-      coachNote,
-      submissionId: updated.id,
-      reviewedAt: updated.reviewed_at,
-    })
-    : false
+  let emailAttempted = false
+  let emailSent = false
+
+  if (coachNote) {
+    const dayAgo = new Date(Date.now() - REVIEW_FEEDBACK_EMAIL_COOLDOWN_MS).toISOString()
+    const alreadyNotifiedFromThisReview = wasWrittenReviewSentRecently(existing.reviewed_at, existing.coach_note)
+    const { count: recentEmailCandidateCount, error: recentEmailErr } = await admin
+      .from('coach_review_submissions')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', existing.user_id)
+      .eq('status', 'reviewed')
+      .neq('id', submissionId)
+      .not('coach_note', 'is', null)
+      .gte('reviewed_at', dayAgo)
+
+    if (recentEmailErr) {
+      console.error('[admin/reviews POST] Failed to check recent review feedback email window:', recentEmailErr)
+    }
+
+    const alreadyNotifiedRecently = alreadyNotifiedFromThisReview || (recentEmailCandidateCount ?? 0) > 0
+    emailAttempted = !alreadyNotifiedRecently && !recentEmailErr
+
+    if (emailAttempted) {
+      emailSent = await sendFeedbackReadyEmail({
+        toEmail: existing.user_email,
+        coachNote,
+        submissionId: updated.id,
+        reviewedAt: updated.reviewed_at,
+      })
+    }
+  }
 
   return NextResponse.json({
     submission: {
@@ -307,7 +338,7 @@ export async function POST(req: NextRequest) {
       reviewedByEmail: updated.reviewed_by_email,
       reviewedAt: updated.reviewed_at,
     },
-    email: { attempted: !!coachNote, sent: emailSent },
+    email: { attempted: emailAttempted, sent: emailSent },
   })
 }
 

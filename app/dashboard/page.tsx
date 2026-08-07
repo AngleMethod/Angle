@@ -546,12 +546,11 @@ export default function Dashboard() {
     try {
       const message = await sendCoachMessage(body);
       setCoachMessages(prev => [...prev, message]);
-      setIsMessagesOpen(true);
       setReviewReplyBodies(prev => ({ ...prev, [submission.id]: "" }));
       setReviewReplyStatus(prev => ({ ...prev, [submission.id]: "sent" }));
       setTimeout(() => {
         setReviewReplyStatus(prev => ({ ...prev, [submission.id]: "idle" }));
-      }, 5000);
+      }, 2000);
     } catch (err) {
       setReviewReplyStatus(prev => ({ ...prev, [submission.id]: "error" }));
       setReviewReplyErrors(prev => ({
@@ -1259,7 +1258,7 @@ export default function Dashboard() {
                                   <p className="mt-2 text-sm text-[#dc2626]">{reviewReplyErrors[submission.id]}</p>
                                 ) : null}
                                 {reviewReplyStatus[submission.id] === "sent" ? (
-                                  <p className="mt-2 text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Reply sent. It was added to your Messages thread.</p>
+                                  <p className="mt-2 text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Reply sent.</p>
                                 ) : null}
                                 <button
                                   type="button"
