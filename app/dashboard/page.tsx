@@ -1154,7 +1154,6 @@ export default function Dashboard() {
                       onChange={(e) => setReviewNote(e.target.value)}
                       rows={5}
                       maxLength={2000}
-                      placeholder="What should we look at?"
                       disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
                       className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
                     />

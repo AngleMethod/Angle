@@ -290,12 +290,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to save coach review' }, { status: 500 })
   }
 
-  const emailSent = await sendFeedbackReadyEmail({
-    toEmail: existing.user_email,
-    coachNote,
-    submissionId: updated.id,
-    reviewedAt: updated.reviewed_at,
-  })
+  const emailSent = coachNote
+    ? await sendFeedbackReadyEmail({
+      toEmail: existing.user_email,
+      coachNote,
+      submissionId: updated.id,
+      reviewedAt: updated.reviewed_at,
+    })
+    : false
 
   return NextResponse.json({
     submission: {
@@ -305,7 +307,7 @@ export async function POST(req: NextRequest) {
       reviewedByEmail: updated.reviewed_by_email,
       reviewedAt: updated.reviewed_at,
     },
-    email: { attempted: true, sent: emailSent },
+    email: { attempted: !!coachNote, sent: emailSent },
   })
 }
 
