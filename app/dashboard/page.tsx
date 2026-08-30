@@ -83,6 +83,13 @@ type SubscriptionState = {
   onboarding_status: OnboardingStatus | null;
 };
 
+type ReviewUploadCreateResponse = {
+  error?: string;
+  submissionId?: string;
+  uploadId?: string;
+  uploadUrl?: string;
+};
+
 const ADMIN_EMAILS = [
   "josh@anglemethod.com",
   "morgan@anglemethod.com",
@@ -90,6 +97,8 @@ const ADMIN_EMAILS = [
 ];
 const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
+const MAX_REVIEW_UPLOAD_FILES = 10;
+const DEFAULT_REVIEW_SUBMISSIONS_LIMIT = 10;
 const DEFAULT_FREQUENCY = "Handbalancing - 6x/week";
 const DEFAULT_BANNER_TEXT = "Flexibility - 3x/week";
 const LEGACY_FREQUENCY_LABELS: Record<string, string> = {
@@ -134,11 +143,14 @@ export default function Dashboard() {
   const [muxVideoMap, setMuxVideoMap] = useState<Record<string, MuxVideoRecord>>({});
   const [reviewSubmissions, setReviewSubmissions] = useState<ReviewSubmission[]>([]);
   const [reviewsLoaded, setReviewsLoaded] = useState(false);
-  const [reviewFile, setReviewFile] = useState<File | null>(null);
+  const [reviewFiles, setReviewFiles] = useState<File[]>([]);
   const [reviewNote, setReviewNote] = useState("");
   const [reviewUploadStage, setReviewUploadStage] = useState<ReviewUploadStage>("idle");
   const [reviewUploadProgress, setReviewUploadProgress] = useState(0);
+  const [reviewUploadCurrentFile, setReviewUploadCurrentFile] = useState("");
   const [reviewUploadError, setReviewUploadError] = useState("");
+  const [allReviewSubmissionsLoaded, setAllReviewSubmissionsLoaded] = useState(false);
+  const [isLoadingAllReviewSubmissions, setIsLoadingAllReviewSubmissions] = useState(false);
   const [isCoachReviewOpen, setIsCoachReviewOpen] = useState(false);
   const [coachMessages, setCoachMessages] = useState<CoachMessage[]>([]);
   const [coachMessagesLoaded, setCoachMessagesLoaded] = useState(false);
@@ -155,13 +167,19 @@ export default function Dashboard() {
     return session?.access_token ?? null;
   }, []);
 
-  const loadReviewSubmissions = useCallback(async (accessToken?: string | null) => {
+  const loadReviewSubmissions = useCallback(async (
+    accessToken?: string | null,
+    options?: { all?: boolean }
+  ) => {
     const token = accessToken ?? await getAccessToken();
     if (!token) return;
 
     setReviewsLoaded(false);
     try {
-      const res = await fetch("/api/dashboard/reviews?limit=10", {
+      const url = options?.all
+        ? "/api/dashboard/reviews"
+        : `/api/dashboard/reviews?limit=${DEFAULT_REVIEW_SUBMISSIONS_LIMIT}`;
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -172,12 +190,23 @@ export default function Dashboard() {
 
       const data = await res.json();
       setReviewSubmissions((data.submissions ?? []) as ReviewSubmission[]);
+      setAllReviewSubmissionsLoaded(!!options?.all);
       setReviewsLoaded(true);
     } catch (err) {
       console.error("Review submissions lookup failed:", err);
       setReviewsLoaded(true);
     }
   }, [getAccessToken]);
+
+  async function handleLoadAllReviewSubmissions() {
+    setIsLoadingAllReviewSubmissions(true);
+    setReviewUploadError("");
+    try {
+      await loadReviewSubmissions(undefined, { all: true });
+    } finally {
+      setIsLoadingAllReviewSubmissions(false);
+    }
+  }
 
   const loadCoachMessages = useCallback(async (accessToken?: string | null) => {
     const token = accessToken ?? await getAccessToken();
@@ -319,25 +348,33 @@ export default function Dashboard() {
   }, [loadCoachMessages, router]);
 
   function resetReviewUpload() {
-    setReviewFile(null);
+    setReviewFiles([]);
     setReviewNote("");
     setReviewUploadProgress(0);
+    setReviewUploadCurrentFile("");
     setReviewUploadError("");
     if (reviewFileInputRef.current) {
       reviewFileInputRef.current.value = "";
     }
   }
 
-  function handleReviewFileChange(file: File | null) {
-    setReviewFile(file);
-    setReviewUploadError("");
+  function handleReviewFileChange(fileList: FileList | null) {
+    const selectedFiles = Array.from(fileList ?? []);
+    const nextFiles = selectedFiles.slice(0, MAX_REVIEW_UPLOAD_FILES);
+    setReviewFiles(nextFiles);
+    setReviewUploadError(
+      selectedFiles.length > MAX_REVIEW_UPLOAD_FILES
+        ? `You can upload up to ${MAX_REVIEW_UPLOAD_FILES} videos at a time. The first ${MAX_REVIEW_UPLOAD_FILES} were selected.`
+        : ""
+    );
     setReviewUploadProgress(0);
+    setReviewUploadCurrentFile("");
     if (reviewUploadStage === "success") {
       setReviewUploadStage("idle");
     }
   }
 
-  async function finalizeReviewUpload(token: string, submissionId: string, uploadId: string) {
+  async function finalizeReviewUpload(token: string, submissionId: string, uploadId: string, note: string) {
     for (let attempt = 0; attempt < 6; attempt++) {
       const saveRes = await fetch("/api/dashboard/reviews", {
         method: "POST",
@@ -348,41 +385,98 @@ export default function Dashboard() {
         body: JSON.stringify({
           submissionId,
           uploadId,
-          note: reviewNote.trim(),
+          note,
         }),
       });
 
       if (saveRes.ok) {
-        await loadReviewSubmissions(token);
-        setReviewUploadStage("success");
-        resetReviewUpload();
-        setTimeout(() => setReviewUploadStage("idle"), 2500);
         return;
       }
 
       const data = await saveRes.json().catch(() => ({} as { error?: string }));
       if (saveRes.status !== 409 || attempt === 5) {
-        setReviewUploadError(data?.error || "Failed to submit video for review.");
-        setReviewUploadStage("error");
-        return;
+        throw new Error(data?.error || "Failed to submit video for review.");
       }
 
       await new Promise(r => setTimeout(r, 5000));
     }
   }
 
+  async function createReviewUpload(token: string, file: File): Promise<Required<Pick<ReviewUploadCreateResponse, "submissionId" | "uploadId" | "uploadUrl">>> {
+    let createRes: Response;
+    try {
+      createRes = await fetch("/api/dashboard/reviews/upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileSizeBytes: file.size,
+          mimeType: file.type,
+        }),
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      throw new Error(`Network error creating upload: ${msg}`);
+    }
+
+    const createData = await createRes.json().catch(() => ({} as ReviewUploadCreateResponse));
+    if (!createRes.ok || !createData.submissionId || !createData.uploadId || !createData.uploadUrl) {
+      throw new Error(createData?.error || `Failed to create upload (HTTP ${createRes.status})`);
+    }
+
+    return {
+      submissionId: createData.submissionId,
+      uploadId: createData.uploadId,
+      uploadUrl: createData.uploadUrl,
+    };
+  }
+
+  function uploadReviewFile(uploadUrl: string, file: File, onProgress: (progress: number) => void) {
+    return new Promise<void>((resolve, reject) => {
+      const upload = UpChunk.createUpload({
+        endpoint: uploadUrl,
+        file,
+        chunkSize: 30720,
+      });
+
+      upload.on("progress", (event) => {
+        const percent = Number(event.detail);
+        if (!Number.isNaN(percent)) {
+          onProgress(Math.max(0, Math.min(100, Math.round(percent))));
+        }
+      });
+
+      upload.on("error", (event) => {
+        const detail = event.detail as { message?: string } | undefined;
+        reject(new Error(`Upload error: ${detail?.message ?? "unknown"}`));
+      });
+
+      upload.on("success", () => resolve());
+    });
+  }
+
   async function handleReviewUpload() {
-    if (!reviewFile) {
-      setReviewUploadError("Pick a video file first.");
+    if (reviewFiles.length === 0) {
+      setReviewUploadError("Pick at least one video file first.");
       return;
     }
 
-    if (reviewFile.size > MAX_REVIEW_VIDEO_SIZE_BYTES) {
-      setReviewUploadError("Video must be 500MB or smaller.");
+    if (reviewFiles.length > MAX_REVIEW_UPLOAD_FILES) {
+      setReviewUploadError(`You can upload up to ${MAX_REVIEW_UPLOAD_FILES} videos at a time.`);
       return;
     }
 
-    if (reviewNote.trim().length > 2000) {
+    const oversizedFile = reviewFiles.find(file => file.size > MAX_REVIEW_VIDEO_SIZE_BYTES);
+    if (oversizedFile) {
+      setReviewUploadError(`${oversizedFile.name} is too large. Videos must be 500MB or smaller.`);
+      return;
+    }
+
+    const note = reviewNote.trim();
+    if (note.length > 2000) {
       setReviewUploadError("Note must be 2000 characters or fewer.");
       return;
     }
@@ -396,58 +490,50 @@ export default function Dashboard() {
     setReviewUploadError("");
     setReviewUploadStage("uploading");
     setReviewUploadProgress(0);
+    setReviewUploadCurrentFile("");
 
-    let createRes: Response;
+    const filesToUpload = [...reviewFiles];
+    let completedUploads = 0;
+
     try {
-      createRes = await fetch("/api/dashboard/reviews/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          fileName: reviewFile.name,
-          fileSizeBytes: reviewFile.size,
-          mimeType: reviewFile.type,
-        }),
-      });
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setReviewUploadError(`Network error creating upload: ${msg}`);
-      setReviewUploadStage("error");
-      return;
-    }
+      for (let index = 0; index < filesToUpload.length; index++) {
+        const file = filesToUpload[index];
+        const completedPercent = (index / filesToUpload.length) * 100;
 
-    const createData = await createRes.json().catch(() => ({} as { error?: string; submissionId?: string; uploadId?: string; uploadUrl?: string }));
-    if (!createRes.ok || !createData.submissionId || !createData.uploadId || !createData.uploadUrl) {
-      setReviewUploadError(createData?.error || `Failed to create upload (HTTP ${createRes.status})`);
-      setReviewUploadStage("error");
-      return;
-    }
+        setReviewUploadCurrentFile(`Video ${index + 1} of ${filesToUpload.length}: ${file.name}`);
+        setReviewUploadProgress(Math.round(completedPercent));
 
-    const upload = UpChunk.createUpload({
-      endpoint: createData.uploadUrl,
-      file: reviewFile,
-      chunkSize: 30720,
-    });
+        const uploadData = await createReviewUpload(token, file);
+        await uploadReviewFile(uploadData.uploadUrl, file, (fileProgress) => {
+          const totalProgress = completedPercent + (fileProgress / filesToUpload.length);
+          setReviewUploadProgress(Math.round(totalProgress));
+        });
 
-    upload.on("progress", (event) => {
-      const percent = Number(event.detail);
-      if (!Number.isNaN(percent)) {
-        setReviewUploadProgress(Math.round(percent));
+        setReviewUploadStage("saving");
+        await finalizeReviewUpload(token, uploadData.submissionId, uploadData.uploadId, note);
+        completedUploads = index + 1;
+        await loadReviewSubmissions(token, allReviewSubmissionsLoaded ? { all: true } : undefined);
+        setReviewUploadStage("uploading");
       }
-    });
 
-    upload.on("error", (event) => {
-      const detail = event.detail as { message?: string } | undefined;
-      setReviewUploadError(`Upload error: ${detail?.message ?? "unknown"}`);
+      setReviewUploadProgress(100);
+      setReviewUploadCurrentFile("");
+      setReviewUploadStage("success");
+      resetReviewUpload();
+      setTimeout(() => setReviewUploadStage("idle"), 2500);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to upload video.";
+      setReviewFiles(filesToUpload.slice(completedUploads));
+      if (reviewFileInputRef.current) {
+        reviewFileInputRef.current.value = "";
+      }
+      setReviewUploadError(
+        completedUploads > 0
+          ? `Uploaded ${completedUploads} of ${filesToUpload.length}. ${message}`
+          : message
+      );
       setReviewUploadStage("error");
-    });
-
-    upload.on("success", async () => {
-      setReviewUploadStage("saving");
-      await finalizeReviewUpload(token, createData.submissionId as string, createData.uploadId as string);
-    });
+    }
   }
 
   async function handleUpgrade() {
@@ -616,6 +702,9 @@ export default function Dashboard() {
   const reviewedCoachNoteCount = reviewSubmissions.filter(
     (submission) => submission.status === "reviewed" && !!submission.coachNote?.trim()
   ).length;
+  const canLoadAllReviewSubmissions = reviewsLoaded
+    && !allReviewSubmissionsLoaded
+    && reviewSubmissions.length >= DEFAULT_REVIEW_SUBMISSIONS_LIMIT;
   const latestCoachMessage = coachMessages[coachMessages.length - 1] ?? null;
   const coachMessagesCard = (
     <div className="mb-8 md:mb-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
@@ -1093,7 +1182,7 @@ export default function Dashboard() {
                     Submit A Progress Video
                   </h2>
                   <p className="text-[#777] text-sm md:text-base">
-                    Upload a short clip.
+                    Upload up to 10 short clips.
                   </p>
                 </div>
                 <div className="flex flex-shrink-0 items-center gap-2">
@@ -1130,19 +1219,28 @@ export default function Dashboard() {
                 <div id="coach-review-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video file</label>
+                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video files</label>
                       <input
                         ref={reviewFileInputRef}
                         type="file"
+                        multiple
                         accept="video/mp4,video/quicktime,video/mov,.mov,.mp4,video/*"
-                        onChange={(e) => handleReviewFileChange(e.target.files?.[0] ?? null)}
+                        onChange={(e) => handleReviewFileChange(e.target.files)}
                         disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
                         className="block w-full max-w-full text-sm text-[#aaa] file:mr-3 file:rounded-[4px] file:border-0 file:bg-[#222] file:px-4 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-white file:cursor-pointer disabled:opacity-40"
                       />
-                      {reviewFile ? (
+                      {reviewFiles.length > 0 ? (
                         <div className="mt-3 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-3">
-                          <p className="truncate text-sm text-white">{reviewFile.name}</p>
-                          <p className="mt-1 text-xs text-[#666]">{formatFileSize(reviewFile.size)} selected</p>
+                          <p className="text-sm text-white">
+                            {reviewFiles.length} {reviewFiles.length === 1 ? "video" : "videos"} selected
+                          </p>
+                          <div className="mt-2 space-y-1">
+                            {reviewFiles.map((file, index) => (
+                              <p key={`${file.name}-${file.size}-${index}`} className="truncate text-xs text-[#666]">
+                                {file.name} - {formatFileSize(file.size)}
+                              </p>
+                            ))}
+                          </div>
                         </div>
                       ) : null}
                     </div>
@@ -1171,12 +1269,15 @@ export default function Dashboard() {
                           style={{ width: `${reviewUploadProgress}%` }}
                         />
                       </div>
+                      {reviewUploadCurrentFile ? (
+                        <p className="mt-2 truncate text-xs text-[#aaa]">{reviewUploadCurrentFile}</p>
+                      ) : null}
                       <p className="mt-2 text-xs text-[#555]">Keep this page open while your clip uploads.</p>
                     </div>
                   ) : null}
 
                   {reviewUploadStage === "saving" ? (
-                    <p className="text-[#aaa] text-sm">Processing video... this can take a minute.</p>
+                    <p className="text-[#aaa] text-sm">Processing {reviewUploadCurrentFile || "video"}... this can take a minute.</p>
                   ) : null}
 
                   {reviewUploadStage === "success" ? (
@@ -1197,12 +1298,19 @@ export default function Dashboard() {
                       ? "Uploading..."
                       : reviewUploadStage === "saving"
                       ? "Processing..."
+                      : reviewFiles.length > 1
+                      ? "Submit Videos"
                       : "Submit Video"}
                   </Button>
                 </div>
 
                 <div>
-                  <h3 className="text-[#777] text-xs tracking-widest uppercase mb-4">Your Submissions</h3>
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="text-[#777] text-xs tracking-widest uppercase">Your Submissions</h3>
+                    {allReviewSubmissionsLoaded ? (
+                      <p className="text-xs text-[#555]">Showing all videos</p>
+                    ) : null}
+                  </div>
                   {!reviewsLoaded ? (
                     <p className="text-[#777] text-sm">Loading submissions...</p>
                   ) : reviewSubmissions.length === 0 ? (
@@ -1279,6 +1387,16 @@ export default function Dashboard() {
                           ) : null}
                         </div>
                       ))}
+                      {canLoadAllReviewSubmissions ? (
+                        <button
+                          type="button"
+                          onClick={handleLoadAllReviewSubmissions}
+                          disabled={isLoadingAllReviewSubmissions}
+                          className="w-full rounded-[4px] border border-[#222] px-4 py-3 text-xs font-bold tracking-widest text-[#aaa] uppercase transition-colors hover:border-[#444] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          {isLoadingAllReviewSubmissions ? "Loading..." : "Load All Videos"}
+                        </button>
+                      ) : null}
                     </div>
                   )}
                 </div>
