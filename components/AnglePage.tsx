@@ -109,7 +109,7 @@ function Hero({
           style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(45px, 8vw, 100px)' }}
         >
           Master Handstands<br />
-          <em className="text-[#c0c0c0] italic">With A Proven System</em>
+          <em className="text-[#c0c0c0] italic">With Technical Perfection</em>
         </h1>
 
         <p className="text-[#aaa] text-base md:text-lg leading-relaxed max-w-md mb-8 md:mb-10">
