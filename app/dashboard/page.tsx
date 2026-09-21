@@ -707,7 +707,7 @@ export default function Dashboard() {
     && reviewSubmissions.length >= DEFAULT_REVIEW_SUBMISSIONS_LIMIT;
   const latestCoachMessage = coachMessages[coachMessages.length - 1] ?? null;
   const coachMessagesCard = (
-    <div className="mb-8 md:mb-14 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
+    <div className="mt-8 md:mt-14 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
       <div className={`${isMessagesOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
         <div className="min-w-0">
           <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Messages</p>
@@ -909,8 +909,6 @@ export default function Dashboard() {
                 </Link>
               ) : null}
             </div>
-
-            {coachMessagesCard}
 
             {onboardingStatus === "not_booked" && (
               <>
@@ -1392,6 +1390,7 @@ export default function Dashboard() {
               </div>
               ) : null}
             </div>
+            {coachMessagesCard}
           </div>
         </section>
       </main>
