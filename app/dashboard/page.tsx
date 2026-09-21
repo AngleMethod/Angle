@@ -9,7 +9,7 @@ import BookedRedirectHandler from "@/components/BookedRedirectHandler";
 import Chat from '@/components/Chat';
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
-import VideoPlayer from "@/components/VideoPlayer";
+import TrainingSession from "@/components/TrainingSession";
 import ReviewVideoPlayer from "@/components/ReviewVideoPlayer";
 import { hasSubscriptionAccess } from "@/lib/subscriptionStatus";
 
@@ -100,25 +100,6 @@ const CALENDLY_URL = "https://calendly.com/josh-anglemethod/30min";
 const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024;
 const MAX_REVIEW_UPLOAD_FILES = 10;
 const DEFAULT_REVIEW_SUBMISSIONS_LIMIT = 10;
-const DEFAULT_FREQUENCY = "Handbalancing - 6x/week";
-const DEFAULT_BANNER_TEXT = "Flexibility - 3x/week";
-const LEGACY_FREQUENCY_LABELS: Record<string, string> = {
-  "Handstand Practice - 6x/week": DEFAULT_FREQUENCY,
-};
-
-function getWorkoutFrequency(step: WorkoutStep): string {
-  const frequency = step.frequency?.trim()
-    || step.sectionDescription?.trim()
-    || step.sectionTitle?.trim()
-    || (step.section === "flexibility" ? "Flexibility - 3x/week" : DEFAULT_FREQUENCY);
-
-  return LEGACY_FREQUENCY_LABELS[frequency] ?? frequency;
-}
-
-function isWorkoutBanner(item: WorkoutItem): item is WorkoutBanner {
-  return item.type === "banner" || ("text" in item && !("title" in item));
-}
-
 function formatFileSize(bytes: number): string {
   if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
   const mb = bytes / (1024 * 1024);
@@ -660,7 +641,7 @@ export default function Dashboard() {
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-6"
               >
-                Your <em>training.</em>
+                Today’s <em>training.</em>
               </h1>
               <p className="text-[#b6beaa]">
                 {authStatus === "redirecting" ? "Redirecting..." : "Checking login..."}
@@ -834,68 +815,7 @@ export default function Dashboard() {
                     </p>
                   </div>
                 ) : (
-                  <div className="space-y-8 md:space-y-10">
-                    {(() => {
-                      let stepNumber = 0;
-
-                      return workout.map((item, itemIndex) => {
-                          if (isWorkoutBanner(item)) {
-                            stepNumber = 0;
-                            return (
-                              <div
-                                key={`banner-${item.text || "empty"}-${itemIndex}`}
-                                className="border-l-2 border-white bg-[#22261d] px-4 py-4 md:px-6 md:py-5"
-                              >
-                                <h2
-                                  className="break-words text-white uppercase tracking-wide"
-                                >
-                                  {item.text || DEFAULT_BANNER_TEXT}
-                                </h2>
-                              </div>
-                            );
-                          }
-
-                          stepNumber += 1;
-                          const muxVideo = item.videoId ? muxVideoMap[item.videoId] : undefined;
-                          const displayDescription = item.description || muxVideo?.description || "";
-                          const displayFrequency = getWorkoutFrequency(item);
-                          return (
-                            <div key={`${itemIndex}-${item.videoId ?? "missing"}`} className="rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
-                              <h3
-                                className="text-white uppercase tracking-wide mb-4 md:mb-6"
-                              >
-                                Step {stepNumber}: {item.title}
-                              </h3>
-                              {muxVideo ? (
-                                <div className="mb-4 md:mb-6">
-                                  <VideoPlayer playbackId={muxVideo.mux_playback_id} />
-                                </div>
-                              ) : item.videoId ? (
-                                <div className="aspect-video w-full mb-4 md:mb-6 rounded-none border border-[#4b543c] bg-[#111310] flex items-center justify-center">
-                                  <p className="text-[#adb5a0] text-xs tracking-widest uppercase">Video not found in library</p>
-                                </div>
-                              ) : null}
-                              {(displayFrequency || item.sets || item.repsOrHoldTime) ? (
-                                <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
-                                  {displayFrequency ? (
-                                    <p className="text-[#aaa]"><span className="text-[#adb5a0]">Frequency:</span> {displayFrequency}</p>
-                                  ) : null}
-                                  {item.sets ? (
-                                    <p className="text-[#aaa]"><span className="text-[#adb5a0]">Sets:</span> {item.sets}</p>
-                                  ) : null}
-                                  {item.repsOrHoldTime ? (
-                                    <p className="text-[#aaa]"><span className="text-[#adb5a0]">Reps / Hold:</span> {item.repsOrHoldTime}</p>
-                                  ) : null}
-                                </div>
-                              ) : null}
-                              {displayDescription ? (
-                                <p className="whitespace-pre-line text-sm leading-relaxed text-[#aaa] md:text-base">{displayDescription}</p>
-                              ) : null}
-                            </div>
-                          );
-                        });
-                    })()}
-                  </div>
+                  <TrainingSession workout={workout} videos={muxVideoMap} userId={userId ?? undefined} />
                 )}
               </>
             )}
