@@ -180,10 +180,10 @@ export default function AdminReviewsPage() {
   }
 
   const statusStyles: Record<ReviewSubmissionStatus, string> = {
-    uploading: "border-[#333] text-[#777]",
-    processing: "border-blue-900 text-blue-300",
-    submitted: "border-green-900 bg-[oklch(0.18_0.06_155)] text-[oklch(0.68_0.14_155)]",
-    reviewed: "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]",
+    uploading: "border-[#4b543c] text-[#b6beaa]",
+    processing: "border-[#4b543c] text-[#d6ed9b]",
+    submitted: "border-[#4b543c] bg-[#293321] text-[#d6ed9b]",
+    reviewed: "border-[#4b543c] bg-[#293321] text-[#d6ed9b]",
     error: "border-[#dc2626] text-[#dc2626]",
   };
 
@@ -209,7 +209,7 @@ export default function AdminReviewsPage() {
     return true;
   }
 
-  const secondaryLinkClass = "inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors";
+  const secondaryLinkClass = "inline-block rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#d6ed9b] transition-colors";
   const filterOptions: Array<{ id: ReviewFilter; label: string; count: number }> = [
     {
       id: "needs_review",
@@ -241,17 +241,16 @@ export default function AdminReviewsPage() {
     return (
       <>
         {MinimalNav}
-        <main className="min-h-screen bg-[#0a0a0a] text-white">
+        <main className="min-h-screen bg-[#111310] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
             <div className="mx-auto max-w-6xl">
-              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">Admin</p>
+              <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">Admin</p>
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-6"
-                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
               >
-                Reviews
+                Coach <em>reviews.</em>
               </h1>
-              <p className="text-[#777]">Checking access...</p>
+              <p className="text-[#b6beaa]">Checking access...</p>
             </div>
           </section>
         </main>
@@ -262,19 +261,18 @@ export default function AdminReviewsPage() {
   return (
     <>
       {MinimalNav}
-      <main className="min-h-screen bg-[#0a0a0a] text-white">
+      <main className="min-h-screen bg-[#111310] text-white">
         <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
           <div className="mx-auto max-w-6xl">
-            <div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+            <div data-workspace-heading className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <p className="text-[#666] text-xs tracking-widest uppercase mb-4">Admin</p>
+                <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">Admin</p>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
                 >
-                  Reviews
+                  Coach <em>reviews.</em>
                 </h1>
-                <p className="text-[#777]">Review progress videos from active members.</p>
+                <p className="text-[#b6beaa]">Review progress videos from active members.</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 <Link href="/admin" className={secondaryLinkClass}>
@@ -290,10 +288,10 @@ export default function AdminReviewsPage() {
             </div>
 
             {loadingSubmissions ? (
-              <p className="text-[#777]">Loading reviews...</p>
+              <p className="text-[#b6beaa]">Loading reviews...</p>
             ) : submissions.length === 0 ? (
-              <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
-                <p className="text-[#777] text-sm">No progress videos submitted yet.</p>
+              <div className="rounded-none border border-[#4b543c] bg-[#22261d] p-8 md:p-12 text-center">
+                <p className="text-[#b6beaa] text-sm">No progress videos submitted yet.</p>
               </div>
             ) : (
               <div className="space-y-6">
@@ -307,50 +305,49 @@ export default function AdminReviewsPage() {
                         role="tab"
                         aria-selected={isActive}
                         onClick={() => setActiveFilter(option.id)}
-                        className={`rounded-full border px-4 py-2 text-xs font-medium transition-colors ${
+                        className={`rounded-none border px-4 py-2 text-xs font-medium transition-colors ${
                           isActive
-                            ? "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]"
-                            : "border-[#222] text-[#777] hover:border-[#444] hover:text-white"
+                            ? "border-[#4b543c] bg-[#293321] text-[#d6ed9b]"
+                            : "border-[#4b543c] text-[#b6beaa] hover:border-[#d6ed9b] hover:text-white"
                         }`}
                       >
                         {option.label}
-                        <span className="ml-2 text-[#555]">{option.count}</span>
+                        <span className="ml-2 text-[#9ba38f]">{option.count}</span>
                       </button>
                     );
                   })}
                 </div>
 
                 {filteredSubmissions.length === 0 ? (
-                  <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-8 md:p-12 text-center">
-                    <p className="text-[#777] text-sm">{emptyFilterMessage[activeFilter]}</p>
+                  <div className="rounded-none border border-[#4b543c] bg-[#22261d] p-8 md:p-12 text-center">
+                    <p className="text-[#b6beaa] text-sm">{emptyFilterMessage[activeFilter]}</p>
                   </div>
                 ) : null}
 
                 {filteredSubmissions.map((submission) => (
-                  <div key={submission.id} className="relative rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                  <div key={submission.id} className="relative rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
                     <button
                       type="button"
                       aria-label={`Delete review video from ${submission.userEmail}`}
                       title={isDeletableStatus(submission.status) ? "Delete from Angle and Mux" : "Wait until processing finishes before deleting"}
                       disabled={!isDeletableStatus(submission.status) || deletingId === submission.id}
                       onClick={() => handleDeleteReview(submission)}
-                      className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full border border-[#dc2626]/40 text-[#dc2626] transition-colors hover:border-[#dc2626] hover:bg-[#dc2626]/10 disabled:cursor-not-allowed disabled:opacity-30"
+                      className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-none border border-[#dc2626]/40 text-[#dc2626] transition-colors hover:border-[#dc2626] hover:bg-[#dc2626]/10 disabled:cursor-not-allowed disabled:opacity-30"
                     >
                       <span aria-hidden="true" className="text-xl leading-none">&times;</span>
                     </button>
                     <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div className="min-w-0 pr-10">
                         <div className="mb-3 flex flex-wrap items-center gap-3">
-                          <span className={`rounded-full border px-3 py-1 text-xs font-medium ${statusStyles[submission.status]}`}>
+                          <span className={`rounded-none border px-3 py-1 text-xs font-medium ${statusStyles[submission.status]}`}>
                             {statusLabels[submission.status]}
                           </span>
-                          <p className="text-[#555] text-xs">
+                          <p className="text-[#9ba38f] text-xs">
                             {new Date(submission.submittedAt ?? submission.createdAt).toLocaleString()}
                           </p>
                         </div>
                         <h2
                           className="text-white uppercase tracking-wide"
-                          style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 30px)" }}
                         >
                           {submission.userEmail}
                         </h2>
@@ -366,8 +363,8 @@ export default function AdminReviewsPage() {
                             tokens={submission.playbackTokens}
                           />
                         ) : (
-                          <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                            <p className="text-[#666] text-xs tracking-widest uppercase">
+                          <div className="aspect-video w-full rounded-none border border-[#4b543c] bg-[#111310] flex items-center justify-center">
+                            <p className="text-[#adb5a0] text-xs tracking-widest uppercase">
                               {submission.status === "error" ? "Upload failed" : "Video not ready"}
                             </p>
                           </div>
@@ -376,26 +373,26 @@ export default function AdminReviewsPage() {
 
                       <div className="space-y-4">
                         <div>
-                          <p className="text-[#777] text-xs tracking-widest uppercase mb-2">Member note</p>
-                          <p className="text-[#aaa] text-sm leading-relaxed rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-4 min-h-20">
+                          <p className="text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Member note</p>
+                          <p className="text-[#aaa] text-sm leading-relaxed rounded-none border border-[#4b543c] bg-[#111310] p-4 min-h-20">
                             {submission.note || "No note added."}
                           </p>
                         </div>
 
                         <div>
-                          <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Coach note optional</label>
+                          <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Coach note optional</label>
                           <textarea
                             value={coachNotes[submission.id] ?? ""}
                             onChange={(e) => setCoachNotes(prev => ({ ...prev, [submission.id]: e.target.value }))}
                             rows={6}
                             maxLength={4000}
                             disabled={!submission.playbackId || submission.status === "uploading" || submission.status === "processing" || savingId === submission.id}
-                            className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+                            className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
                           />
                         </div>
 
                         {submission.reviewedAt ? (
-                          <p className="text-[#666] text-xs">
+                          <p className="text-[#adb5a0] text-xs">
                             Reviewed {new Date(submission.reviewedAt).toLocaleString()} by {submission.reviewedByEmail}
                           </p>
                         ) : null}

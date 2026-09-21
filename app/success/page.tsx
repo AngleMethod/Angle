@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Nav from '@/components/Nav'
+import styles from '@/components/WorkspaceTheme.module.css'
 
 type Stage = 'loading' | 'sending' | 'sent' | 'error'
 
@@ -87,19 +88,18 @@ function SuccessInner() {
   return (
     <>
       <Nav variant="minimal" isLoggedIn={false} authReady={true} />
-      <main className="min-h-screen bg-[#0a0a0a] text-white">
+      <main className="min-h-screen bg-[#111310] text-white">
         <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
-          <div className="mx-auto max-w-xl text-center">
+          <div className={styles.statePanel} role="status" aria-live="polite">
             {stage === 'loading' && (
               <>
-                <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Processing</p>
+                <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">— Processing</p>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
-                  style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
                 >
-                  One Moment
+                  One <em>moment.</em>
                 </h1>
-                <p className="text-[#777]">Confirming your payment...</p>
+                <p className="text-[#b6beaa]">Confirming your payment...</p>
               </>
             )}
 
@@ -107,11 +107,10 @@ function SuccessInner() {
               <>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
-                  style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
                 >
-                  Payment Confirmed
+                  Payment <em>confirmed.</em>
                 </h1>
-                <p className="text-[#777]">We&apos;re sending your sign-in link...</p>
+                <p className="text-[#b6beaa]">We&apos;re sending your sign-in link...</p>
               </>
             )}
 
@@ -119,19 +118,18 @@ function SuccessInner() {
               <>
                 <div className="flex justify-center mb-4 md:mb-6">
                   <div
-                    className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
-                    style={{ backgroundColor: 'oklch(0.18 0.06 155)', color: 'oklch(0.68 0.14 155)' }}
+                    className="inline-flex items-center gap-2 text-xs tracking-widest uppercase font-medium rounded-none px-3 py-1 border border-[#4b543c]"
+                    style={{ backgroundColor: '#293321', color: '#d6ed9b' }}
                   >
                     ✔ Payment Confirmed
                   </div>
                 </div>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
-                  style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
                 >
-                  Check Your Email
+                  Check your <em>email.</em>
                 </h1>
-                <p className="text-[#777]">
+                <p className="text-[#b6beaa]">
                   We sent a sign-in link to {email}. Open it to enter Angle.
                 </p>
               </>
@@ -141,11 +139,10 @@ function SuccessInner() {
               <>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
-                  style={{ fontFamily: 'var(--font-bebas)', fontSize: 'clamp(36px, 5vw, 60px)' }}
                 >
-                  Something Went Wrong
+                  Let&apos;s get you <em>back.</em>
                 </h1>
-                <p className="text-[#777] mb-10 md:mb-14">
+                <p className="text-[#b6beaa] mb-10 md:mb-14">
                   Head back to the homepage and sign in with your email to access your account.
                 </p>
                 {errorMessage ? (
@@ -153,7 +150,7 @@ function SuccessInner() {
                 ) : null}
                 <Link
                   href="/"
-                  className="inline-block rounded-[4px] bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors"
+                  className="inline-block rounded-none bg-white text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors"
                 >
                   Back to Home
                 </Link>

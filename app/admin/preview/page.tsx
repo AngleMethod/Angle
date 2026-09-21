@@ -135,10 +135,10 @@ export default function AdminPreviewPage() {
     return (
       <>
         {PreviewNav}
-        <main className="min-h-screen bg-[#0a0a0a] text-white">
+        <main className="min-h-screen bg-[#111310] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
             <div className="mx-auto max-w-6xl">
-              <p className="text-[#777]">Loading preview...</p>
+              <p className="text-[#b6beaa]">Loading preview...</p>
             </div>
           </section>
         </main>
@@ -149,55 +149,53 @@ export default function AdminPreviewPage() {
   return (
     <>
       {PreviewNav}
-      <main className="min-h-screen bg-[#0a0a0a] text-white">
+      <main className="min-h-screen bg-[#111310] text-white">
         <section className="pt-28 md:pt-40 pb-12 md:pb-28 px-4 sm:px-6 md:px-12">
           <div className="mx-auto max-w-6xl">
-            <div className="mb-10 md:mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div data-workspace-heading className="mb-10 md:mb-14 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
               <div className="min-w-0">
                 <div className="mb-4 md:mb-6">
-                  <span className="rounded-full border border-blue-900 bg-[oklch(0.18_0.06_240)] px-3 py-1 text-xs font-medium text-[oklch(0.65_0.14_240)]">
+                  <span className="rounded-none border border-[#4b543c] bg-[#293321] px-3 py-1 text-xs font-medium text-[#d6ed9b]">
                     Admin Preview
                   </span>
                 </div>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
                 >
-                  Your Training
+                  Your <em>training.</em>
                 </h1>
-                <p className="text-[#777]">
+                <p className="text-[#b6beaa]">
                   Read-only user dashboard preview{previewEmail ? ` for ${previewEmail}` : ""}.
                 </p>
               </div>
               <Link
                 href="/admin"
-                className="self-start rounded-[4px] border border-[#222] px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#999] transition-colors hover:border-[#444] hover:text-white sm:self-auto md:px-6 md:py-3"
+                className="self-start rounded-none border border-[#4b543c] px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#c1c8b7] transition-colors hover:border-[#d6ed9b] hover:text-white sm:self-auto md:px-6 md:py-3"
               >
                 Back To Admin
               </Link>
             </div>
 
             {error ? (
-              <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-12 text-center">
+              <div data-surface="paper" className="rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-12 text-center">
                 <p className="text-sm text-[#dc2626]">{error}</p>
               </div>
             ) : workout.length === 0 ? (
-              <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-12 text-center">
+              <div data-surface="paper" className="rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-12 text-center">
                 <div className="mb-6 flex justify-center">
                   <div
-                    className="inline-flex items-center gap-2 rounded-full border border-green-900 px-3 py-1 text-[10px] font-medium uppercase tracking-widest md:text-xs"
-                    style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                    className="inline-flex items-center gap-2 rounded-none border border-[#4b543c] px-3 py-1 text-[10px] font-medium uppercase tracking-widest md:text-xs"
+                    style={{ backgroundColor: "#293321", color: "#d6ed9b" }}
                   >
                     Plan in progress
                   </div>
                 </div>
                 <h2
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 32px)" }}
                 >
                   Your Training System Is Being Prepared
                 </h2>
-                <p className="mx-auto max-w-md text-[#777]">
+                <p className="mx-auto max-w-md text-[#b6beaa]">
                   Your custom training program will appear here once it&apos;s been assigned to your account.
                 </p>
               </div>
@@ -212,11 +210,10 @@ export default function AdminPreviewPage() {
                           return (
                             <div
                               key={`banner-${item.text || "empty"}-${itemIndex}`}
-                              className="border-l-2 border-white bg-[#111110] px-4 py-4 md:px-6 md:py-5"
+                              className="border-l-2 border-white bg-[#22261d] px-4 py-4 md:px-6 md:py-5"
                             >
                               <h2
                                 className="break-words text-white uppercase tracking-wide"
-                                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
                               >
                                 {item.text || DEFAULT_BANNER_TEXT}
                               </h2>
@@ -229,10 +226,9 @@ export default function AdminPreviewPage() {
                         const displayDescription = item.description || muxVideo?.description || "";
                         const displayFrequency = getWorkoutFrequency(item);
                         return (
-                          <div key={`${itemIndex}-${item.videoId ?? "missing"}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+                          <div key={`${itemIndex}-${item.videoId ?? "missing"}`} className="rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
                             <h3
                               className="text-white uppercase tracking-wide mb-4 md:mb-6"
-                              style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
                             >
                               Step {stepNumber}: {item.title}
                             </h3>
@@ -241,20 +237,20 @@ export default function AdminPreviewPage() {
                                 <VideoPlayer playbackId={muxVideo.mux_playback_id} />
                               </div>
                             ) : item.videoId ? (
-                              <div className="aspect-video w-full mb-4 md:mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                                <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
+                              <div className="aspect-video w-full mb-4 md:mb-6 rounded-none border border-[#4b543c] bg-[#111310] flex items-center justify-center">
+                                <p className="text-[#adb5a0] text-xs tracking-widest uppercase">Video not found in library</p>
                               </div>
                             ) : null}
                             {(displayFrequency || item.sets || item.repsOrHoldTime) ? (
                               <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
                                 {displayFrequency ? (
-                                  <p className="text-[#aaa]"><span className="text-[#666]">Frequency:</span> {displayFrequency}</p>
+                                  <p className="text-[#aaa]"><span className="text-[#adb5a0]">Frequency:</span> {displayFrequency}</p>
                                 ) : null}
                                 {item.sets ? (
-                                  <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {item.sets}</p>
+                                  <p className="text-[#aaa]"><span className="text-[#adb5a0]">Sets:</span> {item.sets}</p>
                                 ) : null}
                                 {item.repsOrHoldTime ? (
-                                  <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {item.repsOrHoldTime}</p>
+                                  <p className="text-[#aaa]"><span className="text-[#adb5a0]">Reps / Hold:</span> {item.repsOrHoldTime}</p>
                                 ) : null}
                               </div>
                             ) : null}
@@ -268,9 +264,9 @@ export default function AdminPreviewPage() {
               </div>
             )}
 
-            <div className="mt-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
-              <p className="text-[#666] text-xs tracking-widest uppercase mb-3">Preview note</p>
-              <p className="text-sm leading-relaxed text-[#777]">
+            <div className="mt-8 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
+              <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Preview note</p>
+              <p className="text-sm leading-relaxed text-[#b6beaa]">
                 This read-only preview hides user actions like messaging, progress video uploads, checkout, and admin links.
               </p>
             </div>

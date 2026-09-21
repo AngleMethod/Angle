@@ -656,39 +656,39 @@ export default function Dashboard() {
       if (playlistAssigned) {
         return {
           label: "Coach-led",
-          border: "border-blue-900",
-          bg: "oklch(0.18 0.06 240)",
-          text: "oklch(0.65 0.14 240)",
+          border: "border-[#4b543c]",
+          bg: "#293321",
+          text: "#d6ed9b",
         };
       }
       return {
         label: "Built for you",
-        border: "border-green-900",
-        bg: "oklch(0.18 0.06 155)",
-        text: "oklch(0.68 0.14 155)",
+        border: "border-[#4b543c]",
+        bg: "#293321",
+        text: "#d6ed9b",
       };
     }
     if (onboardingStatus === "booked" || (onboardingStatus === "not_booked" && showBookedBanner)) {
       return {
         label: "Built for you",
-        border: "border-green-900",
-        bg: "oklch(0.18 0.06 155)",
-        text: "oklch(0.68 0.14 155)",
+        border: "border-[#4b543c]",
+        bg: "#293321",
+        text: "#d6ed9b",
       };
     }
     return {
       label: "Assessment",
-      border: "border-purple-900",
-      bg: "oklch(0.18 0.06 290)",
-      text: "oklch(0.65 0.14 290)",
+      border: "border-[#4b543c]",
+      bg: "#293321",
+      text: "#d6ed9b",
     };
   })();
 
   const reviewStatusStyles: Record<ReviewSubmissionStatus, string> = {
-    uploading: "border-[#333] text-[#777]",
-    processing: "border-blue-900 text-blue-300",
-    submitted: "border-green-900 bg-[oklch(0.18_0.06_155)] text-[oklch(0.68_0.14_155)]",
-    reviewed: "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]",
+    uploading: "border-[#4b543c] text-[#b6beaa]",
+    processing: "border-[#4b543c] text-[#d6ed9b]",
+    submitted: "border-[#4b543c] bg-[#293321] text-[#d6ed9b]",
+    reviewed: "border-[#4b543c] bg-[#293321] text-[#d6ed9b]",
     error: "border-[#dc2626] text-[#dc2626]",
   };
 
@@ -707,21 +707,20 @@ export default function Dashboard() {
     && reviewSubmissions.length >= DEFAULT_REVIEW_SUBMISSIONS_LIMIT;
   const latestCoachMessage = coachMessages[coachMessages.length - 1] ?? null;
   const coachMessagesCard = (
-    <div className="mb-8 md:mb-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+    <div className="mb-8 md:mb-14 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
       <div className={`${isMessagesOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
         <div className="min-w-0">
-          <p className="text-[#666] text-xs tracking-widest uppercase mb-3">Messages</p>
+          <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Messages</p>
           <h2
             className="text-white uppercase tracking-wide mb-2"
-            style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 34px)" }}
           >
             Message Coach
           </h2>
-          <p className="text-[#777] text-sm md:text-base">
+          <p className="text-[#b6beaa] text-sm md:text-base">
             Send a text note or question.
           </p>
           {latestCoachMessage ? (
-            <p className="mt-2 truncate text-xs text-[#555]">
+            <p className="mt-2 truncate text-xs text-[#9ba38f]">
               Latest: {latestCoachMessage.senderRole === "admin" ? "Coach" : "You"} - {new Date(latestCoachMessage.createdAt).toLocaleDateString()}
             </p>
           ) : null}
@@ -732,7 +731,7 @@ export default function Dashboard() {
           aria-expanded={isMessagesOpen}
           aria-controls="coach-message-panel"
           onClick={() => setIsMessagesOpen(prev => !prev)}
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
         >
           <span
             aria-hidden="true"
@@ -745,7 +744,7 @@ export default function Dashboard() {
         <div id="coach-message-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
           <div className="space-y-4">
             <div>
-              <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Message</label>
+              <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Message</label>
               <textarea
                 value={coachMessageBody}
                 onChange={(e) => setCoachMessageBody(e.target.value)}
@@ -753,7 +752,7 @@ export default function Dashboard() {
                 maxLength={4000}
                 placeholder="Ask a question or send an update."
                 disabled={coachMessageStatus === "sending"}
-                className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+                className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
               />
             </div>
 
@@ -761,7 +760,7 @@ export default function Dashboard() {
               <p className="text-sm text-[#dc2626]">{coachMessageError}</p>
             ) : null}
             {coachMessageStatus === "sent" ? (
-              <p className="text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Message sent.</p>
+              <p className="text-sm" style={{ color: "#d6ed9b" }}>Message sent.</p>
             ) : null}
 
             <Button
@@ -775,12 +774,12 @@ export default function Dashboard() {
           </div>
 
           <div>
-            <h3 className="text-[#777] text-xs tracking-widest uppercase mb-4">Thread</h3>
+            <h3 className="text-[#b6beaa] text-xs tracking-widest uppercase mb-4">Thread</h3>
             {!coachMessagesLoaded ? (
-              <p className="text-[#777] text-sm">Loading messages...</p>
+              <p className="text-[#b6beaa] text-sm">Loading messages...</p>
             ) : coachMessages.length === 0 ? (
-              <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-5">
-                <p className="text-[#777] text-sm">No messages yet.</p>
+              <div className="rounded-none border border-[#4b543c] bg-[#111310] p-5">
+                <p className="text-[#b6beaa] text-sm">No messages yet.</p>
               </div>
             ) : (
               <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
@@ -789,13 +788,13 @@ export default function Dashboard() {
                   return (
                     <div
                       key={message.id}
-                      className={`rounded-lg border p-4 ${isAdminMessage ? "border-blue-900 bg-[oklch(0.18_0.06_240)]" : "border-[#1e1e1e] bg-[#0a0a0a]"}`}
+                      className={`rounded-none border p-4 ${isAdminMessage ? "border-[#4b543c] bg-[#293321]" : "border-[#4b543c] bg-[#111310]"}`}
                     >
                       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <p className={`text-xs font-medium ${isAdminMessage ? "text-[oklch(0.65_0.14_240)]" : "text-[#aaa]"}`}>
+                        <p className={`text-xs font-medium ${isAdminMessage ? "text-[#d6ed9b]" : "text-[#aaa]"}`}>
                           {isAdminMessage ? "Coach" : "You"}
                         </p>
-                        <p className="text-xs text-[#555]">{new Date(message.createdAt).toLocaleDateString()}</p>
+                        <p className="text-xs text-[#9ba38f]">{new Date(message.createdAt).toLocaleDateString()}</p>
                       </div>
                       <p className="whitespace-pre-line text-sm leading-relaxed text-white">{message.body}</p>
                     </div>
@@ -813,17 +812,16 @@ export default function Dashboard() {
     return (
       <>
         {DashboardNav}
-        <main className="min-h-screen bg-[#0a0a0a] text-white">
+        <main className="min-h-screen bg-[#111310] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
             <div className="mx-auto max-w-6xl">
-              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Angle Member</p>
+              <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">— Angle Member</p>
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-6"
-                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
               >
-                Your Training
+                Your <em>training.</em>
               </h1>
-              <p className="text-[#777]">
+              <p className="text-[#b6beaa]">
                 {authStatus === "redirecting" ? "Redirecting..." : "Checking login..."}
               </p>
             </div>
@@ -837,17 +835,16 @@ export default function Dashboard() {
     return (
       <>
         {DashboardNav}
-        <main className="min-h-screen bg-[#0a0a0a] text-white">
+        <main className="min-h-screen bg-[#111310] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-4 sm:px-6 md:px-12">
             <div className="mx-auto max-w-xl text-center">
-              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Membership</p>
+              <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">— Membership</p>
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
-                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 60px)" }}
               >
-                Upgrade Required
+                Your next <em>chapter.</em>
               </h1>
-              <p className="text-[#777] mb-10 md:mb-14">
+              <p className="text-[#b6beaa] mb-10 md:mb-14">
                 This training program is part of the paid Angle membership.
               </p>
               <Button onClick={handleUpgrade} disabled={isUpgrading} className="w-full sm:w-auto">
@@ -866,18 +863,18 @@ export default function Dashboard() {
   return (
     <>
       {DashboardNav}
-      <main className="min-h-screen bg-[#0a0a0a] text-white">
+      <main className="min-h-screen bg-[#111310] text-white">
         <section className="pt-28 md:pt-40 pb-12 md:pb-28 px-4 sm:px-6 md:px-12">
           <div className="mx-auto max-w-6xl">
             <Suspense fallback={null}>
               <BookedRedirectHandler onBooked={() => setShowBookedBanner(true)} />
             </Suspense>
 
-<div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+<div data-workspace-heading className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
                 <div className="mb-4 md:mb-6">
                   <span
-                    className={`text-xs px-3 py-1 rounded-full font-medium border ${eyebrowPill.border}`}
+                    className={`text-xs px-3 py-1 rounded-none font-medium border ${eyebrowPill.border}`}
                     style={{ backgroundColor: eyebrowPill.bg, color: eyebrowPill.text }}
                   >
                     {eyebrowPill.label}
@@ -885,12 +882,11 @@ export default function Dashboard() {
                 </div>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
                 >
-                  Your Training
+                  Your <em>training.</em>
                 </h1>
                 {onboardingStatus === "completed" && workoutLoaded && workout.length > 0 ? null : (
-                  <p className="text-[#777]">
+                  <p className="text-[#b6beaa]">
                     {onboardingStatus === "not_booked"
                       ? showBookedBanner
                         ? "Your setup call is booked."
@@ -901,13 +897,13 @@ export default function Dashboard() {
                   </p>
                 )}
                 {userEmail ? (
-                  <p className="mt-2 text-sm text-[#555]">Signed in as {userEmail}</p>
+                  <p className="mt-2 text-sm text-[#9ba38f]">Signed in as {userEmail}</p>
                 ) : null}
               </div>
               {userEmail && ADMIN_EMAILS.includes(userEmail) ? (
                 <Link
                   href="/admin"
-                  className="self-start sm:self-auto inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors"
+                  className="self-start sm:self-auto inline-block rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#d6ed9b] transition-colors"
                 >
                   Open Admin
                 </Link>
@@ -918,22 +914,21 @@ export default function Dashboard() {
 
             {onboardingStatus === "not_booked" && (
               <>
-                <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-12 text-center">
+                <div data-surface="paper" className="rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-12 text-center">
                   <div className="flex justify-center mb-6">
                     <div
-                      className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
-                      style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                      className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-none px-3 py-1 border border-[#4b543c]"
+                      style={{ backgroundColor: "#293321", color: "#d6ed9b" }}
                     >
                       {showBookedBanner ? "✔︎ Call Booked" : "✔︎ Payment Confirmed"}
                     </div>
                   </div>
                   <h2
                     className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                    style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
                   >
                     {showBookedBanner ? "You\u2019re Booked" : "You\u2019re In"}
                   </h2>
-                  <p className={`text-[#777] max-w-md mx-auto ${showBookedBanner ? "" : "mb-8 md:mb-10"}`}>
+                  <p className={`text-[#b6beaa] max-w-md mx-auto ${showBookedBanner ? "" : "mb-8 md:mb-10"}`}>
                     {showBookedBanner
                       ? "Your setup call is scheduled. We\u2019ll use it to map your level and build your personalized training plan."
                       : "Your assessment starts now. Book your setup call so we can understand your level and build your plan."}
@@ -943,7 +938,7 @@ export default function Dashboard() {
                       href={CALENDLY_URL}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block w-full rounded-[4px] bg-white text-center text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors sm:w-auto"
+                      className="inline-block w-full rounded-none bg-white text-center text-black font-bold text-sm tracking-widest uppercase px-8 py-4 hover:bg-[#e0e0e0] transition-colors sm:w-auto"
                     >
                       Book Your Call
                     </a>
@@ -953,22 +948,21 @@ export default function Dashboard() {
             )}
 
             {onboardingStatus === "booked" && (
-              <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-12 text-center">
+              <div data-surface="paper" className="rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-12 text-center">
                 <div className="flex justify-center mb-6">
                   <div
-                    className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
-                    style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                    className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-none px-3 py-1 border border-[#4b543c]"
+                    style={{ backgroundColor: "#293321", color: "#d6ed9b" }}
                   >
                     ✔︎ Call Booked
                   </div>
                 </div>
                 <h2
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3.5vw, 40px)" }}
                 >
                   You&apos;re Scheduled
                 </h2>
-                <p className="text-[#777] max-w-md mx-auto">
+                <p className="text-[#b6beaa] max-w-md mx-auto">
                   We&apos;ll use your call to understand your level and build your training plan.
                 </p>
               </div>
@@ -977,24 +971,23 @@ export default function Dashboard() {
             {onboardingStatus === "completed" && (
               <>
                 {!workoutLoaded ? (
-                  <p className="text-[#777]">Loading your workout...</p>
+                  <p className="text-[#b6beaa]">Loading your workout...</p>
                 ) : workout.length === 0 ? (
-                  <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-12 text-center">
+                  <div data-surface="paper" className="rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-12 text-center">
                     <div className="flex justify-center mb-6">
                       <div
-                        className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-full px-3 py-1 border border-green-900"
-                        style={{ backgroundColor: "oklch(0.18 0.06 155)", color: "oklch(0.68 0.14 155)" }}
+                        className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-none px-3 py-1 border border-[#4b543c]"
+                        style={{ backgroundColor: "#293321", color: "#d6ed9b" }}
                       >
                         ● Plan in progress
                       </div>
                     </div>
                     <h2
                       className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                      style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 32px)" }}
                     >
                       Your Training System Is Being Prepared
                     </h2>
-                    <p className="text-[#777] max-w-md mx-auto">
+                    <p className="text-[#b6beaa] max-w-md mx-auto">
                       Your custom training program will appear here once it&apos;s been assigned to your account.
                     </p>
                     <p className="text-xs md:text-sm text-white/50 mt-4 max-w-md mx-auto">
@@ -1012,11 +1005,10 @@ export default function Dashboard() {
                             return (
                               <div
                                 key={`banner-${item.text || "empty"}-${itemIndex}`}
-                                className="border-l-2 border-white bg-[#111110] px-4 py-4 md:px-6 md:py-5"
+                                className="border-l-2 border-white bg-[#22261d] px-4 py-4 md:px-6 md:py-5"
                               >
                                 <h2
                                   className="break-words text-white uppercase tracking-wide"
-                                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(28px, 3vw, 38px)" }}
                                 >
                                   {item.text || DEFAULT_BANNER_TEXT}
                                 </h2>
@@ -1029,10 +1021,9 @@ export default function Dashboard() {
                           const displayDescription = item.description || muxVideo?.description || "";
                           const displayFrequency = getWorkoutFrequency(item);
                           return (
-                            <div key={`${itemIndex}-${item.videoId ?? "missing"}`} className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+                            <div key={`${itemIndex}-${item.videoId ?? "missing"}`} className="rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
                               <h3
                                 className="text-white uppercase tracking-wide mb-4 md:mb-6"
-                                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" }}
                               >
                                 Step {stepNumber}: {item.title}
                               </h3>
@@ -1041,20 +1032,20 @@ export default function Dashboard() {
                                   <VideoPlayer playbackId={muxVideo.mux_playback_id} />
                                 </div>
                               ) : item.videoId ? (
-                                <div className="aspect-video w-full mb-4 md:mb-6 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                                  <p className="text-[#666] text-xs tracking-widest uppercase">Video not found in library</p>
+                                <div className="aspect-video w-full mb-4 md:mb-6 rounded-none border border-[#4b543c] bg-[#111310] flex items-center justify-center">
+                                  <p className="text-[#adb5a0] text-xs tracking-widest uppercase">Video not found in library</p>
                                 </div>
                               ) : null}
                               {(displayFrequency || item.sets || item.repsOrHoldTime) ? (
                                 <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs tracking-widest uppercase">
                                   {displayFrequency ? (
-                                    <p className="text-[#aaa]"><span className="text-[#666]">Frequency:</span> {displayFrequency}</p>
+                                    <p className="text-[#aaa]"><span className="text-[#adb5a0]">Frequency:</span> {displayFrequency}</p>
                                   ) : null}
                                   {item.sets ? (
-                                    <p className="text-[#aaa]"><span className="text-[#666]">Sets:</span> {item.sets}</p>
+                                    <p className="text-[#aaa]"><span className="text-[#adb5a0]">Sets:</span> {item.sets}</p>
                                   ) : null}
                                   {item.repsOrHoldTime ? (
-                                    <p className="text-[#aaa]"><span className="text-[#666]">Reps / Hold:</span> {item.repsOrHoldTime}</p>
+                                    <p className="text-[#aaa]"><span className="text-[#adb5a0]">Reps / Hold:</span> {item.repsOrHoldTime}</p>
                                   ) : null}
                                 </div>
                               ) : null}
@@ -1073,18 +1064,17 @@ export default function Dashboard() {
             <div className="hidden">
               <div className={`${isMessagesOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
                 <div className="min-w-0">
-                  <p className="text-[#666] text-xs tracking-widest uppercase mb-3">Messages</p>
+                  <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Messages</p>
                   <h2
                     className="text-white uppercase tracking-wide mb-2"
-                    style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 34px)" }}
                   >
                     Message Coach
                   </h2>
-                  <p className="text-[#777] text-sm md:text-base">
+                  <p className="text-[#b6beaa] text-sm md:text-base">
                     Send a text note or question.
                   </p>
                   {latestCoachMessage ? (
-                    <p className="mt-2 truncate text-xs text-[#555]">
+                    <p className="mt-2 truncate text-xs text-[#9ba38f]">
                       Latest: {latestCoachMessage.senderRole === "admin" ? "Coach" : "You"} · {new Date(latestCoachMessage.createdAt).toLocaleDateString()}
                     </p>
                   ) : null}
@@ -1095,7 +1085,7 @@ export default function Dashboard() {
                   aria-expanded={isMessagesOpen}
                   aria-controls="coach-message-panel"
                   onClick={() => setIsMessagesOpen(prev => !prev)}
-                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
                 >
                   <span
                     aria-hidden="true"
@@ -1108,7 +1098,7 @@ export default function Dashboard() {
                 <div id="coach-message-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Message</label>
+                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Message</label>
                       <textarea
                         value={coachMessageBody}
                         onChange={(e) => setCoachMessageBody(e.target.value)}
@@ -1116,7 +1106,7 @@ export default function Dashboard() {
                         maxLength={4000}
                         placeholder="Ask a question or send an update."
                         disabled={coachMessageStatus === "sending"}
-                        className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+                        className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
                       />
                     </div>
 
@@ -1124,7 +1114,7 @@ export default function Dashboard() {
                       <p className="text-sm text-[#dc2626]">{coachMessageError}</p>
                     ) : null}
                     {coachMessageStatus === "sent" ? (
-                      <p className="text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Message sent.</p>
+                      <p className="text-sm" style={{ color: "#d6ed9b" }}>Message sent.</p>
                     ) : null}
 
                     <Button
@@ -1138,12 +1128,12 @@ export default function Dashboard() {
                   </div>
 
                   <div>
-                    <h3 className="text-[#777] text-xs tracking-widest uppercase mb-4">Thread</h3>
+                    <h3 className="text-[#b6beaa] text-xs tracking-widest uppercase mb-4">Thread</h3>
                     {!coachMessagesLoaded ? (
-                      <p className="text-[#777] text-sm">Loading messages...</p>
+                      <p className="text-[#b6beaa] text-sm">Loading messages...</p>
                     ) : coachMessages.length === 0 ? (
-                      <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-5">
-                        <p className="text-[#777] text-sm">No messages yet.</p>
+                      <div className="rounded-none border border-[#4b543c] bg-[#111310] p-5">
+                        <p className="text-[#b6beaa] text-sm">No messages yet.</p>
                       </div>
                     ) : (
                       <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
@@ -1152,13 +1142,13 @@ export default function Dashboard() {
                           return (
                             <div
                               key={message.id}
-                              className={`rounded-lg border p-4 ${isAdminMessage ? "border-blue-900 bg-[oklch(0.18_0.06_240)]" : "border-[#1e1e1e] bg-[#0a0a0a]"}`}
+                              className={`rounded-none border p-4 ${isAdminMessage ? "border-[#4b543c] bg-[#293321]" : "border-[#4b543c] bg-[#111310]"}`}
                             >
                               <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                <p className={`text-xs font-medium ${isAdminMessage ? "text-[oklch(0.65_0.14_240)]" : "text-[#aaa]"}`}>
+                                <p className={`text-xs font-medium ${isAdminMessage ? "text-[#d6ed9b]" : "text-[#aaa]"}`}>
                                   {isAdminMessage ? "Coach" : "You"}
                                 </p>
-                                <p className="text-xs text-[#555]">{new Date(message.createdAt).toLocaleDateString()}</p>
+                                <p className="text-xs text-[#9ba38f]">{new Date(message.createdAt).toLocaleDateString()}</p>
                               </div>
                               <p className="whitespace-pre-line text-sm leading-relaxed text-white">{message.body}</p>
                             </div>
@@ -1171,17 +1161,16 @@ export default function Dashboard() {
               ) : null}
             </div>
 
-            <div className="mt-8 md:mt-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-4 md:p-8">
+            <div className="mt-8 md:mt-14 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
               <div className={`${isCoachReviewOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
                 <div className="min-w-0">
-                  <p className="text-[#666] text-xs tracking-widest uppercase mb-3">Coach Review</p>
+                  <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Coach Review</p>
                   <h2
                     className="text-white uppercase tracking-wide mb-2"
-                    style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(24px, 3vw, 34px)" }}
                   >
                     Submit A Progress Video
                   </h2>
-                  <p className="text-[#777] text-sm md:text-base">
+                  <p className="text-[#b6beaa] text-sm md:text-base">
                     Upload up to 10 short clips.
                   </p>
                 </div>
@@ -1190,7 +1179,7 @@ export default function Dashboard() {
                     <span
                       aria-label={`${reviewedCoachNoteCount} coach ${reviewedCoachNoteCount === 1 ? "note" : "notes"}`}
                       title={`${reviewedCoachNoteCount} coach ${reviewedCoachNoteCount === 1 ? "note" : "notes"}`}
-                      className="inline-flex h-9 min-w-9 items-center justify-center rounded-full border border-blue-900 bg-[oklch(0.18_0.06_240)] px-3 text-xs font-medium text-[oklch(0.65_0.14_240)]"
+                      className="inline-flex h-9 min-w-9 items-center justify-center rounded-none border border-[#4b543c] bg-[#293321] px-3 text-xs font-medium text-[#d6ed9b]"
                     >
                       {reviewedCoachNoteCount}
                     </span>
@@ -1205,7 +1194,7 @@ export default function Dashboard() {
                       setIsCoachReviewOpen(prev => !prev);
                       if (shouldLoadReviews) void loadReviewSubmissions();
                     }}
-                    className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                    className="flex h-9 w-9 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
                   >
                     <span
                       aria-hidden="true"
@@ -1219,7 +1208,7 @@ export default function Dashboard() {
                 <div id="coach-review-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video files</label>
+                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Video files</label>
                       <input
                         ref={reviewFileInputRef}
                         type="file"
@@ -1227,16 +1216,16 @@ export default function Dashboard() {
                         accept="video/mp4,video/quicktime,video/mov,.mov,.mp4,video/*"
                         onChange={(e) => handleReviewFileChange(e.target.files)}
                         disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
-                        className="block w-full max-w-full text-sm text-[#aaa] file:mr-3 file:rounded-[4px] file:border-0 file:bg-[#222] file:px-4 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-white file:cursor-pointer disabled:opacity-40"
+                        className="block w-full max-w-full text-sm text-[#aaa] file:mr-3 file:rounded-none file:border-0 file:bg-[#222] file:px-4 file:py-2 file:text-xs file:font-bold file:uppercase file:tracking-widest file:text-white file:cursor-pointer disabled:opacity-40"
                       />
                       {reviewFiles.length > 0 ? (
-                        <div className="mt-3 rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] px-4 py-3">
+                        <div className="mt-3 rounded-none border border-[#4b543c] bg-[#111310] px-4 py-3">
                           <p className="text-sm text-white">
                             {reviewFiles.length} {reviewFiles.length === 1 ? "video" : "videos"} selected
                           </p>
                           <div className="mt-2 space-y-1">
                             {reviewFiles.map((file, index) => (
-                              <p key={`${file.name}-${file.size}-${index}`} className="truncate text-xs text-[#666]">
+                              <p key={`${file.name}-${file.size}-${index}`} className="truncate text-xs text-[#adb5a0]">
                                 {file.name} - {formatFileSize(file.size)}
                               </p>
                             ))}
@@ -1246,24 +1235,24 @@ export default function Dashboard() {
                     </div>
 
                   <div>
-                    <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Question or note</label>
+                    <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Question or note</label>
                     <textarea
                       value={reviewNote}
                       onChange={(e) => setReviewNote(e.target.value)}
                       rows={5}
                       maxLength={2000}
                       disabled={reviewUploadStage === "uploading" || reviewUploadStage === "saving"}
-                      className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+                      className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
                     />
                   </div>
 
                   {reviewUploadStage === "uploading" ? (
                     <div className="pt-2">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-[#777] text-xs tracking-widest uppercase">Uploading video</p>
+                        <p className="text-[#b6beaa] text-xs tracking-widest uppercase">Uploading video</p>
                         <p className="text-[#aaa] text-xs">{reviewUploadProgress}%</p>
                       </div>
-                      <div className="h-1 bg-[#1e1e1e] rounded-full overflow-hidden">
+                      <div className="h-1 bg-[#293321] rounded-none overflow-hidden">
                         <div
                           className="h-full bg-white transition-all duration-200"
                           style={{ width: `${reviewUploadProgress}%` }}
@@ -1272,7 +1261,7 @@ export default function Dashboard() {
                       {reviewUploadCurrentFile ? (
                         <p className="mt-2 truncate text-xs text-[#aaa]">{reviewUploadCurrentFile}</p>
                       ) : null}
-                      <p className="mt-2 text-xs text-[#555]">Keep this page open while your clip uploads.</p>
+                      <p className="mt-2 text-xs text-[#9ba38f]">Keep this page open while your clip uploads.</p>
                     </div>
                   ) : null}
 
@@ -1281,7 +1270,7 @@ export default function Dashboard() {
                   ) : null}
 
                   {reviewUploadStage === "success" ? (
-                    <p className="text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Submitted for review.</p>
+                    <p className="text-sm" style={{ color: "#d6ed9b" }}>Submitted for review.</p>
                   ) : null}
 
                   {reviewUploadError ? (
@@ -1306,26 +1295,26 @@ export default function Dashboard() {
 
                 <div>
                   <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                    <h3 className="text-[#777] text-xs tracking-widest uppercase">Your Submissions</h3>
+                    <h3 className="text-[#b6beaa] text-xs tracking-widest uppercase">Your Submissions</h3>
                     {allReviewSubmissionsLoaded ? (
-                      <p className="text-xs text-[#555]">Showing all videos</p>
+                      <p className="text-xs text-[#9ba38f]">Showing all videos</p>
                     ) : null}
                   </div>
                   {!reviewsLoaded ? (
-                    <p className="text-[#777] text-sm">Loading submissions...</p>
+                    <p className="text-[#b6beaa] text-sm">Loading submissions...</p>
                   ) : reviewSubmissions.length === 0 ? (
-                    <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-5">
-                      <p className="text-[#777] text-sm">No progress videos yet.</p>
+                    <div className="rounded-none border border-[#4b543c] bg-[#111310] p-5">
+                      <p className="text-[#b6beaa] text-sm">No progress videos yet.</p>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {reviewSubmissions.map((submission) => (
-                        <div key={submission.id} className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-3 md:p-4">
+                        <div key={submission.id} className="rounded-none border border-[#4b543c] bg-[#111310] p-3 md:p-4">
                           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-                            <span className={`rounded-full border px-3 py-1 text-xs font-medium ${reviewStatusStyles[submission.status]}`}>
+                            <span className={`rounded-none border px-3 py-1 text-xs font-medium ${reviewStatusStyles[submission.status]}`}>
                               {reviewStatusLabels[submission.status]}
                             </span>
-                            <p className="text-[#555] text-xs">
+                            <p className="text-[#9ba38f] text-xs">
                               {new Date(submission.submittedAt ?? submission.createdAt).toLocaleDateString()}
                             </p>
                           </div>
@@ -1345,11 +1334,11 @@ export default function Dashboard() {
                           ) : null}
 
                           {submission.coachNote ? (
-                            <div className="rounded-lg border border-blue-900 bg-[oklch(0.18_0.06_240)] p-4">
-                              <p className="text-[oklch(0.65_0.14_240)] text-xs font-medium mb-2">Coach note</p>
+                            <div className="rounded-none border border-[#4b543c] bg-[#293321] p-4">
+                              <p className="text-[#d6ed9b] text-xs font-medium mb-2">Coach note</p>
                               <p className="text-white text-sm leading-relaxed">{submission.coachNote}</p>
-                              <div className="mt-4 border-t border-blue-900/60 pt-4">
-                                <label className="mb-2 block text-xs tracking-widest text-[oklch(0.65_0.14_240)] uppercase">Reply</label>
+                              <div className="mt-4 border-t border-[#4b543c]/60 pt-4">
+                                <label className="mb-2 block text-xs tracking-widest text-[#d6ed9b] uppercase">Reply</label>
                                 <textarea
                                   value={reviewReplyBodies[submission.id] ?? ""}
                                   onChange={(e) => {
@@ -1360,28 +1349,28 @@ export default function Dashboard() {
                                   maxLength={3000}
                                   placeholder="Ask a question about this feedback."
                                   disabled={reviewReplyStatus[submission.id] === "sending"}
-                                  className="w-full rounded-lg border border-blue-900/70 bg-[#0a0a0a] px-4 py-3 text-sm text-white placeholder-[#555] focus:border-blue-500 focus:outline-none disabled:opacity-40"
+                                  className="w-full rounded-none border border-[#4b543c]/70 bg-[#111310] px-4 py-3 text-sm text-white placeholder-[#9ba38f] focus:border-blue-500 focus:outline-none disabled:opacity-40"
                                 />
                                 {reviewReplyErrors[submission.id] ? (
                                   <p className="mt-2 text-sm text-[#dc2626]">{reviewReplyErrors[submission.id]}</p>
                                 ) : null}
                                 {reviewReplyStatus[submission.id] === "sent" ? (
-                                  <p className="mt-2 text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Reply sent.</p>
+                                  <p className="mt-2 text-sm" style={{ color: "#d6ed9b" }}>Reply sent.</p>
                                 ) : null}
                                 <button
                                   type="button"
                                   onClick={() => handleSendReviewReply(submission)}
                                   disabled={reviewReplyStatus[submission.id] === "sending"}
-                                  className="mt-3 rounded-[4px] bg-white px-4 py-2 text-xs font-bold tracking-widest text-black uppercase transition-colors hover:bg-[#e0e0e0] disabled:cursor-not-allowed disabled:opacity-40"
+                                  className="mt-3 rounded-none bg-white px-4 py-2 text-xs font-bold tracking-widest text-black uppercase transition-colors hover:bg-[#e0e0e0] disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                   {reviewReplyStatus[submission.id] === "sending" ? "Sending..." : "Send Reply"}
                                 </button>
                               </div>
                             </div>
                           ) : submission.status === "submitted" ? (
-                            <p className="text-[#666] text-sm">Coach review pending.</p>
+                            <p className="text-[#adb5a0] text-sm">Coach review pending.</p>
                           ) : submission.status === "processing" || submission.status === "uploading" ? (
-                            <p className="text-[#666] text-sm">Video is still processing.</p>
+                            <p className="text-[#adb5a0] text-sm">Video is still processing.</p>
                           ) : submission.errorMessage ? (
                             <p className="text-[#dc2626] text-sm">{submission.errorMessage}</p>
                           ) : null}
@@ -1392,7 +1381,7 @@ export default function Dashboard() {
                           type="button"
                           onClick={handleLoadAllReviewSubmissions}
                           disabled={isLoadingAllReviewSubmissions}
-                          className="w-full rounded-[4px] border border-[#222] px-4 py-3 text-xs font-bold tracking-widest text-[#aaa] uppercase transition-colors hover:border-[#444] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                          className="w-full rounded-none border border-[#4b543c] px-4 py-3 text-xs font-bold tracking-widest text-[#aaa] uppercase transition-colors hover:border-[#d6ed9b] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                         >
                           {isLoadingAllReviewSubmissions ? "Loading..." : "Load All Videos"}
                         </button>

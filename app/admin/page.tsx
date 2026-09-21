@@ -108,10 +108,10 @@ const REVIEW_STATUS_LABELS: Record<ReviewSubmissionStatus, string> = {
 };
 
 const REVIEW_STATUS_STYLES: Record<ReviewSubmissionStatus, string> = {
-  uploading: "border-[#333] text-[#777]",
-  processing: "border-blue-900 text-blue-300",
-  submitted: "border-green-900 bg-[oklch(0.18_0.06_155)] text-[oklch(0.68_0.14_155)]",
-  reviewed: "border-blue-900 bg-[oklch(0.18_0.06_240)] text-[oklch(0.65_0.14_240)]",
+  uploading: "border-[#4b543c] text-[#b6beaa]",
+  processing: "border-[#4b543c] text-[#d6ed9b]",
+  submitted: "border-[#4b543c] bg-[#293321] text-[#d6ed9b]",
+  reviewed: "border-[#4b543c] bg-[#293321] text-[#d6ed9b]",
   error: "border-[#dc2626] text-[#dc2626]",
 };
 
@@ -600,10 +600,9 @@ export default function AdminPage() {
     <Nav variant="minimal" isLoggedIn={!!userEmail} authReady={isLoaded} />
   );
 
-  const inputClass = "w-full min-w-0 rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40";
+  const inputClass = "w-full min-w-0 rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40";
   const sectionTitleClass = "text-white uppercase tracking-wide";
-  const sectionTitleStyle = { fontFamily: "var(--font-bebas)", fontSize: "clamp(22px, 2.5vw, 28px)" };
-  const secondaryLinkClass = "inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors";
+  const secondaryLinkClass = "inline-block rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#d6ed9b] transition-colors";
   const activeUserMatches = (() => {
     const term = lookupEmail.trim().toLowerCase();
     return term
@@ -617,17 +616,16 @@ export default function AdminPage() {
     return (
       <>
         {MinimalNav}
-        <main className="min-h-screen overflow-x-hidden bg-[#0a0a0a] text-white">
+        <main className="min-h-screen overflow-x-hidden bg-[#111310] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
             <div className="mx-auto w-full min-w-0 max-w-6xl">
-              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Admin</p>
+              <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">— Admin</p>
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-6"
-                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
               >
-                Builder
+                Program <em>builder.</em>
               </h1>
-              <p className="text-[#777]">
+              <p className="text-[#b6beaa]">
                 {authChecked ? "Redirecting..." : "Checking login..."}
               </p>
             </div>
@@ -640,22 +638,21 @@ export default function AdminPage() {
   return (
     <>
       {MinimalNav}
-      <main className="min-h-screen overflow-x-hidden bg-[#0a0a0a] text-white">
+      <main className="min-h-screen overflow-x-hidden bg-[#111310] text-white">
         <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
           <div className="mx-auto w-full min-w-0 max-w-6xl">
             {/* Page header */}
-            <div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+            <div data-workspace-heading className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div className="min-w-0">
-                <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Admin</p>
+                <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">— Admin</p>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
                 >
-                  Builder
+                  Program <em>builder.</em>
                 </h1>
-                <p className="text-[#777]">Assign workouts to users.</p>
+                <p className="text-[#b6beaa]">Assign workouts to users.</p>
                 {userEmail ? (
-                  <p className="mt-2 text-sm text-[#555] break-all">Signed in as {userEmail}</p>
+                  <p className="mt-2 text-sm text-[#9ba38f] break-all">Signed in as {userEmail}</p>
                 ) : null}
               </div>
               <div className="flex flex-wrap gap-2">
@@ -672,8 +669,8 @@ export default function AdminPage() {
             </div>
 
             {/* Assign to User */}
-            <div className="mb-8 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
-              <h2 className={`${sectionTitleClass} mb-6`} style={sectionTitleStyle}>
+            <div className="mb-8 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
+              <h2 className={`${sectionTitleClass} mb-6`}>
                 Assign To User
               </h2>
               <div className="flex flex-col sm:flex-row gap-3">
@@ -694,30 +691,30 @@ export default function AdminPage() {
                     autoComplete="off"
                   />
                   {activeUserDropdownOpen ? (
-                    <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 max-h-72 overflow-y-auto rounded-lg border border-[#222] bg-[#0a0a0a] shadow-2xl">
+                    <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-20 max-h-72 overflow-y-auto rounded-none border border-[#4b543c] bg-[#111310] shadow-2xl">
                       {!activeUsersLoaded ? (
-                        <p className="px-4 py-3 text-sm text-[#777]">Loading active users...</p>
+                        <p className="px-4 py-3 text-sm text-[#b6beaa]">Loading active users...</p>
                       ) : activeUsers.length === 0 ? (
-                        <p className="px-4 py-3 text-sm text-[#777]">No active users found.</p>
+                        <p className="px-4 py-3 text-sm text-[#b6beaa]">No active users found.</p>
                       ) : activeUserMatches.length === 0 ? (
-                        <p className="px-4 py-3 text-sm text-[#777]">No active users match that email.</p>
+                        <p className="px-4 py-3 text-sm text-[#b6beaa]">No active users match that email.</p>
                       ) : (
                         activeUserMatches.map((user) => (
                           <button
                             key={user.userId}
                             type="button"
                             onClick={() => handleLookupUser(user.email)}
-                            className="w-full overflow-hidden border-b border-[#1e1e1e] px-4 py-3 text-left last:border-b-0 hover:bg-[#111110] transition-colors"
+                            className="w-full overflow-hidden border-b border-[#4b543c] px-4 py-3 text-left last:border-b-0 hover:bg-[#22261d] transition-colors"
                           >
                             <div className="flex items-start justify-between gap-3">
                               <div className="min-w-0">
                                 <p className="truncate text-sm text-white">{user.email}</p>
-                                <p className="mt-1 text-[11px] uppercase tracking-widest text-[#666]">
+                                <p className="mt-1 text-[11px] uppercase tracking-widest text-[#adb5a0]">
                                   {STATUS_LABELS[user.onboardingStatus] ?? user.onboardingStatus}
                                 </p>
                               </div>
                               {(unreadByUserId.get(user.userId) ?? 0) > 0 ? (
-                                <span className="flex h-6 min-w-6 flex-shrink-0 items-center justify-center rounded-full border border-blue-900 bg-[oklch(0.18_0.06_240)] px-2 text-xs font-medium text-[oklch(0.65_0.14_240)]">
+                                <span className="flex h-6 min-w-6 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] bg-[#293321] px-2 text-xs font-medium text-[#d6ed9b]">
                                   {unreadByUserId.get(user.userId)}
                                 </span>
                               ) : null}
@@ -741,13 +738,13 @@ export default function AdminPage() {
               )}
               {lookupStatus === "found" && assignedUserEmail && (
                 <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="min-w-0 text-sm break-words" style={{ color: "oklch(0.68 0.14 155)" }}>
+                  <p className="min-w-0 text-sm break-words" style={{ color: "#d6ed9b" }}>
                     Editing: <span className="font-medium break-all">{assignedUserEmail}</span>
                   </p>
                   {assignedUserId ? (
                     <Link
                       href={`/admin/preview?userId=${encodeURIComponent(assignedUserId)}&email=${encodeURIComponent(assignedUserEmail)}`}
-                      className="self-start rounded-[4px] border border-[#222] px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#999] transition-colors hover:border-[#444] hover:text-white sm:self-auto"
+                      className="self-start rounded-none border border-[#4b543c] px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#c1c8b7] transition-colors hover:border-[#d6ed9b] hover:text-white sm:self-auto"
                     >
                       Preview Dashboard
                     </Link>
@@ -759,8 +756,8 @@ export default function AdminPage() {
             {assignedUserId ? (
               <>
                 {/* Onboarding Status */}
-                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
-                  <h2 className={`${sectionTitleClass} mb-6`} style={sectionTitleStyle}>
+                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
+                  <h2 className={`${sectionTitleClass} mb-6`}>
                     Onboarding Status
                   </h2>
                   <div className="flex flex-wrap gap-3">
@@ -771,10 +768,10 @@ export default function AdminPage() {
                           key={s}
                           onClick={() => handleUpdateStatus(s)}
                           disabled={updatingStatus}
-                          className={`rounded-[4px] px-4 py-2 text-xs font-bold tracking-widest uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed border ${
+                          className={`rounded-none px-4 py-2 text-xs font-bold tracking-widest uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed border ${
                             active
                               ? "border-white text-white"
-                              : "border-[#222] text-[#777] hover:border-[#444] hover:text-[#aaa]"
+                              : "border-[#4b543c] text-[#b6beaa] hover:border-[#d6ed9b] hover:text-[#aaa]"
                           }`}
                         >
                           {STATUS_LABELS[s]}
@@ -785,13 +782,13 @@ export default function AdminPage() {
                 </div>
 
                 {/* Goals */}
-                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
                   <div className={`${isGoalsOpen ? "mb-4" : ""} flex items-start justify-between gap-4`}>
                     <div className="min-w-0">
-                      <h2 className={sectionTitleClass} style={sectionTitleStyle}>
+                      <h2 className={sectionTitleClass}>
                         Goals
                       </h2>
-                      <p className="mt-2 text-xs text-[#555]">
+                      <p className="mt-2 text-xs text-[#9ba38f]">
                         Internal programming note for admins.
                       </p>
                     </div>
@@ -801,7 +798,7 @@ export default function AdminPage() {
                       aria-expanded={isGoalsOpen}
                       aria-controls="admin-goals-panel"
                       onClick={() => setIsGoalsOpen(prev => !prev)}
-                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
                     >
                       <span
                         aria-hidden="true"
@@ -824,20 +821,20 @@ export default function AdminPage() {
                 </div>
 
                 {/* Messages */}
-                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
                   <div className={`${isMessagesOpen ? "mb-5" : ""} flex items-start justify-between gap-4`}>
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-3">
-                        <h2 className={sectionTitleClass} style={sectionTitleStyle}>
+                        <h2 className={sectionTitleClass}>
                           Messages
                         </h2>
                         {selectedUnreadCount > 0 ? (
-                          <span className="rounded-full border border-blue-900 bg-[oklch(0.18_0.06_240)] px-3 py-1 text-xs font-medium text-[oklch(0.65_0.14_240)]">
+                          <span className="rounded-none border border-[#4b543c] bg-[#293321] px-3 py-1 text-xs font-medium text-[#d6ed9b]">
                             {selectedUnreadCount} unread
                           </span>
                         ) : null}
                       </div>
-                      <p className="mt-2 text-xs text-[#555]">
+                      <p className="mt-2 text-xs text-[#9ba38f]">
                         Text thread with this member.
                       </p>
                     </div>
@@ -847,7 +844,7 @@ export default function AdminPage() {
                       aria-expanded={isMessagesOpen}
                       aria-controls="admin-messages-panel"
                       onClick={() => setIsMessagesOpen(prev => !prev)}
-                      className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                      className="flex h-9 w-9 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
                     >
                       <span
                         aria-hidden="true"
@@ -859,12 +856,12 @@ export default function AdminPage() {
                   {isMessagesOpen ? (
                     <div id="admin-messages-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
                       <div>
-                        <h3 className="mb-4 text-xs tracking-widest uppercase text-[#777]">Thread</h3>
+                        <h3 className="mb-4 text-xs tracking-widest uppercase text-[#b6beaa]">Thread</h3>
                         {!coachMessagesLoaded ? (
-                          <p className="text-sm text-[#777]">Loading messages...</p>
+                          <p className="text-sm text-[#b6beaa]">Loading messages...</p>
                         ) : coachMessages.length === 0 ? (
-                          <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-5">
-                            <p className="text-sm text-[#777]">No messages yet.</p>
+                          <div className="rounded-none border border-[#4b543c] bg-[#111310] p-5">
+                            <p className="text-sm text-[#b6beaa]">No messages yet.</p>
                           </div>
                         ) : (
                           <div className="max-h-[440px] space-y-3 overflow-y-auto pr-1">
@@ -873,13 +870,13 @@ export default function AdminPage() {
                               return (
                                 <div
                                   key={message.id}
-                                  className={`rounded-lg border p-4 ${isAdminMessage ? "border-blue-900 bg-[oklch(0.18_0.06_240)]" : "border-[#1e1e1e] bg-[#0a0a0a]"}`}
+                                  className={`rounded-none border p-4 ${isAdminMessage ? "border-[#4b543c] bg-[#293321]" : "border-[#4b543c] bg-[#111310]"}`}
                                 >
                                   <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                    <p className={`text-xs font-medium ${isAdminMessage ? "text-[oklch(0.65_0.14_240)]" : "text-[#aaa]"}`}>
+                                    <p className={`text-xs font-medium ${isAdminMessage ? "text-[#d6ed9b]" : "text-[#aaa]"}`}>
                                       {isAdminMessage ? "Coach" : assignedUserEmail}
                                     </p>
-                                    <p className="text-xs text-[#555]">{new Date(message.createdAt).toLocaleDateString()}</p>
+                                    <p className="text-xs text-[#9ba38f]">{new Date(message.createdAt).toLocaleDateString()}</p>
                                   </div>
                                   <p className="whitespace-pre-line text-sm leading-relaxed text-white">{message.body}</p>
                                 </div>
@@ -891,7 +888,7 @@ export default function AdminPage() {
 
                       <div className="space-y-4">
                         <div>
-                          <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Reply</label>
+                          <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Reply</label>
                           <textarea
                             value={coachMessageReply}
                             onChange={(e) => setCoachMessageReply(e.target.value)}
@@ -907,7 +904,7 @@ export default function AdminPage() {
                           <p className="text-sm text-[#dc2626]">{coachMessageError}</p>
                         ) : null}
                         {coachMessageStatus === "sent" ? (
-                          <p className="text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Reply sent and email attempted.</p>
+                          <p className="text-sm" style={{ color: "#d6ed9b" }}>Reply sent and email attempted.</p>
                         ) : null}
 
                         <Button
@@ -923,18 +920,18 @@ export default function AdminPage() {
                 </div>
 
                 {/* Recent Submissions */}
-                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
                   <div className={`${isRecentSubmissionsOpen ? "mb-5" : ""} flex items-start justify-between gap-4`}>
                     <div className="min-w-0">
-                      <h2 className={sectionTitleClass} style={sectionTitleStyle}>
+                      <h2 className={sectionTitleClass}>
                         Recent Submissions
                       </h2>
-                      <p className="mt-2 text-xs text-[#555]">
+                      <p className="mt-2 text-xs text-[#9ba38f]">
                         Last 5 progress videos from this member.
                       </p>
                     </div>
                     <div className="flex flex-shrink-0 items-center gap-3">
-                      <Link href="/admin/reviews" className="hidden text-xs font-bold tracking-widest uppercase text-[#777] hover:text-white transition-colors sm:inline-block">
+                      <Link href="/admin/reviews" className="hidden text-xs font-bold tracking-widest uppercase text-[#b6beaa] hover:text-white transition-colors sm:inline-block">
                         View all reviews
                       </Link>
                       <button
@@ -943,7 +940,7 @@ export default function AdminPage() {
                         aria-expanded={isRecentSubmissionsOpen}
                         aria-controls="admin-recent-submissions-panel"
                         onClick={() => setIsRecentSubmissionsOpen(prev => !prev)}
-                        className="flex h-9 w-9 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                        className="flex h-9 w-9 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
                       >
                         <span
                           aria-hidden="true"
@@ -955,16 +952,16 @@ export default function AdminPage() {
 
                   {isRecentSubmissionsOpen ? (
                     <div id="admin-recent-submissions-panel">
-                      <Link href="/admin/reviews" className="mb-4 inline-block text-xs font-bold tracking-widest uppercase text-[#777] hover:text-white transition-colors sm:hidden">
+                      <Link href="/admin/reviews" className="mb-4 inline-block text-xs font-bold tracking-widest uppercase text-[#b6beaa] hover:text-white transition-colors sm:hidden">
                         View all reviews
                       </Link>
 
                       {!recentSubmissionsLoaded ? (
-                        <p className="text-sm text-[#777]">Loading recent submissions...</p>
+                        <p className="text-sm text-[#b6beaa]">Loading recent submissions...</p>
                       ) : recentSubmissionsError ? (
                         <p className="text-sm text-[#dc2626]">{recentSubmissionsError}</p>
                       ) : recentSubmissions.length === 0 ? (
-                        <p className="text-sm text-[#777]">No review videos submitted yet.</p>
+                        <p className="text-sm text-[#b6beaa]">No review videos submitted yet.</p>
                       ) : (
                         <div className="divide-y divide-[#1e1e1e]">
                           {recentSubmissions.map((submission) => {
@@ -981,16 +978,16 @@ export default function AdminPage() {
                                 >
                                   <div className="min-w-0">
                                     <div className="mb-2 flex flex-wrap items-center gap-2">
-                                      <span className={`rounded-full border px-3 py-1 text-xs font-medium ${REVIEW_STATUS_STYLES[submission.status]}`}>
+                                      <span className={`rounded-none border px-3 py-1 text-xs font-medium ${REVIEW_STATUS_STYLES[submission.status]}`}>
                                         {REVIEW_STATUS_LABELS[submission.status]}
                                       </span>
-                                      <span className="text-xs text-[#555]">{displayDate}</span>
+                                      <span className="text-xs text-[#9ba38f]">{displayDate}</span>
                                     </div>
                                     <p className="truncate text-sm text-[#aaa]">
                                       {submission.note || submission.fileName || "No note added."}
                                     </p>
                                   </div>
-                                  <span className="mt-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] transition-colors hover:border-[#444] hover:text-white">
+                                  <span className="mt-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] transition-colors hover:border-[#d6ed9b] hover:text-white">
                                     <span
                                       aria-hidden="true"
                                       className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
@@ -1007,8 +1004,8 @@ export default function AdminPage() {
                                         tokens={submission.playbackTokens}
                                       />
                                     ) : (
-                                      <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                                        <p className="text-[#666] text-xs tracking-widest uppercase">
+                                      <div className="aspect-video w-full rounded-none border border-[#4b543c] bg-[#111310] flex items-center justify-center">
+                                        <p className="text-[#adb5a0] text-xs tracking-widest uppercase">
                                           {submission.status === "error" ? "Upload failed" : "Video not ready"}
                                         </p>
                                       </div>
@@ -1016,13 +1013,13 @@ export default function AdminPage() {
 
                                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                                       <div className="min-w-0">
-                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Member note</p>
+                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#b6beaa]">Member note</p>
                                         <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#aaa]">
                                           {submission.note || "No note added."}
                                         </p>
                                       </div>
                                       <div className="min-w-0">
-                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#777]">Coach note</p>
+                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#b6beaa]">Coach note</p>
                                         <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#aaa]">
                                           {submission.coachNote || "No coach note yet."}
                                         </p>
@@ -1044,13 +1041,13 @@ export default function AdminPage() {
                 </div>
 
                 {/* Program */}
-                <div className="mb-8 min-w-0 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
                   <div className={`${isProgramOpen ? "mb-6" : ""} flex items-start justify-between gap-4`}>
                     <div className="min-w-0">
-                      <h2 className={sectionTitleClass} style={sectionTitleStyle}>
+                      <h2 className={sectionTitleClass}>
                         Program
                       </h2>
-                      <p className="mt-2 text-xs text-[#555]">
+                      <p className="mt-2 text-xs text-[#9ba38f]">
                         Add videos and programming details for this member.
                       </p>
                     </div>
@@ -1060,7 +1057,7 @@ export default function AdminPage() {
                       aria-expanded={isProgramOpen}
                       aria-controls="admin-program-panel"
                       onClick={() => setIsProgramOpen(prev => !prev)}
-                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[4px] border border-[#222] text-[#999] hover:text-white hover:border-[#444] transition-colors"
+                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
                     >
                       <span
                         aria-hidden="true"
@@ -1072,7 +1069,7 @@ export default function AdminPage() {
                   {isProgramOpen ? (
                   <div id="admin-program-panel" className="space-y-4">
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Step title</label>
+                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Step title</label>
                       <input
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
@@ -1081,7 +1078,7 @@ export default function AdminPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Step description</label>
+                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Step description</label>
                       <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
@@ -1092,7 +1089,7 @@ export default function AdminPage() {
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Sets</label>
+                        <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Sets</label>
                         <input
                           value={sets}
                           onChange={(e) => setSets(e.target.value)}
@@ -1101,7 +1098,7 @@ export default function AdminPage() {
                         />
                       </div>
                       <div>
-                        <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Reps / Hold Time</label>
+                        <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Reps / Hold Time</label>
                         <input
                           value={repsOrHoldTime}
                           onChange={(e) => setRepsOrHoldTime(e.target.value)}
@@ -1111,7 +1108,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Frequency</label>
+                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Frequency</label>
                       <input
                         value={frequency}
                         onChange={(e) => setFrequency(e.target.value)}
@@ -1120,25 +1117,25 @@ export default function AdminPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video (optional)</label>
+                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Video (optional)</label>
                       {(() => {
                         const selected = videoLibrary.find(v => v.id === video) ?? null;
                         if (selected) {
                           return (
-                            <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="rounded-none border border-[#4b543c] bg-[#111310] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                               <div className="w-full flex-shrink-0 sm:w-[180px]">
                                 <VideoPlayer playbackId={selected.mux_playback_id} />
                               </div>
                               <div className="min-w-0">
                                 <p className="text-white text-sm truncate">{selected.title}</p>
-                                <p className="mt-1 truncate text-xs uppercase tracking-widest text-[#666]">
+                                <p className="mt-1 truncate text-xs uppercase tracking-widest text-[#adb5a0]">
                                   {(selected.level || "—")} · {(selected.category || "—")}
                                 </p>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => { setVideo(""); setVideoSearch(""); }}
-                                className="flex-shrink-0 text-[#777] text-xs tracking-widest uppercase hover:text-white transition-colors"
+                                className="flex-shrink-0 text-[#b6beaa] text-xs tracking-widest uppercase hover:text-white transition-colors"
                               >
                                 Change
                               </button>
@@ -1163,13 +1160,13 @@ export default function AdminPage() {
                               disabled={!videoLibraryLoaded}
                               className={`${inputClass} mb-2`}
                             />
-                            <div className="rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] max-h-96 overflow-y-auto">
+                            <div className="rounded-none border border-[#4b543c] bg-[#111310] max-h-96 overflow-y-auto">
                               {!videoLibraryLoaded ? (
-                                <p className="px-4 py-3 text-[#777] text-sm">Loading library...</p>
+                                <p className="px-4 py-3 text-[#b6beaa] text-sm">Loading library...</p>
                               ) : videoLibrary.length === 0 ? (
-                                <p className="px-4 py-3 text-[#777] text-sm">No videos in library yet. Upload one in Video Library.</p>
+                                <p className="px-4 py-3 text-[#b6beaa] text-sm">No videos in library yet. Upload one in Video Library.</p>
                               ) : filtered.length === 0 ? (
-                                <p className="px-4 py-3 text-[#777] text-sm">No videos match your search.</p>
+                                <p className="px-4 py-3 text-[#b6beaa] text-sm">No videos match your search.</p>
                               ) : (
                                 filtered.map((v) => (
                                   <button
@@ -1185,9 +1182,9 @@ export default function AdminPage() {
                                         setDescription(v.description.trim());
                                       }
                                     }}
-                                    className="grid w-full grid-cols-[112px_minmax(0,1fr)] gap-4 overflow-hidden border-b border-[#1e1e1e] px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-[#111110] sm:grid-cols-[140px_minmax(0,1fr)]"
+                                    className="grid w-full grid-cols-[112px_minmax(0,1fr)] gap-4 overflow-hidden border-b border-[#4b543c] px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-[#22261d] sm:grid-cols-[140px_minmax(0,1fr)]"
                                   >
-                                    <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-[#1e1e1e] bg-[#111110]">
+                                    <div className="relative aspect-video w-full overflow-hidden rounded-none border border-[#4b543c] bg-[#22261d]">
                                       <span
                                         aria-hidden="true"
                                         className="absolute inset-0 bg-cover bg-center"
@@ -1197,18 +1194,18 @@ export default function AdminPage() {
                                         aria-hidden="true"
                                         className="absolute inset-0 flex items-center justify-center bg-black/20"
                                       >
-                                        <span className="flex h-9 w-9 items-center justify-center rounded-full border border-white/70 bg-black/60 text-white shadow-lg">
+                                        <span className="flex h-9 w-9 items-center justify-center rounded-none border border-white/70 bg-black/60 text-white shadow-lg">
                                           <span className="ml-0.5 h-0 w-0 border-y-[7px] border-l-[11px] border-y-transparent border-l-current" />
                                         </span>
                                       </span>
                                     </div>
                                     <div className="min-w-0 self-center">
                                     <p className="text-white text-sm truncate">{v.title}</p>
-                                    <p className="mt-1 truncate text-xs uppercase tracking-widest text-[#666]">
+                                    <p className="mt-1 truncate text-xs uppercase tracking-widest text-[#adb5a0]">
                                       {(v.level || "—")} · {(v.category || "—")}
                                     </p>
                                       {v.description ? (
-                                        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#777]">{v.description}</p>
+                                        <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-[#b6beaa]">{v.description}</p>
                                       ) : null}
                                     </div>
                                   </button>
@@ -1229,7 +1226,7 @@ export default function AdminPage() {
                       <button
                         type="button"
                         onClick={addBanner}
-                        className="rounded-[4px] border border-[#333] px-6 py-3 text-sm font-bold uppercase tracking-widest text-[#ddd] transition-colors hover:border-[#555] hover:text-white"
+                        className="rounded-none border border-[#4b543c] px-6 py-3 text-sm font-bold uppercase tracking-widest text-[#ddd] transition-colors hover:border-[#d6ed9b] hover:text-white"
                       >
                         Add Banner
                       </button>
@@ -1241,8 +1238,8 @@ export default function AdminPage() {
                 {/* Steps list */}
                 <div className="mb-8 space-y-4 md:space-y-6">
                   {workout.length === 0 ? (
-                    <div className="rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8 text-center">
-                      <p className="text-[#777] text-sm">No steps yet. Add the first step above.</p>
+                    <div className="rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8 text-center">
+                      <p className="text-[#b6beaa] text-sm">No steps yet. Add the first step above.</p>
                     </div>
                   ) : (
                     (() => {
@@ -1254,42 +1251,41 @@ export default function AdminPage() {
                         return (
                           <div
                             key={`banner-${i}`}
-                            className="min-w-0 overflow-hidden rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
+                            className="min-w-0 overflow-hidden rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8"
                           >
                             <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                              <h3 className="min-w-0 break-words text-white uppercase tracking-wide" style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(20px, 2vw, 24px)" }}>
+                              <h3 className="min-w-0 break-words text-white uppercase tracking-wide">
                                 Banner
                               </h3>
                               <div className="flex flex-wrap gap-2">
                                 <button
                                   onClick={() => moveStepUp(i)}
-                                  className="rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#444] transition-colors"
+                                  className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors"
                                 >
                                   Up
                                 </button>
                                 <button
                                   onClick={() => moveStepDown(i)}
-                                  className="rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#444] transition-colors"
+                                  className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors"
                                 >
                                   Down
                                 </button>
                                 <button
                                   onClick={() => removeStep(i)}
-                                  className="rounded-[4px] border border-[#dc2626] text-[#dc2626] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:bg-[#dc2626] hover:text-white transition-colors"
+                                  className="rounded-none border border-[#dc2626] text-[#dc2626] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:bg-[#dc2626] hover:text-white transition-colors"
                                 >
                                   Remove
                                 </button>
                               </div>
                             </div>
-                            <div className="mb-4 rounded-[4px] border border-[#333] bg-[#0a0a0a] px-4 py-4">
+                            <div className="mb-4 rounded-none border border-[#4b543c] bg-[#111310] px-4 py-4">
                               <p
                                 className="break-words text-white uppercase tracking-wide"
-                                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(26px, 3vw, 38px)" }}
                               >
                                 {step.text || DEFAULT_BANNER_TEXT}
                               </p>
                             </div>
-                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Banner Text</label>
+                            <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Banner Text</label>
                             <input
                               value={step.text}
                               onChange={(e) => updateBanner(i, e.target.value)}
@@ -1305,28 +1301,28 @@ export default function AdminPage() {
                       return (
                       <div
                         key={`step-${step.videoId || "text"}-${i}`}
-                        className="min-w-0 overflow-hidden rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8"
+                        className="min-w-0 overflow-hidden rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8"
                       >
                         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                          <h3 className="min-w-0 break-words text-white uppercase tracking-wide" style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(20px, 2vw, 24px)" }}>
+                          <h3 className="min-w-0 break-words text-white uppercase tracking-wide">
                             Step {stepNumber}
                           </h3>
                           <div className="flex flex-wrap gap-2">
                             <button
                               onClick={() => moveStepUp(i)}
-                              className="rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#444] transition-colors"
+                              className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors"
                             >
                               Up
                             </button>
                             <button
                               onClick={() => moveStepDown(i)}
-                              className="rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#444] transition-colors"
+                              className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors"
                             >
                               Down
                             </button>
                             <button
                               onClick={() => removeStep(i)}
-                              className="rounded-[4px] border border-[#dc2626] text-[#dc2626] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:bg-[#dc2626] hover:text-white transition-colors"
+                              className="rounded-none border border-[#dc2626] text-[#dc2626] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:bg-[#dc2626] hover:text-white transition-colors"
                             >
                               Remove
                             </button>
@@ -1334,7 +1330,7 @@ export default function AdminPage() {
                         </div>
                         <div className="mb-4 grid grid-cols-1 gap-4">
                           <div>
-                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Title</label>
+                            <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Title</label>
                             <input
                               value={step.title}
                               onChange={(e) => updateStep(i, { title: e.target.value })}
@@ -1343,7 +1339,7 @@ export default function AdminPage() {
                             />
                           </div>
                           <div>
-                            <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Frequency</label>
+                            <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Frequency</label>
                             <input
                               value={getWorkoutFrequency(step)}
                               onChange={(e) => updateStep(i, { frequency: e.target.value })}
@@ -1353,7 +1349,7 @@ export default function AdminPage() {
                           </div>
                           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
-                              <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Sets</label>
+                              <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Sets</label>
                               <input
                                 value={step.sets ?? ""}
                                 onChange={(e) => updateStep(i, { sets: e.target.value })}
@@ -1362,7 +1358,7 @@ export default function AdminPage() {
                               />
                             </div>
                             <div>
-                              <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Reps / Hold Time</label>
+                              <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Reps / Hold Time</label>
                               <input
                                 value={step.repsOrHoldTime ?? ""}
                                 onChange={(e) => updateStep(i, { repsOrHoldTime: e.target.value })}
@@ -1375,17 +1371,17 @@ export default function AdminPage() {
                         {stepVideo ? (
                           <>
                             <VideoPlayer playbackId={stepVideo.mux_playback_id} />
-                            <p className="mt-3 truncate text-xs uppercase tracking-widest text-[#666]">
+                            <p className="mt-3 truncate text-xs uppercase tracking-widest text-[#adb5a0]">
                               {(stepVideo.level || "—")} · {(stepVideo.category || "—")}
                             </p>
                           </>
                         ) : step.videoId ? (
-                          <div className="aspect-video w-full rounded-lg border border-[#1e1e1e] bg-[#0a0a0a] flex items-center justify-center">
-                            <p className="px-3 text-center text-xs uppercase tracking-widest text-[#666]">Video not found in library</p>
+                          <div className="aspect-video w-full rounded-none border border-[#4b543c] bg-[#111310] flex items-center justify-center">
+                            <p className="px-3 text-center text-xs uppercase tracking-widest text-[#adb5a0]">Video not found in library</p>
                           </div>
                         ) : null}
                         <div className="mt-4">
-                          <label className="mb-2 block text-xs tracking-widest text-[#777] uppercase">Description</label>
+                          <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Description</label>
                           <textarea
                             value={step.description}
                             onChange={(e) => updateStep(i, { description: e.target.value })}

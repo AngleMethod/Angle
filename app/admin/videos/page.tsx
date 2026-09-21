@@ -309,17 +309,16 @@ export default function AdminVideosPage() {
     return (
       <>
         {MinimalNav}
-        <main className="min-h-screen bg-[#0a0a0a] text-white">
+        <main className="min-h-screen bg-[#111310] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
             <div className="mx-auto max-w-6xl">
-              <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Library</p>
+              <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">— Library</p>
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-6"
-                style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
               >
-                Videos
+                Video <em>library.</em>
               </h1>
-              <p className="text-[#777]">Checking access...</p>
+              <p className="text-[#b6beaa]">Checking access...</p>
             </div>
           </section>
         </main>
@@ -330,36 +329,35 @@ export default function AdminVideosPage() {
   return (
     <>
       {MinimalNav}
-      <main className="min-h-screen bg-[#0a0a0a] text-white">
+      <main className="min-h-screen bg-[#111310] text-white">
         <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
           <div className="mx-auto max-w-6xl">
-            <div className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+            <div data-workspace-heading className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <p className="text-[#666] text-xs tracking-widest uppercase mb-4">— Library</p>
+                <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">— Library</p>
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                  style={{ fontFamily: "var(--font-bebas)", fontSize: "clamp(36px, 5vw, 64px)" }}
                 >
-                  Videos
+                  Video <em>library.</em>
                 </h1>
-                <p className="text-[#777]">Manage the master video library.</p>
+                <p className="text-[#b6beaa]">Manage the master video library.</p>
               </div>
               <div className="flex flex-wrap items-end gap-2">
                 <Link
                   href="/dashboard"
-                  className="inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors"
+                  className="inline-block rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#d6ed9b] transition-colors"
                 >
                   View Dashboard
                 </Link>
                 <Link
                   href="/admin"
-                  className="inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors"
+                  className="inline-block rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#d6ed9b] transition-colors"
                 >
                   Admin Builder
                 </Link>
                 <Link
                   href="/admin/reviews"
-                  className="inline-block rounded-[4px] border border-[#222] text-[#999] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#444] transition-colors"
+                  className="inline-block rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-4 py-2 md:px-6 md:py-3 hover:text-white hover:border-[#d6ed9b] transition-colors"
                 >
                   Coach Reviews
                 </Link>
@@ -372,13 +370,13 @@ export default function AdminVideosPage() {
             </div>
 
             {uploadOpen ? (
-              <div className="mb-10 md:mb-14 rounded-lg border border-[#1e1e1e] bg-[#111110] p-6 md:p-8">
+              <div className="mb-10 md:mb-14 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <p className="text-[#666] text-xs tracking-widest uppercase">— New Video</p>
+                  <p className="text-[#adb5a0] text-xs tracking-widest uppercase">— New Video</p>
                   <button
                     onClick={closeUpload}
                     disabled={uploadStage === "uploading" || uploadStage === "saving"}
-                    className="text-[#777] text-xs tracking-widest uppercase hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="text-[#b6beaa] text-xs tracking-widest uppercase hover:text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Cancel
                   </button>
@@ -386,59 +384,59 @@ export default function AdminVideosPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Video file</label>
+                    <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Video file</label>
                     <input
                       type="file"
                       accept="video/mp4,video/quicktime,video/mov,.mov,.mp4,video/*"
                       onChange={(e) => setFile(e.target.files?.[0] ?? null)}
                       disabled={uploadStage === "uploading" || uploadStage === "saving"}
-                      className="block w-full text-sm text-[#aaa] file:mr-4 file:py-2 file:px-4 file:rounded-[4px] file:border-0 file:bg-[#222] file:text-white file:text-xs file:font-bold file:tracking-widest file:uppercase file:cursor-pointer disabled:opacity-40"
+                      className="block w-full text-sm text-[#aaa] file:mr-4 file:py-2 file:px-4 file:rounded-none file:border-0 file:bg-[#222] file:text-white file:text-xs file:font-bold file:tracking-widest file:uppercase file:cursor-pointer disabled:opacity-40"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Title</label>
+                    <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Title</label>
                     <input
                       type="text"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       disabled={uploadStage === "uploading" || uploadStage === "saving"}
-                      className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+                      className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Description</label>
+                    <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Description</label>
                     <textarea
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       rows={3}
                       disabled={uploadStage === "uploading" || uploadStage === "saving"}
-                      className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+                      className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Level</label>
+                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Level</label>
                       <input
                         type="text"
                         value={level}
                         onChange={(e) => setLevel(e.target.value)}
                         placeholder="e.g. beginner"
                         disabled={uploadStage === "uploading" || uploadStage === "saving"}
-                        className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+                        className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
                       />
                     </div>
                     <div>
-                      <label className="block text-[#777] text-xs tracking-widest uppercase mb-2">Category</label>
+                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Category</label>
                       <input
                         type="text"
                         value={category}
                         onChange={(e) => setCategory(e.target.value)}
                         placeholder="e.g. wall-work"
                         disabled={uploadStage === "uploading" || uploadStage === "saving"}
-                        className="w-full rounded-lg bg-[#0a0a0a] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555] disabled:opacity-40"
+                        className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
                       />
                     </div>
                   </div>
@@ -446,10 +444,10 @@ export default function AdminVideosPage() {
                   {uploadStage === "uploading" ? (
                     <div className="pt-2">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="text-[#777] text-xs tracking-widest uppercase">Uploading</p>
+                        <p className="text-[#b6beaa] text-xs tracking-widest uppercase">Uploading</p>
                         <p className="text-[#aaa] text-xs">{uploadProgress}%</p>
                       </div>
-                      <div className="h-1 bg-[#1e1e1e] rounded-full overflow-hidden">
+                      <div className="h-1 bg-[#293321] rounded-none overflow-hidden">
                         <div
                           className="h-full bg-white transition-all duration-200"
                           style={{ width: `${uploadProgress}%` }}
@@ -463,7 +461,7 @@ export default function AdminVideosPage() {
                   ) : null}
 
                   {uploadStage === "success" ? (
-                    <p className="text-sm" style={{ color: "oklch(0.68 0.14 155)" }}>Saved.</p>
+                    <p className="text-sm" style={{ color: "#d6ed9b" }}>Saved.</p>
                   ) : null}
 
                   {uploadError ? (
@@ -488,45 +486,45 @@ export default function AdminVideosPage() {
               </div>
             ) : null}
 
-            <div className="overflow-x-auto rounded-lg border border-[#1e1e1e]">
+            <div className="overflow-x-auto rounded-none border border-[#4b543c]">
               {deleteMessage ? (
-                <div className="border-b border-[#1e1e1e] bg-[#111110] px-6 py-3">
-                  <p className={`text-sm ${deleteMessage.startsWith("Deleted.") ? "text-[#777]" : "text-[#dc2626]"}`}>
+                <div className="border-b border-[#4b543c] bg-[#22261d] px-6 py-3">
+                  <p className={`text-sm ${deleteMessage.startsWith("Deleted.") ? "text-[#b6beaa]" : "text-[#dc2626]"}`}>
                     {deleteMessage}
                   </p>
                 </div>
               ) : null}
               {descriptionMessage ? (
-                <div className="border-b border-[#1e1e1e] bg-[#111110] px-6 py-3">
-                  <p className={`text-sm ${descriptionMessage === "Description saved." ? "text-[#777]" : "text-[#dc2626]"}`}>
+                <div className="border-b border-[#4b543c] bg-[#22261d] px-6 py-3">
+                  <p className={`text-sm ${descriptionMessage === "Description saved." ? "text-[#b6beaa]" : "text-[#dc2626]"}`}>
                     {descriptionMessage}
                   </p>
                 </div>
               ) : null}
               <table className="w-full">
-                <thead className="bg-[#111110] border-b border-[#1e1e1e]">
+                <thead className="bg-[#22261d] border-b border-[#4b543c]">
                   <tr>
-                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium w-[180px]">Preview</th>
-                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Title</th>
-                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Description</th>
-                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Level</th>
-                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Category</th>
-                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#666] font-medium">Created</th>
-                    <th className="px-6 py-4 text-right text-xs tracking-widest uppercase text-[#666] font-medium">Delete</th>
+                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#adb5a0] font-medium w-[180px]">Preview</th>
+                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#adb5a0] font-medium">Title</th>
+                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#adb5a0] font-medium">Description</th>
+                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#adb5a0] font-medium">Level</th>
+                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#adb5a0] font-medium">Category</th>
+                    <th className="text-left px-6 py-4 text-xs tracking-widest uppercase text-[#adb5a0] font-medium">Created</th>
+                    <th className="px-6 py-4 text-right text-xs tracking-widest uppercase text-[#adb5a0] font-medium">Delete</th>
                   </tr>
                 </thead>
                 <tbody>
                   {loadingVideos ? (
                     <tr>
-                      <td colSpan={7} className="px-6 py-6 text-[#777] text-sm">Loading videos...</td>
+                      <td colSpan={7} className="px-6 py-6 text-[#b6beaa] text-sm">Loading videos...</td>
                     </tr>
                   ) : videos.length === 0 ? (
                     <tr>
-                      <td colSpan={7} className="px-6 py-6 text-[#777] text-sm">No videos yet. Upload your first one.</td>
+                      <td colSpan={7} className="px-6 py-6 text-[#b6beaa] text-sm">No videos yet. Upload your first one.</td>
                     </tr>
                   ) : (
                     videos.map((v) => (
-                      <tr key={v.id} className="border-b border-[#1e1e1e] last:border-b-0 hover:bg-[#111110] transition-colors align-middle">
+                      <tr key={v.id} className="border-b border-[#4b543c] last:border-b-0 hover:bg-[#22261d] transition-colors align-middle">
                         <td className="px-6 py-4">
                           <div className="w-[160px]">
                             <VideoPlayer playbackId={v.mux_playback_id} />
@@ -541,14 +539,14 @@ export default function AdminVideosPage() {
                                 onChange={(e) => setDescriptionDraft(e.target.value)}
                                 rows={4}
                                 disabled={savingDescriptionId === v.id}
-                                className="w-full min-w-0 rounded-lg border border-[#222] bg-[#0a0a0a] px-3 py-2 text-sm text-white placeholder-[#444] focus:border-[#555] focus:outline-none disabled:opacity-40"
+                                className="w-full min-w-0 rounded-none border border-[#4b543c] bg-[#111310] px-3 py-2 text-sm text-white placeholder-[#89937d] focus:border-[#d6ed9b] focus:outline-none disabled:opacity-40"
                               />
                               <div className="flex flex-wrap gap-2">
                                 <button
                                   type="button"
                                   onClick={() => handleSaveDescription(v)}
                                   disabled={savingDescriptionId === v.id}
-                                  className="rounded-[4px] border border-[#333] bg-white px-3 py-2 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-[#e0e0e0] disabled:cursor-not-allowed disabled:opacity-40"
+                                  className="rounded-none border border-[#4b543c] bg-white px-3 py-2 text-xs font-bold uppercase tracking-widest text-black transition-colors hover:bg-[#e0e0e0] disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                   {savingDescriptionId === v.id ? "Saving..." : "Save"}
                                 </button>
@@ -556,7 +554,7 @@ export default function AdminVideosPage() {
                                   type="button"
                                   onClick={cancelEditingDescription}
                                   disabled={savingDescriptionId === v.id}
-                                  className="rounded-[4px] border border-[#222] px-3 py-2 text-xs font-bold uppercase tracking-widest text-[#999] transition-colors hover:border-[#444] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                                  className="rounded-none border border-[#4b543c] px-3 py-2 text-xs font-bold uppercase tracking-widest text-[#c1c8b7] transition-colors hover:border-[#d6ed9b] hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
                                 >
                                   Cancel
                                 </button>
@@ -570,7 +568,7 @@ export default function AdminVideosPage() {
                               <button
                                 type="button"
                                 onClick={() => startEditingDescription(v)}
-                                className="text-xs font-bold uppercase tracking-widest text-[#777] transition-colors hover:text-white"
+                                className="text-xs font-bold uppercase tracking-widest text-[#b6beaa] transition-colors hover:text-white"
                               >
                                 Edit
                               </button>
@@ -579,7 +577,7 @@ export default function AdminVideosPage() {
                         </td>
                         <td className="px-6 py-4 text-[#aaa] text-sm">{v.level || "—"}</td>
                         <td className="px-6 py-4 text-[#aaa] text-sm">{v.category || "—"}</td>
-                        <td className="px-6 py-4 text-[#777] text-sm">{new Date(v.created_at).toLocaleDateString()}</td>
+                        <td className="px-6 py-4 text-[#b6beaa] text-sm">{new Date(v.created_at).toLocaleDateString()}</td>
                         <td className="px-6 py-4 text-right">
                           <button
                             type="button"
@@ -587,7 +585,7 @@ export default function AdminVideosPage() {
                             title="Delete from Angle, Mux, and assigned workouts"
                             disabled={deletingId === v.id}
                             onClick={() => handleDeleteVideo(v)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-[#dc2626]/40 text-[#dc2626] transition-colors hover:border-[#dc2626] hover:bg-[#dc2626]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-none border border-[#dc2626]/40 text-[#dc2626] transition-colors hover:border-[#dc2626] hover:bg-[#dc2626]/10 disabled:cursor-not-allowed disabled:opacity-40"
                           >
                             <span aria-hidden="true" className="text-xl leading-none">&times;</span>
                           </button>

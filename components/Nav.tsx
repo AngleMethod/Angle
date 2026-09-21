@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import Button from './ui/Button'
+import WorkspaceHeader from './WorkspaceHeader'
 
 type NavProps = {
   variant?: 'marketing' | 'minimal'
@@ -73,11 +74,13 @@ export default function Nav({
         {UserIcon}
       </Link>
     ) : (
-      <a href="#signin" aria-label="Sign in" className={className}>
+      <a href={isMinimal ? '/#signin' : '#signin'} aria-label="Sign in" className={className}>
         {UserIcon}
       </a>
     )
   }
+
+  if (isMinimal) return <WorkspaceHeader isLoggedIn={isLoggedIn} authReady={authReady} />
 
   return (
     <>

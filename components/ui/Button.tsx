@@ -22,8 +22,8 @@ export default function Button({
   children,
 }: ButtonProps) {
   const base =
-    'rounded-[4px] bg-white text-black font-bold tracking-widest uppercase hover:bg-[#e0e0e0] transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-  const sz = size === 'md' ? 'text-sm py-4' : 'text-xs py-2 md:py-3'
+    'rounded-none bg-[#d6ed9b] text-[#171917] font-semibold tracking-normal hover:bg-[#e7f9bd] transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#d6ed9b] disabled:opacity-50 disabled:cursor-not-allowed'
+  const sz = size === 'md' ? 'text-xs py-4' : 'text-xs py-3'
   const px = fullWidth ? '' : size === 'md' ? 'px-8' : 'px-4 md:px-6'
   const w = fullWidth ? 'w-full' : ''
 
