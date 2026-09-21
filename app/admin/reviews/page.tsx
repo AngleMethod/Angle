@@ -9,7 +9,7 @@ import Button from "@/components/ui/Button";
 import ReviewVideoPlayer from "@/components/ReviewVideoPlayer";
 
 const ADMIN_EMAILS = [
-  "josh@anglemethod.com",
+  "josh@angle.coach",
   "morgan@anglemethod.com",
   "ninagrishchenko2003@gmail.com",
 ];

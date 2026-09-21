@@ -8,7 +8,7 @@ export const MAX_REVIEW_VIDEO_DURATION_SECONDS = 120
 export const MAX_REVIEW_VIDEO_SIZE_BYTES = 500 * 1024 * 1024
 
 const ADMIN_EMAILS = [
-  'josh@anglemethod.com',
+  'josh@angle.coach',
   'morgan@anglemethod.com',
   'ninagrishchenko2003@gmail.com',
 ]

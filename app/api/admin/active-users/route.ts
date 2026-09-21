@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase'
 import { SUBSCRIPTION_ACCESS_STATUSES } from '@/lib/subscriptionStatus'
 
 const ADMIN_EMAILS = [
-  'josh@anglemethod.com',
+  'josh@angle.coach',
   'morgan@anglemethod.com',
   'ninagrishchenko2003@gmail.com',
 ]

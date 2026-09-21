@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createAdminClient, findUserByEmail } from '@/lib/supabase'
 
 const ADMIN_EMAILS = [
-  'josh@anglemethod.com',
+  'josh@angle.coach',
   'morgan@anglemethod.com',
   'ninagrishchenko2003@gmail.com',
 ]

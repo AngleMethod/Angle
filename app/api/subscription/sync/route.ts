@@ -5,7 +5,7 @@ import { createAdminClient } from '@/lib/supabase'
 import { reconcileStripeSubscriptionAccess } from '@/lib/stripeSubscriptionAccess'
 
 const ADMIN_EMAILS = [
-  'josh@anglemethod.com',
+  'josh@angle.coach',
   'morgan@anglemethod.com',
   'ninagrishchenko2003@gmail.com',
 ]

@@ -8,7 +8,7 @@ import {
 } from '@/lib/stripeSubscriptionAccess'
 
 const { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } = process.env
-const ADMIN_NOTIFICATION_EMAIL = 'josh@anglemethod.com'
+const ADMIN_NOTIFICATION_EMAIL = 'josh@angle.coach'
 const FROM_EMAIL = 'Angle <hello@angle.coach>'
 
 if (!STRIPE_SECRET_KEY || !STRIPE_WEBHOOK_SECRET) {

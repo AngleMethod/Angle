@@ -21,7 +21,7 @@ type PostBody = {
 }
 
 const FROM_EMAIL = 'Angle <hello@angle.coach>'
-const REPLY_TO_EMAIL = 'josh@anglemethod.com'
+const REPLY_TO_EMAIL = 'josh@angle.coach'
 const DASHBOARD_URL = 'https://angle.coach/dashboard'
 
 function toClientMessage(row: MessageRow) {

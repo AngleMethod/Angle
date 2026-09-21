@@ -50,7 +50,7 @@ type ResolveError = { kind: 'error'; message: string; uploadStatus: string | nul
 type ResolveResult = ResolveOk | ResolvePending | ResolveError
 
 const FROM_EMAIL = 'Angle <hello@angle.coach>'
-const ADMIN_NOTIFICATION_EMAIL = 'josh@anglemethod.com'
+const ADMIN_NOTIFICATION_EMAIL = 'josh@angle.coach'
 const ADMIN_REVIEWS_URL = 'https://angle.coach/admin/reviews'
 
 function escapeHtml(value: string) {

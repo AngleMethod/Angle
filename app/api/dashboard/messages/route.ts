@@ -19,7 +19,7 @@ type MessageBody = {
 }
 
 const FROM_EMAIL = 'Angle <hello@angle.coach>'
-const ADMIN_NOTIFICATION_EMAIL = 'josh@anglemethod.com'
+const ADMIN_NOTIFICATION_EMAIL = 'josh@angle.coach'
 const ADMIN_URL = 'https://angle.coach/admin'
 
 function escapeHtml(value: string) {

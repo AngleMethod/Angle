@@ -36,7 +36,7 @@ type ReviewRequestBody = {
 }
 
 const FROM_EMAIL = 'Angle <hello@angle.coach>'
-const REPLY_TO_EMAIL = 'josh@anglemethod.com'
+const REPLY_TO_EMAIL = 'josh@angle.coach'
 const DASHBOARD_URL = 'https://angle.coach/dashboard'
 const DELETABLE_STATUSES: AdminReviewStatus[] = ['uploading', 'processing', 'submitted', 'reviewed', 'error']
 const REVIEW_FEEDBACK_EMAIL_COOLDOWN_MS = 24 * 60 * 60 * 1000

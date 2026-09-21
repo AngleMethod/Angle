@@ -4,14 +4,14 @@ import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase'
 
 const ADMIN_EMAILS = [
-  'josh@anglemethod.com',
+  'josh@angle.coach',
   'morgan@anglemethod.com',
   'ninagrishchenko2003@gmail.com',
 ]
 const VALID_STATUSES = ['not_booked', 'booked', 'completed']
 
 const FROM_EMAIL = 'Angle <hello@angle.coach>'
-const REPLY_TO_EMAIL = 'josh@anglemethod.com'
+const REPLY_TO_EMAIL = 'josh@angle.coach'
 const DASHBOARD_URL = 'https://angle.coach/dashboard'
 
 async function isAdmin(req: NextRequest): Promise<boolean> {

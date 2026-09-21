@@ -10,7 +10,7 @@ import Button from './ui/Button'
 import { hasSubscriptionAccess } from '@/lib/subscriptionStatus'
 
 const ADMIN_EMAILS = [
-  'josh@anglemethod.com',
+  'josh@angle.coach',
   'morgan@anglemethod.com',
   'ninagrishchenko2003@gmail.com',
 ]
