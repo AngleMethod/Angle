@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import Chat from '@/components/Chat';
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -69,15 +70,6 @@ type RecentSubmission = {
   createdAt: string;
 };
 
-type CoachMessage = {
-  id: string;
-  userId: string;
-  userEmail: string;
-  senderRole: "user" | "admin";
-  senderEmail: string;
-  body: string;
-  createdAt: string;
-};
 
 type MessageThread = {
   userId: string;
@@ -172,12 +164,6 @@ export default function AdminPage() {
   const [isRecentSubmissionsOpen, setIsRecentSubmissionsOpen] = useState(false);
   const [openSubmissionIds, setOpenSubmissionIds] = useState<Record<string, boolean>>({});
   const [messageThreads, setMessageThreads] = useState<MessageThread[]>([]);
-  const [coachMessages, setCoachMessages] = useState<CoachMessage[]>([]);
-  const [coachMessagesLoaded, setCoachMessagesLoaded] = useState(false);
-  const [coachMessageReply, setCoachMessageReply] = useState("");
-  const [coachMessageStatus, setCoachMessageStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-  const [coachMessageError, setCoachMessageError] = useState("");
-  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved" | "error">("idle");
 
   const [title, setTitle] = useState("");
@@ -296,12 +282,6 @@ export default function AdminPage() {
     setRecentSubmissionsError("");
     setIsRecentSubmissionsOpen(false);
     setOpenSubmissionIds({});
-    setCoachMessages([]);
-    setCoachMessagesLoaded(false);
-    setCoachMessageReply("");
-    setCoachMessageStatus("idle");
-    setCoachMessageError("");
-    setIsMessagesOpen(false);
 
     const token = await getAccessToken();
     const res = await fetch("/api/admin/lookup-user", {
@@ -320,20 +300,16 @@ export default function AdminPage() {
 
     const { userId, onboardingStatus } = await res.json();
 
-    const [workoutRes, reviewsRes, messagesRes] = await Promise.all([
+    const [workoutRes, reviewsRes] = await Promise.all([
       fetch(`/api/admin/workout?userId=${encodeURIComponent(userId)}`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
       fetch(`/api/admin/reviews?userId=${encodeURIComponent(userId)}&limit=5`, {
         headers: { Authorization: `Bearer ${token}` },
       }),
-      fetch(`/api/admin/messages?userId=${encodeURIComponent(userId)}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      }),
     ]);
     const workoutData = workoutRes.ok ? await workoutRes.json() : { steps: [], goals: "" };
     const reviewsData = reviewsRes.ok ? await reviewsRes.json() : { submissions: [] };
-    const messagesData = messagesRes.ok ? await messagesRes.json() : { messages: [] };
 
     setAssignedUserId(userId);
     setAssignedUserEmail(emailToLookup);
@@ -342,11 +318,6 @@ export default function AdminPage() {
     setRecentSubmissions((reviewsData.submissions ?? []) as RecentSubmission[]);
     setRecentSubmissionsLoaded(true);
     setRecentSubmissionsError(reviewsRes.ok ? "" : "Could not load recent submissions.");
-    setCoachMessages((messagesData.messages ?? []) as CoachMessage[]);
-    setCoachMessagesLoaded(true);
-    setMessageThreads(prev => prev.map(thread => (
-      thread.userId === userId ? { ...thread, unreadCount: 0 } : thread
-    )));
     const loadedSteps = (workoutData.steps ?? []).map((s: WorkoutItem) => {
       if (isWorkoutBanner(s)) {
         return {
@@ -562,51 +533,6 @@ export default function AdminPage() {
     }));
   }
 
-  async function handleSendCoachReply() {
-    if (!assignedUserId) return;
-    const body = coachMessageReply.trim();
-
-    if (!body) {
-      setCoachMessageError("Write a reply first.");
-      return;
-    }
-
-    if (body.length > 4000) {
-      setCoachMessageError("Reply must be 4000 characters or fewer.");
-      return;
-    }
-
-    const token = await getAccessToken();
-    if (!token) {
-      setCoachMessageError("Sign in again before replying.");
-      return;
-    }
-
-    setCoachMessageStatus("sending");
-    setCoachMessageError("");
-
-    const res = await fetch("/api/admin/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ userId: assignedUserId, body }),
-    });
-
-    const data = await res.json().catch(() => ({} as { error?: string; message?: CoachMessage }));
-    if (!res.ok || !data.message) {
-      setCoachMessageStatus("error");
-      setCoachMessageError(data?.error || "Failed to send reply.");
-      return;
-    }
-
-    setCoachMessages(prev => [...prev, data.message as CoachMessage]);
-    setCoachMessageReply("");
-    setCoachMessageStatus("sent");
-    setTimeout(() => setCoachMessageStatus("idle"), 2000);
-  }
-
   const MinimalNav = (
     <Nav variant="minimal" isLoggedIn={!!userEmail} authReady={isLoaded} />
   );
@@ -621,12 +547,11 @@ export default function AdminPage() {
       : activeUsers;
   })();
   const unreadByUserId = new Map(messageThreads.map(thread => [thread.userId, thread.unreadCount]));
-  const selectedUnreadCount = assignedUserId ? unreadByUserId.get(assignedUserId) ?? 0 : 0;
 
   if (!isLoaded) {
     return (
       <>
-        {MinimalNav}
+        {MinimalNav}{isLoaded && <Chat admin onThreadsChange={setMessageThreads} />}
         <main className="min-h-screen overflow-x-hidden bg-[#111310] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
             <div className="mx-auto w-full min-w-0 max-w-6xl">
@@ -648,7 +573,7 @@ export default function AdminPage() {
 
   return (
     <>
-      {MinimalNav}
+      {MinimalNav}{isLoaded && <Chat admin onThreadsChange={setMessageThreads} />}
       <main className="min-h-screen overflow-x-hidden bg-[#111310] text-white">
         <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
           <div className="mx-auto w-full min-w-0 max-w-6xl">
@@ -827,105 +752,6 @@ export default function AdminPage() {
                         placeholder="e.g. Build toward a cleaner two-arm flag line while improving compression and shoulder control."
                         className={`${inputClass} min-h-[110px] resize-y`}
                       />
-                    </div>
-                  ) : null}
-                </div>
-
-                {/* Messages */}
-                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
-                  <div className={`${isMessagesOpen ? "mb-5" : ""} flex items-start justify-between gap-4`}>
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <h2 className={sectionTitleClass}>
-                          Messages
-                        </h2>
-                        {selectedUnreadCount > 0 ? (
-                          <span className="rounded-none border border-[#4b543c] bg-[#293321] px-3 py-1 text-xs font-medium text-[#d6ed9b]">
-                            {selectedUnreadCount} unread
-                          </span>
-                        ) : null}
-                      </div>
-                      <p className="mt-2 text-xs text-[#9ba38f]">
-                        Text thread with this member.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      aria-label={isMessagesOpen ? "Collapse messages" : "Expand messages"}
-                      aria-expanded={isMessagesOpen}
-                      aria-controls="admin-messages-panel"
-                      onClick={() => setIsMessagesOpen(prev => !prev)}
-                      className="flex h-9 w-9 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isMessagesOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
-                      />
-                    </button>
-                  </div>
-
-                  {isMessagesOpen ? (
-                    <div id="admin-messages-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-                      <div>
-                        <h3 className="mb-4 text-xs tracking-widest uppercase text-[#b6beaa]">Thread</h3>
-                        {!coachMessagesLoaded ? (
-                          <p className="text-sm text-[#b6beaa]">Loading messages...</p>
-                        ) : coachMessages.length === 0 ? (
-                          <div className="rounded-none border border-[#4b543c] bg-[#111310] p-5">
-                            <p className="text-sm text-[#b6beaa]">No messages yet.</p>
-                          </div>
-                        ) : (
-                          <div className="max-h-[440px] space-y-3 overflow-y-auto pr-1">
-                            {coachMessages.map((message) => {
-                              const isAdminMessage = message.senderRole === "admin";
-                              return (
-                                <div
-                                  key={message.id}
-                                  className={`rounded-none border p-4 ${isAdminMessage ? "border-[#4b543c] bg-[#293321]" : "border-[#4b543c] bg-[#111310]"}`}
-                                >
-                                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                    <p className={`text-xs font-medium ${isAdminMessage ? "text-[#d6ed9b]" : "text-[#aaa]"}`}>
-                                      {isAdminMessage ? "Coach" : assignedUserEmail}
-                                    </p>
-                                    <p className="text-xs text-[#9ba38f]">{new Date(message.createdAt).toLocaleDateString()}</p>
-                                  </div>
-                                  <p className="whitespace-pre-line text-sm leading-relaxed text-white">{message.body}</p>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-4">
-                        <div>
-                          <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Reply</label>
-                          <textarea
-                            value={coachMessageReply}
-                            onChange={(e) => setCoachMessageReply(e.target.value)}
-                            rows={6}
-                            maxLength={4000}
-                            placeholder="Write a reply..."
-                            disabled={coachMessageStatus === "sending"}
-                            className={`${inputClass} min-h-[140px] resize-y`}
-                          />
-                        </div>
-
-                        {coachMessageError ? (
-                          <p className="text-sm text-[#dc2626]">{coachMessageError}</p>
-                        ) : null}
-                        {coachMessageStatus === "sent" ? (
-                          <p className="text-sm" style={{ color: "#d6ed9b" }}>Reply sent and email attempted.</p>
-                        ) : null}
-
-                        <Button
-                          onClick={handleSendCoachReply}
-                          disabled={coachMessageStatus === "sending"}
-                          size="md"
-                        >
-                          {coachMessageStatus === "sending" ? "Sending..." : "Send Reply"}
-                        </Button>
-                      </div>
                     </div>
                   ) : null}
                 </div>

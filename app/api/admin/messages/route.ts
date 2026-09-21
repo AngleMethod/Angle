@@ -1,5 +1,5 @@
 import { renderAngleEmail } from '@/lib/email'
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase'
 import { getAuthedAdminReviewUser } from '@/app/api/dashboard/reviews/shared'
@@ -81,20 +81,6 @@ async function sendReplyEmail(toEmail: string, message: string) {
   return true
 }
 
-async function markUserMessagesRead(userId: string) {
-  const admin = createAdminClient()
-  const { error } = await admin
-    .from('coach_messages')
-    .update({ read_by_admin_at: new Date().toISOString() })
-    .eq('user_id', userId)
-    .eq('sender_role', 'user')
-    .is('read_by_admin_at', null)
-
-  if (error) {
-    console.error('[admin/messages] Failed to mark user messages read:', error)
-  }
-}
-
 export async function GET(req: NextRequest) {
   const auth = await getAuthedAdminReviewUser(req)
   if ('response' in auth) return auth.response
@@ -114,10 +100,8 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Failed to load messages' }, { status: 500 })
     }
 
-    await markUserMessagesRead(userId)
-
     return NextResponse.json({
-      messages: ((data ?? []) as MessageRow[]).map(toClientMessage),
+      messages: ((data ?? []) as MessageRow[]).map(row => ({ ...toClientMessage(row), unread: row.sender_role === 'user' && !row.read_by_admin_at })),
     })
   }
 
@@ -165,7 +149,7 @@ export async function POST(req: NextRequest) {
   const auth = await getAuthedAdminReviewUser(req)
   if ('response' in auth) return auth.response
 
-  const payload = await req.json().catch(() => ({} as PostBody))
+  const payload = (await req.json().catch(() => null)) ?? ({} as PostBody)
   const userId = typeof payload.userId === 'string' ? payload.userId.trim() : ''
   const body = typeof payload.body === 'string' ? payload.body.trim() : ''
 
@@ -204,10 +188,24 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to send reply' }, { status: 500 })
   }
 
-  const emailSent = await sendReplyEmail(userEmail, body)
+  after(async () => {
+    try { await sendReplyEmail(userEmail, body) }
+    catch (error) { console.error('[messages] Notification failed after message was saved:', error) }
+  })
 
   return NextResponse.json({
     message: toClientMessage(data as MessageRow),
-    email: { attempted: true, sent: emailSent },
+    email: { queued: true },
   })
+}
+
+export async function PATCH(req: NextRequest) {
+  const auth = await getAuthedAdminReviewUser(req)
+  if ('response' in auth) return auth.response
+  const payload = (await req.json().catch(() => null)) ?? {}
+  const ids = Array.isArray(payload.ids) ? payload.ids.filter((id: unknown) => typeof id === 'string').slice(0, 1000) : []
+  if (typeof payload.userId !== 'string' || !payload.userId || !ids.length) return NextResponse.json({ error: 'A conversation and message IDs are required' }, { status: 400 })
+  const { error } = await createAdminClient().from('coach_messages').update({ read_by_admin_at: new Date().toISOString() }).eq('user_id', payload.userId).eq('sender_role', 'user').is('read_by_admin_at', null).in('id', ids)
+  if (error) return NextResponse.json({ error: 'Could not update read status' }, { status: 500 })
+  return NextResponse.json({ ok: true })
 }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import * as UpChunk from "@mux/upchunk";
 import BookedRedirectHandler from "@/components/BookedRedirectHandler";
+import Chat from '@/components/Chat';
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -152,12 +153,6 @@ export default function Dashboard() {
   const [allReviewSubmissionsLoaded, setAllReviewSubmissionsLoaded] = useState(false);
   const [isLoadingAllReviewSubmissions, setIsLoadingAllReviewSubmissions] = useState(false);
   const [isCoachReviewOpen, setIsCoachReviewOpen] = useState(false);
-  const [coachMessages, setCoachMessages] = useState<CoachMessage[]>([]);
-  const [coachMessagesLoaded, setCoachMessagesLoaded] = useState(false);
-  const [coachMessageBody, setCoachMessageBody] = useState("");
-  const [coachMessageStatus, setCoachMessageStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
-  const [coachMessageError, setCoachMessageError] = useState("");
-  const [isMessagesOpen, setIsMessagesOpen] = useState(false);
   const [reviewReplyBodies, setReviewReplyBodies] = useState<Record<string, string>>({});
   const [reviewReplyStatus, setReviewReplyStatus] = useState<Record<string, "idle" | "sending" | "sent" | "error">>({});
   const [reviewReplyErrors, setReviewReplyErrors] = useState<Record<string, string>>({});
@@ -208,28 +203,6 @@ export default function Dashboard() {
     }
   }
 
-  const loadCoachMessages = useCallback(async (accessToken?: string | null) => {
-    const token = accessToken ?? await getAccessToken();
-    if (!token) return;
-
-    try {
-      const res = await fetch("/api/dashboard/messages", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (!res.ok) {
-        setCoachMessagesLoaded(true);
-        return;
-      }
-
-      const data = await res.json();
-      setCoachMessages((data.messages ?? []) as CoachMessage[]);
-      setCoachMessagesLoaded(true);
-    } catch (err) {
-      console.error("Coach messages lookup failed:", err);
-      setCoachMessagesLoaded(true);
-    }
-  }, [getAccessToken]);
 
   useEffect(() => {
     let isMounted = true;
@@ -284,7 +257,6 @@ export default function Dashboard() {
       }
 
       setHasAccess(true);
-      await loadCoachMessages(session.access_token);
       if (!isMounted) return;
 
       let status: OnboardingStatus = subscription?.onboarding_status ?? "not_booked";
@@ -345,7 +317,7 @@ export default function Dashboard() {
       isMounted = false;
       authListener.subscription.unsubscribe();
     };
-  }, [loadCoachMessages, router]);
+  }, [router]);
 
   function resetReviewUpload() {
     setReviewFiles([]);
@@ -583,33 +555,6 @@ export default function Dashboard() {
     return data.message as CoachMessage;
   }
 
-  async function handleSendCoachMessage() {
-    const body = coachMessageBody.trim();
-    if (!body) {
-      setCoachMessageError("Write a message first.");
-      return;
-    }
-
-    if (body.length > 4000) {
-      setCoachMessageError("Message must be 4000 characters or fewer.");
-      return;
-    }
-
-    setCoachMessageStatus("sending");
-    setCoachMessageError("");
-
-    try {
-      const message = await sendCoachMessage(body);
-      setCoachMessages(prev => [...prev, message]);
-      setCoachMessageBody("");
-      setCoachMessageStatus("sent");
-      setTimeout(() => setCoachMessageStatus("idle"), 2000);
-    } catch (err) {
-      setCoachMessageStatus("error");
-      setCoachMessageError(err instanceof Error ? err.message : "Failed to send message.");
-    }
-  }
-
   async function handleSendReviewReply(submission: ReviewSubmission) {
     const reply = (reviewReplyBodies[submission.id] ?? "").trim();
     if (!reply) {
@@ -630,8 +575,7 @@ export default function Dashboard() {
     setReviewReplyErrors(prev => ({ ...prev, [submission.id]: "" }));
 
     try {
-      const message = await sendCoachMessage(body);
-      setCoachMessages(prev => [...prev, message]);
+      await sendCoachMessage(body);
       setReviewReplyBodies(prev => ({ ...prev, [submission.id]: "" }));
       setReviewReplyStatus(prev => ({ ...prev, [submission.id]: "sent" }));
       setTimeout(() => {
@@ -705,109 +649,6 @@ export default function Dashboard() {
   const canLoadAllReviewSubmissions = reviewsLoaded
     && !allReviewSubmissionsLoaded
     && reviewSubmissions.length >= DEFAULT_REVIEW_SUBMISSIONS_LIMIT;
-  const latestCoachMessage = coachMessages[coachMessages.length - 1] ?? null;
-  const coachMessagesCard = (
-    <div className="mt-8 md:mt-14 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
-      <div className={`${isMessagesOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
-        <div className="min-w-0">
-          <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Messages</p>
-          <h2
-            className="text-white uppercase tracking-wide mb-2"
-          >
-            Message Coach
-          </h2>
-          <p className="text-[#b6beaa] text-sm md:text-base">
-            Send a text note or question.
-          </p>
-          {latestCoachMessage ? (
-            <p className="mt-2 truncate text-xs text-[#9ba38f]">
-              Latest: {latestCoachMessage.senderRole === "admin" ? "Coach" : "You"} - {new Date(latestCoachMessage.createdAt).toLocaleDateString()}
-            </p>
-          ) : null}
-        </div>
-        <button
-          type="button"
-          aria-label={isMessagesOpen ? "Collapse messages" : "Expand messages"}
-          aria-expanded={isMessagesOpen}
-          aria-controls="coach-message-panel"
-          onClick={() => setIsMessagesOpen(prev => !prev)}
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
-        >
-          <span
-            aria-hidden="true"
-            className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isMessagesOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
-          />
-        </button>
-      </div>
-
-      {isMessagesOpen ? (
-        <div id="coach-message-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-          <div className="space-y-4">
-            <div>
-              <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Message</label>
-              <textarea
-                value={coachMessageBody}
-                onChange={(e) => setCoachMessageBody(e.target.value)}
-                rows={5}
-                maxLength={4000}
-                placeholder="Ask a question or send an update."
-                disabled={coachMessageStatus === "sending"}
-                className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
-              />
-            </div>
-
-            {coachMessageError ? (
-              <p className="text-sm text-[#dc2626]">{coachMessageError}</p>
-            ) : null}
-            {coachMessageStatus === "sent" ? (
-              <p className="text-sm" style={{ color: "#d6ed9b" }}>Message sent.</p>
-            ) : null}
-
-            <Button
-              onClick={handleSendCoachMessage}
-              disabled={coachMessageStatus === "sending"}
-              size="md"
-              className="w-full sm:w-auto"
-            >
-              {coachMessageStatus === "sending" ? "Sending..." : "Send Message"}
-            </Button>
-          </div>
-
-          <div>
-            <h3 className="text-[#b6beaa] text-xs tracking-widest uppercase mb-4">Thread</h3>
-            {!coachMessagesLoaded ? (
-              <p className="text-[#b6beaa] text-sm">Loading messages...</p>
-            ) : coachMessages.length === 0 ? (
-              <div className="rounded-none border border-[#4b543c] bg-[#111310] p-5">
-                <p className="text-[#b6beaa] text-sm">No messages yet.</p>
-              </div>
-            ) : (
-              <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
-                {coachMessages.map((message) => {
-                  const isAdminMessage = message.senderRole === "admin";
-                  return (
-                    <div
-                      key={message.id}
-                      className={`rounded-none border p-4 ${isAdminMessage ? "border-[#4b543c] bg-[#293321]" : "border-[#4b543c] bg-[#111310]"}`}
-                    >
-                      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                        <p className={`text-xs font-medium ${isAdminMessage ? "text-[#d6ed9b]" : "text-[#aaa]"}`}>
-                          {isAdminMessage ? "Coach" : "You"}
-                        </p>
-                        <p className="text-xs text-[#9ba38f]">{new Date(message.createdAt).toLocaleDateString()}</p>
-                      </div>
-                      <p className="whitespace-pre-line text-sm leading-relaxed text-white">{message.body}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-
   if (!isLoaded) {
     return (
       <>
@@ -1059,106 +900,6 @@ export default function Dashboard() {
               </>
             )}
 
-            <div className="hidden">
-              <div className={`${isMessagesOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
-                <div className="min-w-0">
-                  <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Messages</p>
-                  <h2
-                    className="text-white uppercase tracking-wide mb-2"
-                  >
-                    Message Coach
-                  </h2>
-                  <p className="text-[#b6beaa] text-sm md:text-base">
-                    Send a text note or question.
-                  </p>
-                  {latestCoachMessage ? (
-                    <p className="mt-2 truncate text-xs text-[#9ba38f]">
-                      Latest: {latestCoachMessage.senderRole === "admin" ? "Coach" : "You"} · {new Date(latestCoachMessage.createdAt).toLocaleDateString()}
-                    </p>
-                  ) : null}
-                </div>
-                <button
-                  type="button"
-                  aria-label={isMessagesOpen ? "Collapse messages" : "Expand messages"}
-                  aria-expanded={isMessagesOpen}
-                  aria-controls="coach-message-panel"
-                  onClick={() => setIsMessagesOpen(prev => !prev)}
-                  className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
-                >
-                  <span
-                    aria-hidden="true"
-                    className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isMessagesOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
-                  />
-                </button>
-              </div>
-
-              {false && isMessagesOpen ? (
-                <div id="coach-message-panel" className="grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Message</label>
-                      <textarea
-                        value={coachMessageBody}
-                        onChange={(e) => setCoachMessageBody(e.target.value)}
-                        rows={5}
-                        maxLength={4000}
-                        placeholder="Ask a question or send an update."
-                        disabled={coachMessageStatus === "sending"}
-                        className="w-full rounded-none bg-[#111310] border border-[#4b543c] text-white px-4 py-3 text-sm placeholder-[#89937d] focus:outline-none focus:border-[#d6ed9b] disabled:opacity-40"
-                      />
-                    </div>
-
-                    {coachMessageError ? (
-                      <p className="text-sm text-[#dc2626]">{coachMessageError}</p>
-                    ) : null}
-                    {coachMessageStatus === "sent" ? (
-                      <p className="text-sm" style={{ color: "#d6ed9b" }}>Message sent.</p>
-                    ) : null}
-
-                    <Button
-                      onClick={handleSendCoachMessage}
-                      disabled={coachMessageStatus === "sending"}
-                      size="md"
-                      className="w-full sm:w-auto"
-                    >
-                      {coachMessageStatus === "sending" ? "Sending..." : "Send Message"}
-                    </Button>
-                  </div>
-
-                  <div>
-                    <h3 className="text-[#b6beaa] text-xs tracking-widest uppercase mb-4">Thread</h3>
-                    {!coachMessagesLoaded ? (
-                      <p className="text-[#b6beaa] text-sm">Loading messages...</p>
-                    ) : coachMessages.length === 0 ? (
-                      <div className="rounded-none border border-[#4b543c] bg-[#111310] p-5">
-                        <p className="text-[#b6beaa] text-sm">No messages yet.</p>
-                      </div>
-                    ) : (
-                      <div className="max-h-[420px] space-y-3 overflow-y-auto pr-1">
-                        {coachMessages.map((message) => {
-                          const isAdminMessage = message.senderRole === "admin";
-                          return (
-                            <div
-                              key={message.id}
-                              className={`rounded-none border p-4 ${isAdminMessage ? "border-[#4b543c] bg-[#293321]" : "border-[#4b543c] bg-[#111310]"}`}
-                            >
-                              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                                <p className={`text-xs font-medium ${isAdminMessage ? "text-[#d6ed9b]" : "text-[#aaa]"}`}>
-                                  {isAdminMessage ? "Coach" : "You"}
-                                </p>
-                                <p className="text-xs text-[#9ba38f]">{new Date(message.createdAt).toLocaleDateString()}</p>
-                              </div>
-                              <p className="whitespace-pre-line text-sm leading-relaxed text-white">{message.body}</p>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-
             <div className="mt-8 md:mt-14 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
               <div className={`${isCoachReviewOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
                 <div className="min-w-0">
@@ -1390,7 +1131,7 @@ export default function Dashboard() {
               </div>
               ) : null}
             </div>
-            {coachMessagesCard}
+            <Chat />
           </div>
         </section>
       </main>
