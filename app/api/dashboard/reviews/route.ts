@@ -1,3 +1,4 @@
+import { renderAngleEmail } from '@/lib/email'
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { createAdminClient } from '@/lib/supabase'
@@ -72,32 +73,7 @@ function buildReviewUploadEmailHtml({
 }) {
   const duration = durationSeconds ? `${durationSeconds}s` : 'Unknown'
 
-  return `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>New review video - Angle</title>
-  </head>
-  <body style="margin:0;padding:0;background-color:#0a0a0a;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0a0a0a;">
-      <tr>
-        <td align="center" style="padding:48px 24px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
-            <tr><td style="padding-bottom:32px;"><span style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#666666;">Angle</span></td></tr>
-            <tr><td style="padding-bottom:18px;"><h1 style="margin:0;font-size:32px;line-height:1.1;text-transform:uppercase;color:#ffffff;">New review video</h1></td></tr>
-            <tr><td style="padding-bottom:16px;"><p style="margin:0;font-size:15px;line-height:1.6;color:#aaaaaa;">${escapeHtml(userEmail)} uploaded a progress video.</p></td></tr>
-            <tr><td style="padding:20px;border:1px solid #1e1e1e;background:#111110;">
-              <p style="margin:0 0 10px;font-size:14px;line-height:1.7;color:#aaaaaa;">Duration: <strong style="color:#ffffff;">${escapeHtml(duration)}</strong></p>
-              ${note ? `<p style="margin:0;font-size:14px;line-height:1.7;color:#ffffff;">${escapeHtml(note)}</p>` : '<p style="margin:0;font-size:14px;line-height:1.7;color:#777777;">No note added.</p>'}
-            </td></tr>
-            <tr><td style="padding-top:32px;"><a href="${ADMIN_REVIEWS_URL}" style="display:inline-block;background-color:#ffffff;color:#000000;text-decoration:none;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;padding:16px 32px;border-radius:4px;">Open Reviews</a></td></tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`
+  return renderAngleEmail({eyebrow: 'Ready for your feedback', title: 'Progress', accent: 'in motion.', descriptionHtml: `${escapeHtml(userEmail)} uploaded a progress video.`, bodyHtml: `<strong>Duration: ${escapeHtml(duration)}</strong><br><br>${note ? escapeHtml(note) : 'No note added.'}`, actionLabel: 'Open reviews', actionUrl: ADMIN_REVIEWS_URL})
 }
 
 function buildReviewUploadEmailText({

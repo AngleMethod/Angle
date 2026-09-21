@@ -1,3 +1,4 @@
+import { renderAngleEmail } from '@/lib/email'
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import Stripe from 'stripe'
@@ -60,29 +61,7 @@ async function sendNewSubscriberNotification({
   const subscriptionUrl = `https://dashboard.stripe.com/subscriptions/${subscription.id}`
   const customerUrl = customerId ? `https://dashboard.stripe.com/customers/${customerId}` : null
 
-  const html = `<!doctype html>
-<html>
-  <body style="margin:0;padding:0;background:#0a0a0a;color:#ffffff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-      <tr>
-        <td align="center" style="padding:40px 24px;">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
-            <tr><td style="padding-bottom:24px;"><span style="font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#666;">Angle</span></td></tr>
-            <tr><td><h1 style="margin:0 0 20px;font-size:32px;line-height:1.1;text-transform:uppercase;">New subscriber</h1></td></tr>
-            <tr><td style="padding:20px;border:1px solid #1e1e1e;background:#111110;">
-              <p style="margin:0 0 10px;color:#aaa;">Email: <strong style="color:#fff;">${escapeHtml(subscriberEmail)}</strong></p>
-              <p style="margin:0 0 10px;color:#aaa;">Status: <strong style="color:#fff;">${escapeHtml(subscription.status)}</strong></p>
-              <p style="margin:0 0 10px;color:#aaa;">Amount: <strong style="color:#fff;">${escapeHtml(amount)}</strong></p>
-              <p style="margin:0 0 10px;color:#aaa;">User ID: <strong style="color:#fff;">${escapeHtml(userId)}</strong></p>
-              <p style="margin:0 0 10px;color:#aaa;">Subscription: <a href="${subscriptionUrl}" style="color:#fff;">${escapeHtml(subscription.id)}</a></p>
-              ${customerUrl ? `<p style="margin:0;color:#aaa;">Customer: <a href="${customerUrl}" style="color:#fff;">${escapeHtml(customerId as string)}</a></p>` : ''}
-            </td></tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </body>
-</html>`
+  const html = renderAngleEmail({eyebrow: 'Welcome to the practice', title: 'A new', accent: 'Angle member.', descriptionHtml: 'A new student has subscribed to Angle.', bodyHtml: `Email: <strong>${escapeHtml(subscriberEmail)}</strong><br>Status: ${escapeHtml(subscription.status)}<br>Amount: ${escapeHtml(amount)}<br>User ID: ${escapeHtml(userId)}<br>Subscription: <a href="${subscriptionUrl}" style="color:#d6ed9b;">${escapeHtml(subscription.id)}</a>${customerUrl ? `<br>Customer: <a href="${customerUrl}" style="color:#d6ed9b;">${escapeHtml(customerId as string)}</a>` : ''}`, actionLabel: 'View subscription', actionUrl: subscriptionUrl})
 
   const text = `New Angle subscriber
 
