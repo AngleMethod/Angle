@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import s from './MarketingHomepage.module.css'
+import Arrow from './ui/Arrow'
 
 const chapters = [
   { label: 'Assess', title: 'Start with understanding.', copy: 'Your body. Your experience. Your goals. A 30-minute assessment brings them together, so your training starts in the right place.', image: '/photos-20260920/angle-new%202.jpg', cue: 'YOUR STARTING POINT', detail: 'An assessment built around you', tags: ['Current ability', 'Your goals', 'Next steps'] },
@@ -50,7 +51,7 @@ export default function MethodStory() {
     <section ref={root} id="how-it-works" className={`${s.section} ${s.method} ${s.methodStory}`}>
       <div className={s.sectionHeading}>
         <div><p className={s.eyebrow}>02 / THE ANGLE METHOD</p><h2>Less guesswork.<br /><span className={s.serif}>More intention.</span></h2></div>
-        <p>A practice with a direction.<br />Scroll through the method ↓</p>
+        <p>A practice with a direction.<br />Scroll through the method <Arrow direction="down" /></p>
       </div>
       <div className={s.storyLayout}>
         <div className={s.storyStage} aria-hidden="true">
@@ -72,7 +73,7 @@ export default function MethodStory() {
               <h3>{chapter.title}</h3>
               <p>{chapter.copy}</p>
               <div className={s.chapterTags}>{chapter.tags.map(tag => <span key={tag}>{tag}</span>)}</div>
-              {index === 2 && <a className={s.textButton} href="#pricing">Explore your membership ↗</a>}
+              {index === 2 && <a className={s.textButton} href="#pricing">Explore your membership <Arrow /></a>}
             </article>
           ))}
         </div>
