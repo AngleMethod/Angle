@@ -651,7 +651,7 @@
   border-radius:50%;
   display:grid;
   place-items:center;
-  font-size:14px;
+  font-size:22px;
   z-index:1
 }
 .watchLabel{
