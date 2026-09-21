@@ -691,6 +691,22 @@ export default function AdminPage() {
 
             {assignedUserId ? (
               <>
+                <div className="mb-8 flex justify-end">
+                  <Button
+                    onClick={handleSaveWorkout}
+                    disabled={saveStatus === "saving"}
+                    size="md"
+                  >
+                    {saveStatus === "saving"
+                      ? "Saving..."
+                      : saveStatus === "saved"
+                      ? "Saved!"
+                      : saveStatus === "error"
+                      ? "Error — try again"
+                      : "Save Workout"}
+                  </Button>
+                </div>
+
                 {/* Onboarding Status */}
                 <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
                   <h2 className={`${sectionTitleClass} mb-6`}>
