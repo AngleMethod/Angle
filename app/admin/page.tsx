@@ -530,6 +530,17 @@ export default function AdminPage() {
     )));
   }
 
+  function moveStepToEdge(index: number, edge: "top" | "bottom") {
+    setWorkout(prev => {
+      if (index < 0 || index >= prev.length) return prev;
+      const destination = edge === "top" ? 0 : prev.length - 1;
+      if (index === destination) return prev;
+      const updated = [...prev];
+      const [step] = updated.splice(index, 1);
+      updated.splice(destination, 0, step);
+      return updated;
+    });
+  }
   function moveStepUp(index: number) {
     if (index === 0) return;
     const updated = [...workout];
@@ -1319,6 +1330,22 @@ export default function AdminPage() {
                               className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors"
                             >
                               Down
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveStepToEdge(i, "top")}
+                              disabled={i === 0}
+                              className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              Move to top
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveStepToEdge(i, "bottom")}
+                              disabled={i === workout.length - 1}
+                              className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              Move to bottom
                             </button>
                             <button
                               onClick={() => removeStep(i)}
