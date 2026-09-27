@@ -113,7 +113,7 @@ function SessionView({ workout, videos, userId, preview = false, program }: Prop
           </div>
           <div id={`exercise-detail-${index}`} hidden={!open}>{open && <div className={styles.detail}>
             <div>{video?.mux_playback_id ? <VideoPlayer key={video.mux_playback_id} playbackId={video.mux_playback_id} /> : <div className={styles.noVideo}>{item.videoId ? 'Video unavailable. Your exercise instructions are below.' : 'Follow your coaching instructions for this exercise.'}</div>}</div>
-            <div><p className={styles.eyebrow}>Josh’s coaching note</p><p className={styles.note}>{note || 'Follow the prescribed sets and reps above.'}</p><p className={styles.muted}>{frequency(item)}</p><button className={styles.primary} onClick={() => toggle(index, true)}>{done ? 'Mark incomplete' : 'Complete exercise'}</button></div>
+            <div><p className={styles.note}>{note || 'Follow the prescribed sets and reps above.'}</p><p className={styles.muted}>{frequency(item)}</p><button className={styles.primary} onClick={() => toggle(index, true)}>{done ? 'Mark incomplete' : 'Complete exercise'}</button></div>
           </div>}</div>
         </li>;
       })}</ol>
