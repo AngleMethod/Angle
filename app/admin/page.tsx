@@ -26,6 +26,9 @@ type WorkoutStep = {
 type WorkoutBanner = {
   type: "banner";
   text: string;
+  separateDay?: boolean;
+  dayId?: string;
+  dayFrequency?: string;
 };
 
 type WorkoutItem = WorkoutStep | WorkoutBanner;
@@ -323,6 +326,7 @@ export default function AdminPage() {
         return {
           type: "banner" as const,
           text: s.text?.trim() || DEFAULT_BANNER_TEXT,
+          ...(s.separateDay === true ? { separateDay: true, dayId: s.dayId || crypto.randomUUID(), dayFrequency: s.dayFrequency || "" } : {}),
         };
       }
 
@@ -412,6 +416,7 @@ export default function AdminPage() {
         return {
           type: "banner" as const,
           text: step.text.trim() || DEFAULT_BANNER_TEXT,
+          ...(step.separateDay === true ? { separateDay: true, dayId: step.dayId || crypto.randomUUID(), dayFrequency: step.dayFrequency?.trim() || "" } : {}),
         };
       }
 
@@ -1124,6 +1129,22 @@ export default function AdminPage() {
                                   Down
                                 </button>
                                 <button
+                                  type="button"
+                                  onClick={() => moveStepToEdge(i, "top")}
+                                  disabled={i === 0}
+                                  className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                  Move to top
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => moveStepToEdge(i, "bottom")}
+                                  disabled={i === workout.length - 1}
+                                  className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                  Move to bottom
+                                </button>
+                                <button
                                   onClick={() => removeStep(i)}
                                   className="rounded-none border border-[#dc2626] text-[#dc2626] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:bg-[#dc2626] hover:text-white transition-colors"
                                 >
@@ -1138,6 +1159,29 @@ export default function AdminPage() {
                                 {step.text || DEFAULT_BANNER_TEXT}
                               </p>
                             </div>
+                            <label className="mb-4 block text-sm text-[#d0d5c8]">
+                              Banner behavior
+                              <select className={inputClass + " mt-2"} value={step.separateDay === true ? "day" : "section"}
+                                onChange={(e) => {
+                                  const separateDay = e.target.value === "day";
+                                  setWorkout(prev => prev.map((item, index) => index === i && isWorkoutBanner(item)
+                                    ? { ...item, separateDay, dayId: item.dayId || crypto.randomUUID() } : item));
+                                }}>
+                                <option value="section">Section divider (same session)</option>
+                                <option value="day">Separate training day</option>
+                              </select>
+                            </label>
+                            <p className="mb-4 text-sm leading-relaxed text-[#b6beaa]">{step.separateDay
+                              ? "Starts a separate session with the exercises below, until the next separate training day. Ordinary section dividers stay within this day."
+                              : "Separates exercises visually within the same session. Existing programs use this setting."}</p>
+                            {step.separateDay && <label className="mb-4 block text-sm text-[#d0d5c8]">
+                              Day frequency
+                              <input className={inputClass + " mt-2"} placeholder="e.g. 2× per week" value={step.dayFrequency || ""}
+                                onChange={(e) => {
+                                  const dayFrequency = e.target.value;
+                                  setWorkout(prev => prev.map((item, index) => index === i && isWorkoutBanner(item) ? { ...item, dayFrequency } : item));
+                                }} />
+                            </label>}
                             <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Banner Text</label>
                             <input
                               value={step.text}

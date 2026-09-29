@@ -23,6 +23,9 @@ type WorkoutStep = {
 type WorkoutBanner = {
   type: "banner";
   text: string;
+  separateDay?: boolean;
+  dayId?: string;
+  dayFrequency?: string;
 };
 
 type WorkoutItem = WorkoutStep | WorkoutBanner;
