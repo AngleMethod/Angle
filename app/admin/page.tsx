@@ -1,5 +1,6 @@
 "use client";
 
+import WorkoutCalendar from "@/components/WorkoutCalendar";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -1328,6 +1329,7 @@ export default function AdminPage() {
                 </div>
               </>
             ) : null}
+            {assignedUserId && <WorkoutCalendar userId={assignedUserId} coach />}
           </div>
         </section>
       </main>

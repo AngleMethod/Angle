@@ -1,0 +1,34 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import ts from 'typescript';
+import { fileURLToPath } from 'node:url';
+const root=fileURLToPath(new URL('../',import.meta.url));
+function load(path, dependencies={}) {const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(root+path,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,require:n=>dependencies[n],Date,Intl,console,process:{env:{}}});return exports;}
+const helpers=load('lib/workoutHistory.ts');
+assert.equal(helpers.dateInZone(new Date('2026-09-30T01:00:00Z'),'America/Chicago'),'2026-09-29');
+assert.equal(helpers.dateInZone(new Date('2026-09-30T01:00:00Z'),'Asia/Tokyo'),'2026-09-30');
+assert.equal(helpers.monthRange('2026-12').end,'2027-01-01');
+assert.equal(helpers.monthRange('2026-13'),null);
+const own='11111111-1111-4111-8111-111111111111', other='22222222-2222-4222-8222-222222222222';
+const valid={sessionId:'33333333-3333-4333-8333-333333333333',timeZone:'America/Chicago',workoutName:'Flag Day',dayKey:'flag',completedExercises:2,totalExercises:3};
+assert.equal(helpers.validCompletion(valid),true);
+for(const patch of [{completedExercises:0},{completedExercises:4},{completedExercises:1.5},{timeZone:'fake/zone'},{sessionId:'bad'},{totalExercises:1001}]) assert.equal(helpers.validCompletion({...valid,...patch}),false);
+const stored=new Map();let queries=0;let failure=false;
+const db={from:()=>{queries++; const filters={}; const query={select:()=>query,eq:(k,v)=>{filters[k]=v;return query;},gte:()=>query,lt:()=>query,order:()=>query,range:async()=>({data:[...stored.values()].filter(v=>v.user_id===filters.user_id),error:null}),single:async()=>({data:stored.get(filters.user_id+filters.session_id),error:null}),insert:async row=>{if(failure)return {error:{code:'503'}};const key=row.user_id+row.session_id;if(stored.has(key))return {error:{code:'23505'}};stored.set(key,row);return {error:null};}};return query;}};
+const route=load('app/api/workout-history/route.ts',{'next/server':{NextResponse:{json:(body,options)=>({body,status:options.status})}},'@/lib/supabase':{createAdminClient:()=>db},'@/lib/workoutHistory':helpers,'@supabase/supabase-js':{createClient:()=>({auth:{getUser:async token=>({data:{user:token==='student'?{id:own,email:'student@example.com'}:token==='coach'?{id:other,email:'josh@angle.coach'}:null},error:null})}})}});
+const req=(token,params='',body=valid)=>({headers:{get:()=>token?`Bearer ${token}`:null},nextUrl:new URL('http://localhost/api/workout-history?month=2026-09'+params),json:async()=>body});
+(async()=>{
+ assert.equal((await route.GET(req(''))).status,401);
+ assert.equal((await route.POST(req(''))).status,401);
+ assert.equal((await route.GET(req('student','&userId='+other))).status,403); assert.equal(queries,0);
+ assert.equal((await route.POST(req('student'))).status,200);
+ const first=stored.get(own+valid.sessionId);
+ assert.equal((await route.POST(req('student'))).status,200);assert.equal(stored.size,1);assert.equal(stored.get(own+valid.sessionId).completed_at,first.completed_at);
+ assert.equal((await route.GET(req('student'))).body.completions.length,1);
+ assert.equal((await route.GET(req('coach','&userId='+own))).body.completions.length,1);
+ assert.equal((await route.POST(req('student','',{...valid,userId:other,sessionId:'44444444-4444-4444-8444-444444444444'}))).status,200);
+ assert.equal(stored.has(other+'44444444-4444-4444-8444-444444444444'),false);
+ failure=true;assert.equal((await route.POST(req('student'))).status,503);
+ console.log('Passed timezone/month boundaries, invalid payloads, unauthenticated access, ownership, coach reads, duplicate retries, and save failures.');
+})().catch(e=>{console.error(e);process.exit(1);});

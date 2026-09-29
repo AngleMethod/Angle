@@ -9,6 +9,7 @@ import BookedRedirectHandler from "@/components/BookedRedirectHandler";
 import Chat from '@/components/Chat';
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
+import WorkoutCalendar from "@/components/WorkoutCalendar";
 import TrainingSession from "@/components/TrainingSession";
 import ReviewVideoPlayer from "@/components/ReviewVideoPlayer";
 import { hasSubscriptionAccess } from "@/lib/subscriptionStatus";
@@ -1055,6 +1056,7 @@ export default function Dashboard() {
               ) : null}
             </div>
             <Chat />
+            {userId && <WorkoutCalendar userId={userId} />}
           </div>
         </section>
       </main>

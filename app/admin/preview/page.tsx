@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Nav from "@/components/Nav";
+import WorkoutCalendar from "@/components/WorkoutCalendar";
 import TrainingSession from "@/components/TrainingSession";
 
 type WorkoutStep = {
@@ -50,6 +51,7 @@ export default function AdminPreviewPage() {
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [previewUserId, setPreviewUserId] = useState("");
   const [previewEmail, setPreviewEmail] = useState("");
   const [workout, setWorkout] = useState<WorkoutItem[]>([]);
   const [muxVideoMap, setMuxVideoMap] = useState<Record<string, VideoRecord>>({});
@@ -72,6 +74,7 @@ export default function AdminPreviewPage() {
       const userId = params.get("userId")?.trim() ?? "";
       const email = params.get("email")?.trim() ?? "";
       setPreviewEmail(email);
+      setPreviewUserId(userId);
       setUserEmail(adminEmail);
 
       if (!userId) {
@@ -187,6 +190,7 @@ export default function AdminPreviewPage() {
               <TrainingSession workout={workout} videos={muxVideoMap} preview />
             )}
 
+            {previewUserId && <WorkoutCalendar userId={previewUserId} coach />}
             <div className="mt-8 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
               <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Preview note</p>
               <p className="text-sm leading-relaxed text-[#b6beaa]">

@@ -2,13 +2,15 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import { splitTrainingDays, type TrainingBanner } from '@/lib/trainingDays';
+import { supabase } from '@/lib/supabase';
+import { UUID } from '@/lib/workoutHistory';
 import VideoPlayer from '@/components/VideoPlayer';
 import styles from './TrainingSession.module.css';
 
 type Step = { type?: 'video'; title: string; description: string; videoId?: string; sets?: string; repsOrHoldTime?: string; frequency?: string; section?: string; sectionTitle?: string; sectionDescription?: string };
 type Item = Step | TrainingBanner;
 type Video = { mux_playback_id: string; description: string | null };
-type Session = { done: number[]; active: number | null; started: boolean; finished: boolean };
+type Session = { done: number[]; active: number | null; started: boolean; finished: boolean; id?: string };
 type Props = { workout: Item[]; videos: Record<string, Video>; userId?: string; preview?: boolean };
 const empty = (): Session => ({ done: [], active: null, started: false, finished: false });
 const isBanner = (item: Item): item is TrainingBanner => item.type === 'banner' || ('text' in item && !('title' in item));
@@ -35,6 +37,9 @@ function SessionView({ workout, videos, userId, preview = false, program, storag
   const detailId = useId();
   const indices = workout.flatMap((item, index) => isBanner(item) ? [] : [index]);
   const [session, setSession] = useState<Session>(empty);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+  const savingRef = useRef(false);
   const [ready, setReady] = useState(false);
   const [storageAvailable, setStorageAvailable] = useState(true);
   const [confirmFinish, setConfirmFinish] = useState(false);
@@ -54,6 +59,7 @@ function SessionView({ workout, videos, userId, preview = false, program, storag
             active: indices.includes(data.session.active) ? data.session.active : null,
             started: data.session.started === true,
             finished: data.session.finished === true,
+            id: typeof data.session.id === 'string' && UUID.test(data.session.id) ? data.session.id : undefined,
           };
         }
       }
@@ -66,6 +72,7 @@ function SessionView({ workout, videos, userId, preview = false, program, storag
   }, [program, storageKey]);
 
   function update(next: Session) {
+    next = { ...next, id: next.id || session.id || crypto.randomUUID() };
     setSession(next);
     if (storageKey) {
       try { localStorage.setItem(storageKey, JSON.stringify({ program, session: next })); }
@@ -80,17 +87,37 @@ function SessionView({ workout, videos, userId, preview = false, program, storag
     const removing = session.done.includes(index);
     const done = removing ? session.done.filter(i => i !== index) : [...session.done, index];
     const nextIndex = !removing && advance ? indices.find(i => i > index && !done.includes(i)) ?? indices.find(i => !done.includes(i)) ?? index : index;
-    update({ done, active: nextIndex, started: true, finished: false });
+    update({ id: session.id, done, active: nextIndex, started: true, finished: false });
     if (advance) focusRow(nextIndex);
   }
-  function finish() {
-    update({ ...session, active: null, started: false, finished: true });
-    setConfirmFinish(false);
-    requestAnimationFrame(() => summaryRef.current?.focus());
+  async function finish() {
+    if (savingRef.current || !session.done.length) return;
+    savingRef.current = true; setSaving(true); setSaveError('');
+    const current = { ...session, id: session.id || crypto.randomUUID() };
+    update(current);
+    try {
+      if (!preview) {
+        const {data:{session:auth}} = await supabase.auth.getSession();
+        if (!auth || auth.user.id !== userId) throw new Error('Please sign in again to save your workout.');
+        const res = await fetch('/api/workout-history', {method:'POST',signal:AbortSignal.timeout(20000),headers:{'Content-Type':'application/json',Authorization:`Bearer ${auth.access_token}`},body:JSON.stringify({
+          sessionId:current.id, timeZone:Intl.DateTimeFormat().resolvedOptions().timeZone,
+          workoutName:(dayTitle || 'Full program').slice(0,200),dayKey:(storageScope || 'full-program').slice(0,200),
+          completedExercises:current.done.length,totalExercises:indices.length,
+        })});
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Your workout could not be saved. Please retry.');
+        window.dispatchEvent(new Event('angle:workout-completed'));
+      }
+      update({ ...current, active: null, started: false, finished: true });
+      setConfirmFinish(false);
+      requestAnimationFrame(() => summaryRef.current?.focus());
+    } catch(e) { setSaveError(e instanceof Error ? e.message : 'Your workout could not be saved. Please retry.'); }
+    finally {savingRef.current=false;setSaving(false);}
   }
   if (!indices.length) return <p>No exercises have been assigned yet.</p>;
 
   return <section className={styles.training} aria-label={dayTitle || "Today's training"}>
+    <fieldset disabled={saving} style={{border:0,padding:0,margin:0,minWidth:0}}>
     <div className={styles.top}>
       <div><p className={styles.eyebrow}>Your program, in order</p><p className={styles.muted}>{indices.length} exercises · Follow the frequency shown on each exercise.</p></div>
       {!session.started && !session.finished && <button className={styles.primary} disabled={!ready} onClick={() => {
@@ -103,7 +130,7 @@ function SessionView({ workout, videos, userId, preview = false, program, storag
     <div className={styles.track} role="progressbar" aria-label="Exercise completion" aria-valuemin={0} aria-valuemax={indices.length} aria-valuenow={session.done.length}><div style={{ width: `${session.done.length / indices.length * 100}%` }} /></div>
     {session.finished ? <div className={styles.summary} tabIndex={-1} ref={summaryRef}>
       <p className={styles.eyebrow}>Time well spent</p><h2>Practice complete.</h2><p>{session.done.length} of {indices.length} exercises completed this session.</p>
-      <div className={styles.actions}><button className={styles.primary} onClick={() => update(empty())}>Start a new session</button><button className={styles.secondary} onClick={() => update({ ...session, finished: false, started: true, active: indices.find(i => !session.done.includes(i)) ?? indices[0] })}>Review session</button></div>
+      <div className={styles.actions}><button className={styles.primary} onClick={() => update({ ...empty(), id: crypto.randomUUID() })}>Start a new session</button><button className={styles.secondary} onClick={() => update({ ...session, finished: false, started: true, active: indices.find(i => !session.done.includes(i)) ?? indices[0] })}>Review session</button></div>
     </div> : <>
       <ol className={styles.list}>{workout.map((item, index) => {
         if (isBanner(item)) return <li className={styles.banner} key={index}><h2>{item.text || 'Flexibility - 3x/week'}</h2></li>;
@@ -135,6 +162,9 @@ function SessionView({ workout, videos, userId, preview = false, program, storag
         <p>You’ve completed {session.done.length} of {indices.length} exercises. Finished your scheduled training for today?</p><div className={styles.actions}><button className={styles.primary} onClick={finish}>Yes, finish session</button><button className={styles.secondary} onClick={() => setConfirmFinish(false)}>Keep training</button></div>
       </div>}
     </>}
+    </fieldset>
+    {saving && <p role="status" className={styles.muted}>Saving your workout to the calendar…</p>}
+    {saveError && <div role="alert"><p>{saveError} Your checkmarks are still here.</p><button className={styles.primary} onClick={finish} disabled={saving}>Retry saving workout</button></div>}
     <p className={styles.storage}>{preview ? 'Preview only — checkmarks do not change the student’s progress.' : storageAvailable ? 'Session progress is saved on this browser. Start a new session when you next train.' : 'Browser storage is unavailable. Keep this page open to retain your progress.'}</p>
   </section>;
 }
