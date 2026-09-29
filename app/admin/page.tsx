@@ -1002,20 +1002,25 @@ export default function AdminPage() {
                           );
                         }
 
-                        const term = videoSearch.trim().toLowerCase();
-                        const filtered = term
-                          ? videoLibrary.filter(v =>
-                              v.title.toLowerCase().includes(term)
-                            )
+                        const normalizeSearch = (value: string) => value
+                          .normalize("NFD").replace(/\p{M}/gu, "")
+                          .toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+                        const terms = normalizeSearch(videoSearch).split(/\s+/).filter(Boolean);
+                        const filtered = terms.length
+                          ? videoLibrary.filter(v => {
+                              const title = normalizeSearch(v.title);
+                              return terms.every(term => title.includes(term));
+                            })
                           : videoLibrary;
 
                         return (
                           <>
                             <input
-                              type="text"
+                              type="search"
+                              aria-label="Search videos by title in any word order"
                               value={videoSearch}
                               onChange={(e) => setVideoSearch(e.target.value)}
-                              placeholder={videoLibraryLoaded ? `Search ${videoLibrary.length} video${videoLibrary.length === 1 ? "" : "s"}...` : "Loading library..."}
+                              placeholder={videoLibraryLoaded ? `Search ${videoLibrary.length} video${videoLibrary.length === 1 ? "" : "s"} — words in any order` : "Loading library..."}
                               disabled={!videoLibraryLoaded}
                               className={`${inputClass} mb-2`}
                             />
