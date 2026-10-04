@@ -11,11 +11,11 @@ function subscribeLauncher(callback: () => void) {
   window.addEventListener(launcherEvent, callback)
   return () => { window.removeEventListener('storage', callback); window.removeEventListener(launcherEvent, callback) }
 }
-let collapsedFallback = false
+let collapsedFallback = true
 function getCollapsedLauncher() {
-  try { return window.localStorage.getItem(launcherPreference) === 'true' } catch { return collapsedFallback }
+  try { return window.localStorage.getItem(launcherPreference) !== 'false' } catch { return collapsedFallback }
 }
-const getServerLauncher = () => false
+const getServerLauncher = () => true
 function saveCollapsedLauncher(value: boolean) {
   collapsedFallback = value
   try { window.localStorage.setItem(launcherPreference, String(value)) } catch { /* Still works when browser storage is unavailable. */ }
