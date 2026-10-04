@@ -119,7 +119,7 @@ function SessionView({ workout, videos, userId, preview = false, program, storag
   return <section className={styles.training} aria-label={dayTitle || "Today's training"}>
     <fieldset disabled={saving} style={{border:0,padding:0,margin:0,minWidth:0}}>
     <div className={styles.top}>
-      <div><p className={styles.eyebrow}>Your program, in order</p><p className={styles.muted}>{indices.length} exercises · Follow the frequency shown on each exercise.</p></div>
+      <div><p className={styles.eyebrow}>Your program, in order</p><p className={styles.muted}>{indices.length} exercises · {dayTitle ? 'Follow the schedule on your training-day banner.' : 'Follow the frequency shown on each exercise.'}</p></div>
       {!session.started && !session.finished && <button className={styles.primary} disabled={!ready} onClick={() => {
         const active = session.active ?? indices.find(i => !session.done.includes(i)) ?? indices[0];
         update({ ...session, started: true, active }); focusRow(active);
@@ -143,14 +143,14 @@ function SessionView({ workout, videos, userId, preview = false, program, storag
           <div className={styles.row}>
             <input type="checkbox" className={styles.check} aria-label={`Complete ${item.title}`} checked={done} disabled={!ready} onChange={() => toggle(index)} />
             <button ref={node => { rowRefs.current[index] = node; }} className={styles.exercise} aria-expanded={open} aria-controls={`${detailId}-exercise-detail-${index}`} disabled={!ready} onClick={() => update({ ...session, started: true, active: open ? null : index })}>
-              <span className={styles.number}>{String(indices.indexOf(index) + 1).padStart(2, '0')}</span><span className={styles.text}><span className={styles.name}>{item.title}</span><span className={styles.dose}>{[sets, item.repsOrHoldTime].filter(Boolean).join(' · ')}</span><span className={styles.dose}>{frequency(item)}</span></span>
+              <span className={styles.number}>{String(indices.indexOf(index) + 1).padStart(2, '0')}</span><span className={styles.text}><span className={styles.name}>{item.title}</span><span className={styles.dose}>{[sets, item.repsOrHoldTime].filter(Boolean).join(' · ')}</span>{!dayTitle && <span className={styles.dose}>{frequency(item)}</span>}</span>
               <span className={styles.status}>{done ? 'Complete' : open ? 'Now' : ''}</span>
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ transform: open ? 'rotate(180deg)' : undefined }}><path d="m6 9 6 6 6-6" /></svg>
             </button>
           </div>
           <div id={`${detailId}-exercise-detail-${index}`} hidden={!open}>{open && <div className={styles.detail}>
             <div>{video?.mux_playback_id ? <VideoPlayer key={video.mux_playback_id} playbackId={video.mux_playback_id} /> : <div className={styles.noVideo}>{item.videoId ? 'Video unavailable. Your exercise instructions are below.' : 'Follow your coaching instructions for this exercise.'}</div>}</div>
-            <div><p className={styles.note}>{note || 'Follow the prescribed sets and reps above.'}</p><p className={styles.muted}>{frequency(item)}</p><button className={styles.primary} onClick={() => toggle(index, true)}>{done ? 'Mark incomplete' : 'Complete exercise'}</button></div>
+            <div><p className={styles.note}>{note || 'Follow the prescribed sets and reps above.'}</p>{!dayTitle && <p className={styles.muted}>{frequency(item)}</p>}<button className={styles.primary} onClick={() => toggle(index, true)}>{done ? 'Mark incomplete' : 'Complete exercise'}</button></div>
           </div>}</div>
         </li>;
       })}</ol>
