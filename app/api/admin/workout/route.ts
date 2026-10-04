@@ -10,6 +10,7 @@ const ADMIN_EMAILS = [
 
 type WorkoutRow = {
   steps?: unknown
+  starter_level?: string | null
 }
 
 type AdminNoteRow = {
@@ -42,7 +43,7 @@ export async function GET(req: NextRequest) {
   const [workoutResult, notesResult] = await Promise.all([
     admin
       .from('user_workouts')
-      .select('steps')
+      .select('steps, starter_level')
       .eq('user_id', userId)
       .single(),
     admin
@@ -68,6 +69,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     steps: workoutData?.steps ?? [],
     goals: notesData?.goals ?? '',
+    starterLevel: workoutData?.starter_level ?? null,
   })
 }
 

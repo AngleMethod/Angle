@@ -53,6 +53,7 @@ function SignIn({
   email,
   message,
   isAdmin,
+  isSendingLink,
   onEmailChange,
   onLogin,
   onLogout,
@@ -62,6 +63,7 @@ function SignIn({
   email: string
   message: string
   isAdmin: boolean
+  isSendingLink: boolean
   onEmailChange: (value: string) => void
   onLogin: () => void
   onLogout: () => void
@@ -125,8 +127,8 @@ function SignIn({
               placeholder="your@email.com"
               className="w-full rounded-lg bg-[#111110] border border-[#222] text-white px-4 py-3 text-sm placeholder-[#444] focus:outline-none focus:border-[#555]"
             />
-            <Button onClick={onLogin} fullWidth>
-              Email me a sign-in link
+            <Button onClick={onLogin} fullWidth disabled={isSendingLink}>
+              {isSendingLink ? 'Sending sign-in link…' : 'Email me a sign-in link'}
             </Button>
             <p className="text-[#444] text-xs">
               We&apos;ll remember your email on this browser so signing in is faster next time.
@@ -152,6 +154,8 @@ export default function AnglePage() {
   const [subscriptionStatus, setSubscriptionStatus] = useState<'unknown' | 'none' | 'active' | 'inactive'>('unknown')
   const [authReady, setAuthReady] = useState(false)
   const [isStartingTraining, setIsStartingTraining] = useState(false)
+  const [isSendingLink, setIsSendingLink] = useState(false)
+  const loginPending = useRef(false)
 
   useEffect(() => {
     const syncSession = async () => {
@@ -205,19 +209,23 @@ export default function AnglePage() {
   }
 
   const handleLogin = async () => {
+    if (loginPending.current) return
     if (!email.trim()) {
       setMessage('Enter your email first.')
       return
     }
     const cleanEmail = email.trim()
     localStorage.setItem('lastSignInEmail', cleanEmail)
+    loginPending.current = true
+    setIsSendingLink(true)
     setMessage('Sending sign-in link...')
+    let timeout: ReturnType<typeof setTimeout> | undefined
 
     try {
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error } = await Promise.race([supabase.auth.signInWithOtp({
         email: cleanEmail,
         options: { emailRedirectTo: `${window.location.origin}/dashboard` },
-      })
+      }), new Promise<never>((_, reject) => { timeout = setTimeout(() => reject(new Error('The sign-in service has not responded after 30 seconds. Delivery is unconfirmed; check your inbox before requesting another link.')), 30000) })])
 
       if (error) {
         console.error('[signin] Failed to send magic link:', error)
@@ -228,6 +236,10 @@ export default function AnglePage() {
       console.error('[signin] Magic link request failed:', err)
       setMessage(`Sign-in link failed: ${err instanceof Error ? err.message : String(err)}`)
       return
+    } finally {
+      if (timeout) clearTimeout(timeout)
+      loginPending.current = false
+      setIsSendingLink(false)
     }
 
     setMessage('Check your email for your sign-in link.')
@@ -323,6 +335,7 @@ export default function AnglePage() {
         email={email}
         message={message}
         isAdmin={isAdminEmail(userEmail)}
+        isSendingLink={isSendingLink}
         onEmailChange={setEmail}
         onLogin={handleLogin}
         onLogout={handleLogout}

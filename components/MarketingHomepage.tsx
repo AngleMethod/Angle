@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic'
 import s from './MarketingHomepage.module.css'
 import Arrow from './ui/Arrow'
 import MethodStory from './MethodStory'
+import InstagramReels from './InstagramReels'
 
 const VideoPlayer = dynamic(() => import('./VideoPlayer'), { loading: () => <p className={s.videoLoading}>Loading student video…</p> })
 
@@ -133,6 +134,8 @@ export default function MarketingHomepage({ authReady, isLoggedIn, isStartingTra
 
         <section id="results" className={`${s.section} ${s.results}`}><div className={s.sectionHeading}><div><p className={s.eyebrow}>04 / THE WORK, IN MOTION</p><h2>Real practice.<br /><span className={s.serif}>Visible progress.</span></h2></div><p>Individual journeys. Meaningful breakthroughs.<br />Watch Angle members in their own practice.</p></div><div className={s.stories}>{stories.map((story) => <article key={story.id}><div className={s.storyVideo}>{playing === story.id ? <><VideoPlayer playbackId={story.id} aspect="4/5" autoPlay poster={`https://image.mux.com/${story.id}/thumbnail.png?width=720&time=${story.thumb}`} objectFit="cover" /><button className={s.closeVideo} onClick={() => setPlaying(null)} aria-label={`Close ${story.name}'s video`}>×</button></> : <button className={s.playCard} onClick={() => setPlaying(story.id)} aria-label={`Play ${story.name}'s progress video`}><Image unoptimized src={`https://image.mux.com/${story.id}/thumbnail.png?width=720&time=${story.thumb}`} alt={story.outcome || `${story.name} practicing handstands`} fill sizes="(max-width: 700px) 100vw, 30vw" style={{ objectPosition: story.position }} /><span className={s.playIcon}><Arrow /></span><span className={s.watchLabel}>WATCH THE PROGRESS <Arrow /></span></button>}</div><div className={s.storyMeta}><h3>{story.name}</h3>{story.time && <span>{story.time}</span>}</div>{story.outcome && <p>{story.outcome}</p>}</article>)}</div><p className={s.fine}>These are individual member milestones, not a promised timeline. Every practice develops differently.</p></section>
 
+        <InstagramReels />
+
         <section className={s.quizBanner}><p className={s.eyebrow}>YOUR PRACTICE STARTS WITH A QUESTION.</p><h2>Take your handstand to the <span className={s.serif}>next level</span></h2><p>Three quick questions. A suggested starting direction.<br />No email needed.</p><button className={s.darkButton} onClick={openQuiz}>Find my starting point <Arrow /></button><span className={s.bannerMark} aria-hidden="true"><Arrow /></span></section>
 
         <section id="pricing" className={`${s.section} ${s.pricing}`}><div><p className={s.eyebrow}>05 / YOUR ANGLE MEMBERSHIP</p><h2>Commit to<br /><span className={s.serif}>your potential.</span></h2><p className={s.pricingIntro}>One membership. A training plan that grows with you.<br />Everything you need to start training with intention.</p><div className={s.priceVisual}><Image src="/photos-20260920/angle-new%201.jpg" alt="Athlete exploring an advanced handstand shape" fill sizes="(max-width: 700px) 100vw, 40vw" /><span>MAKE ROOM FOR POSSIBILITY.</span></div></div><div className={s.priceCard}><div className={s.priceCardTop}><span>ANGLE MEMBERSHIP</span><span>ALL LEVELS</span></div><div className={s.price}>$95<span>PER MONTH</span></div><p>A clear plan. A stronger practice.</p><ul>{['Personalized onboarding and assessment', 'A training plan built for your current level', 'Clear, step-by-step progressions', 'Full access to the Angle video library', 'Coach-guided training structure', 'Programming that evolves with your ability'].map(item => <li key={item}><span><Arrow /></span>{item}</li>)}</ul>{action()}<p className={s.priceNote}>Pause or cancel anytime.</p><div className={s.priceFoot}>Not sure where to start? <button onClick={openQuiz}>Find your starting point <Arrow /></button></div></div></section>
@@ -141,7 +144,7 @@ export default function MarketingHomepage({ authReady, isLoggedIn, isStartingTra
         <div className={s.signin}>{children}</div>
         <section className={s.closing}><p className={s.eyebrow}>UNLOCK YOUR POTENTIAL</p><h2>See what<br /><span className={s.serif}>you’re capable of.</span></h2>{action()}</section>
       </main>
-      <footer className={s.footer}><a href="#hero" aria-label="Back to top"><Image src="/angle-logo-footer-black.svg" alt="Angle" width={800} height={240} /></a><div><span>© {new Date().getFullYear()} Angle</span><span>MASTER HANDSTANDS WITH TECHNICAL PRECISION</span><a href="#hero">BACK TO TOP <Arrow direction="up" /></a></div></footer>
+      <footer className={s.footer}><a href="#hero" aria-label="Back to top"><Image src="/angle-logo-footer-black.svg" alt="Angle" width={800} height={240} /></a><div><span>© {new Date().getFullYear()} Angle</span><span>MASTER HANDSTANDS WITH TECHNICAL PRECISION</span><a href="https://www.instagram.com/joshie.lee/" target="_blank" rel="noopener noreferrer">INSTAGRAM / @JOSHIE.LEE <Arrow /></a><a href="#hero">BACK TO TOP <Arrow direction="up" /></a></div></footer>
       <div className={s.mobileCta}><span>$95 <small>/ month</small></span>{action(s.smallButton)}</div>
       {message && <div role="status" className={s.toast}>{message}</div>}
 

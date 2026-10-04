@@ -171,6 +171,7 @@ export default function AdminPage() {
   const [templateRevision, setTemplateRevision] = useState(0);
   const [workout, setWorkout] = useState<WorkoutItem[]>([]);
   const [goals, setGoals] = useState("");
+  const [starterLevel, setStarterLevel] = useState<string | null>(null);
   const [isGoalsOpen, setIsGoalsOpen] = useState(false);
   const [isProgramOpen, setIsProgramOpen] = useState(false);
   const [recentSubmissions, setRecentSubmissions] = useState<RecentSubmission[]>([]);
@@ -284,6 +285,7 @@ export default function AdminPage() {
     setAssignedUserId(null);
     setAssignedUserEmail(null);
     setWorkout([]);
+    setStarterLevel(null);
     setGoals("");
     setIsGoalsOpen(false);
     setIsProgramOpen(false);
@@ -323,6 +325,7 @@ export default function AdminPage() {
     setAssignedUserId(userId);
     setAssignedUserEmail(emailToLookup);
     setAssignedOnboardingStatus(onboardingStatus ?? "not_booked");
+    setStarterLevel(["beginner", "intermediate", "advanced"].includes(workoutData.starterLevel) ? workoutData.starterLevel : null);
     setGoals(typeof workoutData.goals === "string" ? workoutData.goals : "");
     setRecentSubmissions((reviewsData.submissions ?? []) as RecentSubmission[]);
     setRecentSubmissionsLoaded(true);
@@ -699,6 +702,7 @@ export default function AdminPage() {
                 <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="min-w-0 text-sm break-words" style={{ color: "#d6ed9b" }}>
                     Editing: <span className="font-medium break-all">{assignedUserEmail}</span>
+                    {starterLevel && <span className="mt-2 block text-xs text-[#aeb7a3]">Initial self-selected level: <span className="capitalize">{starterLevel}</span></span>}
                   </p>
                   {assignedUserId ? (
                     <Link

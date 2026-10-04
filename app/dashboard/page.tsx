@@ -11,6 +11,7 @@ import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
 import reviewStyles from "./ProgressReview.module.css";
+import StarterProgram from "@/components/StarterProgram";
 import TrainingSession from "@/components/TrainingSession";
 import ReviewVideoPlayer from "@/components/ReviewVideoPlayer";
 import { hasSubscriptionAccess } from "@/lib/subscriptionStatus";
@@ -127,6 +128,8 @@ export default function Dashboard() {
   const [onboardingStatus, setOnboardingStatus] = useState<OnboardingStatus>("not_booked");
   const [workout, setWorkout] = useState<WorkoutItem[]>([]);
   const [workoutLoaded, setWorkoutLoaded] = useState(false);
+  const [workoutError, setWorkoutError] = useState(false);
+  const [canChooseStarter, setCanChooseStarter] = useState(false);
   const [muxVideoMap, setMuxVideoMap] = useState<Record<string, MuxVideoRecord>>({});
   const [reviewSubmissions, setReviewSubmissions] = useState<ReviewSubmission[]>([]);
   const [reviewsLoaded, setReviewsLoaded] = useState(false);
@@ -247,20 +250,23 @@ export default function Dashboard() {
 
       let status: OnboardingStatus = subscription?.onboarding_status ?? "not_booked";
 
-      if (status === "completed" || isAdmin) {
-        const { data: workoutData } = await supabase
+      // Load assigned training before the assessment too, including starter programs.
+      {
+        setCanChooseStarter(false);
+        const { data: workoutData, error: loadError } = await supabase
           .from("user_workouts")
           .select("steps")
           .eq("user_id", session.user.id)
-          .single();
+          .maybeSingle();
 
         if (!isMounted) return;
 
-        const assignedSteps = Array.isArray(workoutData?.steps) ? workoutData.steps as WorkoutItem[] : [];
-        if (assignedSteps.length > 0) {
-          setWorkout(assignedSteps);
-          if (isAdmin) status = "completed";
-        }
+        const validWorkout = !loadError && (!workoutData || Array.isArray(workoutData.steps));
+        const assignedSteps = validWorkout && Array.isArray(workoutData?.steps) ? workoutData.steps as WorkoutItem[] : [];
+        setWorkoutError(!validWorkout);
+        setWorkout(assignedSteps);
+        setCanChooseStarter(validWorkout && assignedSteps.length === 0 && hasSubscriptionAccess(subscription?.status));
+        if (assignedSteps.length > 0 && isAdmin) status = "completed";
 
         setWorkoutLoaded(true);
 
@@ -712,7 +718,7 @@ export default function Dashboard() {
                 >
                   Your <em>training.</em>
                 </h1>
-                {onboardingStatus === "completed" && workoutLoaded && workout.length > 0 ? null : (
+                {workoutLoaded && workout.length > 0 ? null : (
                   <p className="text-[#b6beaa]">
                     {onboardingStatus === "not_booked"
                       ? showBookedBanner
@@ -793,37 +799,17 @@ export default function Dashboard() {
               </div>
             )}
 
-            {onboardingStatus === "completed" && (
-              <>
-                {!workoutLoaded ? (
-                  <p className="text-[#b6beaa]">Loading your workout...</p>
-                ) : workout.length === 0 ? (
-                  <div data-surface="paper" className="rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-12 text-center">
-                    <div className="flex justify-center mb-6">
-                      <div
-                        className="inline-flex items-center gap-2 text-[10px] md:text-xs tracking-widest uppercase font-medium rounded-none px-3 py-1 border border-[#4b543c]"
-                        style={{ backgroundColor: "#293321", color: "#d6ed9b" }}
-                      >
-                        ● Plan in progress
-                      </div>
-                    </div>
-                    <h2
-                      className="text-white uppercase leading-[0.95] tracking-wide mb-4"
-                    >
-                      Your Training System Is Being Prepared
-                    </h2>
-                    <p className="text-[#b6beaa] max-w-md mx-auto">
-                      Your custom training program will appear here once it&apos;s been assigned to your account.
-                    </p>
-                    <p className="text-xs md:text-sm text-white/50 mt-4 max-w-md mx-auto">
-                      This usually takes 1–2 hours — check back soon or refresh this page.
-                    </p>
-                  </div>
-                ) : (
-                  <TrainingSession workout={workout} videos={muxVideoMap} userId={userId ?? undefined} />
-                )}
-              </>
-            )}
+            {workoutError ? (
+              <p role="alert" className="my-8 text-[#b6beaa]">We couldn&apos;t load your program. Please refresh to try again.</p>
+            ) : !workoutLoaded ? (
+              <p className="my-8 text-[#b6beaa]">Loading your workout...</p>
+            ) : workout.length > 0 ? (
+              <div className="mt-8"><TrainingSession workout={workout} videos={muxVideoMap} userId={userId ?? undefined} /></div>
+            ) : canChooseStarter ? (
+              <StarterProgram getAccessToken={getAccessToken} />
+            ) : onboardingStatus === "completed" ? (
+              <p className="my-8 text-[#b6beaa]">Your custom training program will appear here once it&apos;s been assigned to your account.</p>
+            ) : null}
 
             <Chat />
             {userId && <WorkoutCalendar userId={userId} />}
