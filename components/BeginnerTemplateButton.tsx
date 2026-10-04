@@ -39,7 +39,7 @@ export default function BeginnerTemplateButton({ hasDraft, disabled, onApply }: 
   return <div className="min-w-0">
     <div className="flex flex-wrap items-center gap-4">
       <label className="text-xs text-[#b6beaa]">Template
-        <select value={templateId} disabled={busy || disabled} onChange={e => { setTemplateId(e.target.value as 'beginner' | 'intermediate' | 'advanced'); setMessage(''); }} className="ml-3 border border-[#4b543c] bg-[#111310] px-3 py-3 text-sm text-[#f0eee8]">
+        <select style={{ fontSize: 'inherit' }} value={templateId} disabled={busy || disabled} onChange={e => { setTemplateId(e.target.value as 'beginner' | 'intermediate' | 'advanced'); setMessage(''); }} className="ml-3 border border-[#4b543c] bg-[#111310] px-3 py-3 text-[#f0eee8]">
           <option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option>
         </select>
       </label>
