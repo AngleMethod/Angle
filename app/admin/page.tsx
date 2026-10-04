@@ -1,5 +1,7 @@
 "use client";
 
+import panelStyles from "./AdminPanels.module.css";
+import { moveProgramExercise } from "@/lib/programReorder";
 import ProgramEditor from "@/components/ProgramEditor";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
 import Link from "next/link";
@@ -736,6 +738,7 @@ export default function AdminPage() {
                   onUp={moveStepUp}
                   onDown={moveStepDown}
                   onEdge={moveStepToEdge}
+                  onMove={(from, boundary) => setWorkout(prev => moveProgramExercise(prev, from, boundary))}
                   onRemove={removeStep}
                   onAdd={() => {
                     setIsProgramOpen(true);
@@ -744,13 +747,13 @@ export default function AdminPage() {
                 />
 
                 {/* Program */}
-                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
-                  <div className={`${isProgramOpen ? "mb-6" : ""} flex items-start justify-between gap-4`}>
+                <div className={panelStyles.panel}>
+                  <div className={`${panelStyles.header} ${isProgramOpen ? panelStyles.open : ""}`}>
                     <div className="min-w-0">
-                      <h2 className={sectionTitleClass}>
+                      <h2 className={panelStyles.heading}>
                         Add exercise or banner
                       </h2>
-                      <p className="mt-2 text-xs text-[#9ba38f]">
+                      <p className={panelStyles.caption}>
                         Add videos and programming details for this member.
                       </p>
                     </div>
@@ -760,7 +763,7 @@ export default function AdminPage() {
                       aria-expanded={isProgramOpen}
                       aria-controls="admin-program-panel"
                       onClick={() => setIsProgramOpen(prev => !prev)}
-                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
+                      className={panelStyles.toggle}
                     >
                       <span
                         aria-hidden="true"
@@ -943,13 +946,13 @@ export default function AdminPage() {
                   ) : null}
                 </div>
 
-                <div className="mt-12">
+                <div className={panelStyles.secondary}>
                 {/* Onboarding Status */}
-                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
-                  <h2 className={`${sectionTitleClass} mb-6`}>
+                <div className={`${panelStyles.panel} ${panelStyles.onboarding}`}>
+                  <h2 className={panelStyles.heading}>
                     Onboarding Status
                   </h2>
-                  <div className="flex flex-wrap gap-3">
+                  <div className={panelStyles.statusGroup}>
                     {(["not_booked", "booked", "completed"] as const).map((s) => {
                       const active = assignedOnboardingStatus === s;
                       return (
@@ -957,11 +960,8 @@ export default function AdminPage() {
                           key={s}
                           onClick={() => handleUpdateStatus(s)}
                           disabled={updatingStatus}
-                          className={`rounded-none px-4 py-2 text-xs font-bold tracking-widest uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed border ${
-                            active
-                              ? "border-white text-white"
-                              : "border-[#4b543c] text-[#b6beaa] hover:border-[#d6ed9b] hover:text-[#aaa]"
-                          }`}
+                          aria-pressed={active}
+                          className={panelStyles.status}
                         >
                           {STATUS_LABELS[s]}
                         </button>
@@ -971,13 +971,13 @@ export default function AdminPage() {
                 </div>
 
                 {/* Goals */}
-                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
-                  <div className={`${isGoalsOpen ? "mb-4" : ""} flex items-start justify-between gap-4`}>
+                <div className={panelStyles.panel}>
+                  <div className={`${panelStyles.header} ${isGoalsOpen ? panelStyles.open : ""}`}>
                     <div className="min-w-0">
-                      <h2 className={sectionTitleClass}>
+                      <h2 className={panelStyles.heading}>
                         Goals
                       </h2>
-                      <p className="mt-2 text-xs text-[#9ba38f]">
+                      <p className={panelStyles.caption}>
                         Internal programming note for admins.
                       </p>
                     </div>
@@ -987,7 +987,7 @@ export default function AdminPage() {
                       aria-expanded={isGoalsOpen}
                       aria-controls="admin-goals-panel"
                       onClick={() => setIsGoalsOpen(prev => !prev)}
-                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
+                      className={panelStyles.toggle}
                     >
                       <span
                         aria-hidden="true"
@@ -1010,13 +1010,13 @@ export default function AdminPage() {
                 </div>
 
                 {/* Recent Submissions */}
-                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
-                  <div className={`${isRecentSubmissionsOpen ? "mb-5" : ""} flex items-start justify-between gap-4`}>
+                <div className={panelStyles.panel}>
+                  <div className={`${panelStyles.header} ${isRecentSubmissionsOpen ? panelStyles.open : ""}`}>
                     <div className="min-w-0">
-                      <h2 className={sectionTitleClass}>
+                      <h2 className={panelStyles.heading}>
                         Recent Submissions
                       </h2>
-                      <p className="mt-2 text-xs text-[#9ba38f]">
+                      <p className={panelStyles.caption}>
                         Last 5 progress videos from this member.
                       </p>
                     </div>
@@ -1030,7 +1030,7 @@ export default function AdminPage() {
                         aria-expanded={isRecentSubmissionsOpen}
                         aria-controls="admin-recent-submissions-panel"
                         onClick={() => setIsRecentSubmissionsOpen(prev => !prev)}
-                        className="flex h-9 w-9 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
+                        className={panelStyles.toggle}
                       >
                         <span
                           aria-hidden="true"
