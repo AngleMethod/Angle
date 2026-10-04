@@ -151,7 +151,7 @@ async function getAccessToken(): Promise<string | null> {
 
 export default function AdminPage() {
   const router = useRouter();
-  const restoredPreviewUser = useRef(false);
+  const restoredBuilderUser = useRef(false);
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -347,11 +347,16 @@ export default function AdminPage() {
     });
     setWorkout(loadedSteps);
     setLookupStatus("found");
+
+    // Keep the selected member in the URL so a refresh restores their saved program.
+    const builderUrl = new URL(window.location.href);
+    builderUrl.searchParams.set("email", emailToLookup);
+    window.history.replaceState(null, "", `${builderUrl.pathname}${builderUrl.search}${builderUrl.hash}`);
   }, []);
 
   useEffect(() => {
-    if (!isLoaded || restoredPreviewUser.current) return;
-    restoredPreviewUser.current = true;
+    if (!isLoaded || restoredBuilderUser.current) return;
+    restoredBuilderUser.current = true;
     const email = new URLSearchParams(window.location.search).get("email")?.trim();
     if (email) {
       void getAccessToken().then(token => handleLookupUser(email, token)).catch(() => setLookupStatus("not-found"));
