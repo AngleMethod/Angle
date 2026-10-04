@@ -10,6 +10,7 @@ import Chat from '@/components/Chat';
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
+import reviewStyles from "./ProgressReview.module.css";
 import TrainingSession from "@/components/TrainingSession";
 import ReviewVideoPlayer from "@/components/ReviewVideoPlayer";
 import { hasSubscriptionAccess } from "@/lib/subscriptionStatus";
@@ -824,16 +825,16 @@ export default function Dashboard() {
               </>
             )}
 
-            <div className="mt-8 md:mt-14 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
-              <div className={`${isCoachReviewOpen ? "mb-6 md:mb-8" : ""} flex items-start justify-between gap-4`}>
+            <Chat />
+            {userId && <WorkoutCalendar userId={userId} />}
+
+            <div className={reviewStyles.panel}>
+              <div className={`${reviewStyles.header} ${isCoachReviewOpen ? reviewStyles.open : ""}`}>
                 <div className="min-w-0">
-                  <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Coach Review</p>
-                  <h2
-                    className="text-white uppercase tracking-wide mb-2"
-                  >
-                    Submit A Progress Video
+                  <h2 className={reviewStyles.heading}>
+                    Submit a progress video
                   </h2>
-                  <p className="text-[#b6beaa] text-sm md:text-base">
+                  <p className={reviewStyles.caption}>
                     Upload up to 10 short clips.
                   </p>
                 </div>
@@ -857,7 +858,7 @@ export default function Dashboard() {
                       setIsCoachReviewOpen(prev => !prev);
                       if (shouldLoadReviews) void loadReviewSubmissions();
                     }}
-                    className="flex h-9 w-9 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
+                    className={reviewStyles.toggle}
                   >
                     <span
                       aria-hidden="true"
@@ -1055,8 +1056,6 @@ export default function Dashboard() {
               </div>
               ) : null}
             </div>
-            <Chat />
-            {userId && <WorkoutCalendar userId={userId} />}
           </div>
         </section>
       </main>
