@@ -1,5 +1,6 @@
 "use client";
 
+import ProgramEditor from "@/components/ProgramEditor";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -713,198 +714,30 @@ export default function AdminPage() {
                   </Button>
                 </div>
 
-                {/* Onboarding Status */}
-                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
-                  <h2 className={`${sectionTitleClass} mb-6`}>
-                    Onboarding Status
-                  </h2>
-                  <div className="flex flex-wrap gap-3">
-                    {(["not_booked", "booked", "completed"] as const).map((s) => {
-                      const active = assignedOnboardingStatus === s;
-                      return (
-                        <button
-                          key={s}
-                          onClick={() => handleUpdateStatus(s)}
-                          disabled={updatingStatus}
-                          className={`rounded-none px-4 py-2 text-xs font-bold tracking-widest uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed border ${
-                            active
-                              ? "border-white text-white"
-                              : "border-[#4b543c] text-[#b6beaa] hover:border-[#d6ed9b] hover:text-[#aaa]"
-                          }`}
-                        >
-                          {STATUS_LABELS[s]}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Goals */}
-                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
-                  <div className={`${isGoalsOpen ? "mb-4" : ""} flex items-start justify-between gap-4`}>
-                    <div className="min-w-0">
-                      <h2 className={sectionTitleClass}>
-                        Goals
-                      </h2>
-                      <p className="mt-2 text-xs text-[#9ba38f]">
-                        Internal programming note for admins.
-                      </p>
-                    </div>
-                    <button
-                      type="button"
-                      aria-label={isGoalsOpen ? "Collapse goals" : "Expand goals"}
-                      aria-expanded={isGoalsOpen}
-                      aria-controls="admin-goals-panel"
-                      onClick={() => setIsGoalsOpen(prev => !prev)}
-                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isGoalsOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
-                      />
-                    </button>
-                  </div>
-
-                  {isGoalsOpen ? (
-                    <div id="admin-goals-panel">
-                      <textarea
-                        value={goals}
-                        onChange={(e) => setGoals(e.target.value)}
-                        rows={4}
-                        placeholder="e.g. Build toward a cleaner two-arm flag line while improving compression and shoulder control."
-                        className={`${inputClass} min-h-[110px] resize-y`}
-                      />
-                    </div>
-                  ) : null}
-                </div>
-
-                {/* Recent Submissions */}
-                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
-                  <div className={`${isRecentSubmissionsOpen ? "mb-5" : ""} flex items-start justify-between gap-4`}>
-                    <div className="min-w-0">
-                      <h2 className={sectionTitleClass}>
-                        Recent Submissions
-                      </h2>
-                      <p className="mt-2 text-xs text-[#9ba38f]">
-                        Last 5 progress videos from this member.
-                      </p>
-                    </div>
-                    <div className="flex flex-shrink-0 items-center gap-3">
-                      <Link href="/admin/reviews" className="hidden text-xs font-bold tracking-widest uppercase text-[#b6beaa] hover:text-white transition-colors sm:inline-block">
-                        View all reviews
-                      </Link>
-                      <button
-                        type="button"
-                        aria-label={isRecentSubmissionsOpen ? "Collapse recent submissions" : "Expand recent submissions"}
-                        aria-expanded={isRecentSubmissionsOpen}
-                        aria-controls="admin-recent-submissions-panel"
-                        onClick={() => setIsRecentSubmissionsOpen(prev => !prev)}
-                        className="flex h-9 w-9 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
-                      >
-                        <span
-                          aria-hidden="true"
-                          className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isRecentSubmissionsOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  {isRecentSubmissionsOpen ? (
-                    <div id="admin-recent-submissions-panel">
-                      <Link href="/admin/reviews" className="mb-4 inline-block text-xs font-bold tracking-widest uppercase text-[#b6beaa] hover:text-white transition-colors sm:hidden">
-                        View all reviews
-                      </Link>
-
-                      {!recentSubmissionsLoaded ? (
-                        <p className="text-sm text-[#b6beaa]">Loading recent submissions...</p>
-                      ) : recentSubmissionsError ? (
-                        <p className="text-sm text-[#dc2626]">{recentSubmissionsError}</p>
-                      ) : recentSubmissions.length === 0 ? (
-                        <p className="text-sm text-[#b6beaa]">No review videos submitted yet.</p>
-                      ) : (
-                        <div className="divide-y divide-[#1e1e1e]">
-                          {recentSubmissions.map((submission) => {
-                            const isOpen = !!openSubmissionIds[submission.id];
-                            const displayDate = formatSubmissionDate(submission.submittedAt ?? submission.createdAt);
-                            return (
-                              <div key={submission.id} className="py-4 first:pt-0 last:pb-0">
-                                <button
-                                  type="button"
-                                  aria-expanded={isOpen}
-                                  aria-controls={`recent-submission-${submission.id}`}
-                                  onClick={() => toggleRecentSubmission(submission.id)}
-                                  className="flex w-full items-start justify-between gap-4 text-left"
-                                >
-                                  <div className="min-w-0">
-                                    <div className="mb-2 flex flex-wrap items-center gap-2">
-                                      <span className={`rounded-none border px-3 py-1 text-xs font-medium ${REVIEW_STATUS_STYLES[submission.status]}`}>
-                                        {REVIEW_STATUS_LABELS[submission.status]}
-                                      </span>
-                                      <span className="text-xs text-[#9ba38f]">{displayDate}</span>
-                                    </div>
-                                    <p className="truncate text-sm text-[#aaa]">
-                                      {submission.note || submission.fileName || "No note added."}
-                                    </p>
-                                  </div>
-                                  <span className="mt-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] transition-colors hover:border-[#d6ed9b] hover:text-white">
-                                    <span
-                                      aria-hidden="true"
-                                      className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
-                                    />
-                                  </span>
-                                </button>
-
-                                {isOpen ? (
-                                  <div id={`recent-submission-${submission.id}`} className="mt-4 space-y-4">
-                                    {submission.playbackId && submission.playbackTokens ? (
-                                      <ReviewVideoPlayer
-                                        submissionId={submission.id}
-                                        playbackId={submission.playbackId}
-                                        tokens={submission.playbackTokens}
-                                      />
-                                    ) : (
-                                      <div className="aspect-video w-full rounded-none border border-[#4b543c] bg-[#111310] flex items-center justify-center">
-                                        <p className="text-[#adb5a0] text-xs tracking-widest uppercase">
-                                          {submission.status === "error" ? "Upload failed" : "Video not ready"}
-                                        </p>
-                                      </div>
-                                    )}
-
-                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                                      <div className="min-w-0">
-                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#b6beaa]">Member note</p>
-                                        <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#aaa]">
-                                          {submission.note || "No note added."}
-                                        </p>
-                                      </div>
-                                      <div className="min-w-0">
-                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#b6beaa]">Coach note</p>
-                                        <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#aaa]">
-                                          {submission.coachNote || "No coach note yet."}
-                                        </p>
-                                      </div>
-                                    </div>
-
-                                    {submission.errorMessage ? (
-                                      <p className="text-sm text-[#dc2626]">{submission.errorMessage}</p>
-                                    ) : null}
-                                  </div>
-                                ) : null}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  ) : null}
-                </div>
+                <ProgramEditor
+                  key={assignedUserId}
+                  workout={workout}
+                  videos={videoLibrary}
+                  frequency={getWorkoutFrequency}
+                  onUpdate={updateStep}
+                  onBannerText={updateBanner}
+                  onBanner={(index, patch) => setWorkout(prev => prev.map((item, i) => i === index && isWorkoutBanner(item) ? { ...item, ...patch } : item))}
+                  onUp={moveStepUp}
+                  onDown={moveStepDown}
+                  onEdge={moveStepToEdge}
+                  onRemove={removeStep}
+                  onAdd={() => {
+                    setIsProgramOpen(true);
+                    requestAnimationFrame(() => document.querySelector<HTMLInputElement>("#admin-program-panel input")?.focus());
+                  }}
+                />
 
                 {/* Program */}
                 <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
                   <div className={`${isProgramOpen ? "mb-6" : ""} flex items-start justify-between gap-4`}>
                     <div className="min-w-0">
                       <h2 className={sectionTitleClass}>
-                        Program
+                        Add exercise or banner
                       </h2>
                       <p className="mt-2 text-xs text-[#9ba38f]">
                         Add videos and programming details for this member.
@@ -1099,221 +932,193 @@ export default function AdminPage() {
                   ) : null}
                 </div>
 
-                {/* Steps list */}
-                <div className="mb-8 space-y-4 md:space-y-6">
-                  {workout.length === 0 ? (
-                    <div className="rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8 text-center">
-                      <p className="text-[#b6beaa] text-sm">No steps yet. Add the first step above.</p>
-                    </div>
-                  ) : (
-                    (() => {
-                      let stepNumber = 0;
-
-                      return workout.map((step, i) => {
-                      if (isWorkoutBanner(step)) {
-                        stepNumber = 0;
-                        return (
-                          <div
-                            key={`banner-${i}`}
-                            className="min-w-0 overflow-hidden rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8"
-                          >
-                            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                              <h3 className="min-w-0 break-words text-white uppercase tracking-wide">
-                                Banner
-                              </h3>
-                              <div className="flex flex-wrap gap-2">
-                                <button
-                                  onClick={() => moveStepUp(i)}
-                                  className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors"
-                                >
-                                  Up
-                                </button>
-                                <button
-                                  onClick={() => moveStepDown(i)}
-                                  className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors"
-                                >
-                                  Down
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => moveStepToEdge(i, "top")}
-                                  disabled={i === 0}
-                                  className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                                >
-                                  Move to top
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => moveStepToEdge(i, "bottom")}
-                                  disabled={i === workout.length - 1}
-                                  className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                                >
-                                  Move to bottom
-                                </button>
-                                <button
-                                  onClick={() => removeStep(i)}
-                                  className="rounded-none border border-[#dc2626] text-[#dc2626] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:bg-[#dc2626] hover:text-white transition-colors"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            </div>
-                            <div className="mb-4 rounded-none border border-[#4b543c] bg-[#111310] px-4 py-4">
-                              <p
-                                className="break-words text-white uppercase tracking-wide"
-                              >
-                                {step.text || DEFAULT_BANNER_TEXT}
-                              </p>
-                            </div>
-                            <label className="mb-4 block text-sm text-[#d0d5c8]">
-                              Banner behavior
-                              <select className={inputClass + " mt-2"} value={step.separateDay === true ? "day" : "section"}
-                                onChange={(e) => {
-                                  const separateDay = e.target.value === "day";
-                                  setWorkout(prev => prev.map((item, index) => index === i && isWorkoutBanner(item)
-                                    ? { ...item, separateDay, dayId: item.dayId || crypto.randomUUID() } : item));
-                                }}>
-                                <option value="section">Section divider (same session)</option>
-                                <option value="day">Separate training day</option>
-                              </select>
-                            </label>
-                            <p className="mb-4 text-sm leading-relaxed text-[#b6beaa]">{step.separateDay
-                              ? "Starts a separate session with the exercises below, until the next separate training day. Ordinary section dividers stay within this day."
-                              : "Separates exercises visually within the same session. Existing programs use this setting."}</p>
-                            {step.separateDay && <label className="mb-4 block text-sm text-[#d0d5c8]">
-                              Day frequency
-                              <input className={inputClass + " mt-2"} placeholder="e.g. 2× per week" value={step.dayFrequency || ""}
-                                onChange={(e) => {
-                                  const dayFrequency = e.target.value;
-                                  setWorkout(prev => prev.map((item, index) => index === i && isWorkoutBanner(item) ? { ...item, dayFrequency } : item));
-                                }} />
-                            </label>}
-                            <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Banner Text</label>
-                            <input
-                              value={step.text}
-                              onChange={(e) => updateBanner(i, e.target.value)}
-                              placeholder={DEFAULT_BANNER_TEXT}
-                              className={inputClass}
-                            />
-                          </div>
-                        );
-                      }
-
-                      stepNumber += 1;
-                      const stepVideo = step.videoId ? videoLibrary.find(v => v.id === step.videoId) ?? null : null;
+                <div className="mt-12">
+                {/* Onboarding Status */}
+                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
+                  <h2 className={`${sectionTitleClass} mb-6`}>
+                    Onboarding Status
+                  </h2>
+                  <div className="flex flex-wrap gap-3">
+                    {(["not_booked", "booked", "completed"] as const).map((s) => {
+                      const active = assignedOnboardingStatus === s;
                       return (
-                      <div
-                        key={`step-${step.videoId || "text"}-${i}`}
-                        className="min-w-0 overflow-hidden rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8"
-                      >
-                        <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                          <h3 className="min-w-0 break-words text-white uppercase tracking-wide">
-                            Step {stepNumber}
-                          </h3>
-                          <div className="flex flex-wrap gap-2">
-                            <button
-                              onClick={() => moveStepUp(i)}
-                              className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors"
-                            >
-                              Up
-                            </button>
-                            <button
-                              onClick={() => moveStepDown(i)}
-                              className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors"
-                            >
-                              Down
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveStepToEdge(i, "top")}
-                              disabled={i === 0}
-                              className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                              Move to top
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => moveStepToEdge(i, "bottom")}
-                              disabled={i === workout.length - 1}
-                              className="rounded-none border border-[#4b543c] text-[#c1c8b7] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:text-white hover:border-[#d6ed9b] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                              Move to bottom
-                            </button>
-                            <button
-                              onClick={() => removeStep(i)}
-                              className="rounded-none border border-[#dc2626] text-[#dc2626] text-xs font-bold tracking-widest uppercase px-3 py-2 hover:bg-[#dc2626] hover:text-white transition-colors"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                        <div className="mb-4 grid grid-cols-1 gap-4">
-                          <div>
-                            <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Title</label>
-                            <input
-                              value={step.title}
-                              onChange={(e) => updateStep(i, { title: e.target.value })}
-                              placeholder={stepVideo?.title || `Step ${i + 1}`}
-                              className={inputClass}
-                            />
-                          </div>
-                          <div>
-                            <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Frequency</label>
-                            <input
-                              value={getWorkoutFrequency(step)}
-                              onChange={(e) => updateStep(i, { frequency: e.target.value })}
-                              placeholder={DEFAULT_FREQUENCY}
-                              className={inputClass}
-                            />
-                          </div>
-                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                            <div>
-                              <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Sets</label>
-                              <input
-                                value={step.sets ?? ""}
-                                onChange={(e) => updateStep(i, { sets: e.target.value })}
-                                placeholder="e.g. 3"
-                                className={inputClass}
-                              />
-                            </div>
-                            <div>
-                              <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Reps / Hold Time</label>
-                              <input
-                                value={step.repsOrHoldTime ?? ""}
-                                onChange={(e) => updateStep(i, { repsOrHoldTime: e.target.value })}
-                                placeholder="e.g. 30-45 sec"
-                                className={inputClass}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        {stepVideo ? (
-                          <>
-                            <VideoPlayer playbackId={stepVideo.mux_playback_id} />
-                            <p className="mt-3 truncate text-xs uppercase tracking-widest text-[#adb5a0]">
-                              {(stepVideo.level || "—")} · {(stepVideo.category || "—")}
-                            </p>
-                          </>
-                        ) : step.videoId ? (
-                          <div className="aspect-video w-full rounded-none border border-[#4b543c] bg-[#111310] flex items-center justify-center">
-                            <p className="px-3 text-center text-xs uppercase tracking-widest text-[#adb5a0]">Video not found in library</p>
-                          </div>
-                        ) : null}
-                        <div className="mt-4">
-                          <label className="mb-2 block text-xs tracking-widest text-[#b6beaa] uppercase">Description</label>
-                          <textarea
-                            value={step.description}
-                            onChange={(e) => updateStep(i, { description: e.target.value })}
-                            rows={4}
-                            placeholder={stepVideo?.description || "Optional"}
-                            className={`${inputClass} min-h-[110px] resize-y`}
-                          />
-                        </div>
-                      </div>
+                        <button
+                          key={s}
+                          onClick={() => handleUpdateStatus(s)}
+                          disabled={updatingStatus}
+                          className={`rounded-none px-4 py-2 text-xs font-bold tracking-widest uppercase transition-colors disabled:opacity-50 disabled:cursor-not-allowed border ${
+                            active
+                              ? "border-white text-white"
+                              : "border-[#4b543c] text-[#b6beaa] hover:border-[#d6ed9b] hover:text-[#aaa]"
+                          }`}
+                        >
+                          {STATUS_LABELS[s]}
+                        </button>
                       );
-                    });
-                    })()
-                  )}
+                    })}
+                  </div>
+                </div>
+
+                {/* Goals */}
+                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
+                  <div className={`${isGoalsOpen ? "mb-4" : ""} flex items-start justify-between gap-4`}>
+                    <div className="min-w-0">
+                      <h2 className={sectionTitleClass}>
+                        Goals
+                      </h2>
+                      <p className="mt-2 text-xs text-[#9ba38f]">
+                        Internal programming note for admins.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      aria-label={isGoalsOpen ? "Collapse goals" : "Expand goals"}
+                      aria-expanded={isGoalsOpen}
+                      aria-controls="admin-goals-panel"
+                      onClick={() => setIsGoalsOpen(prev => !prev)}
+                      className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isGoalsOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                      />
+                    </button>
+                  </div>
+
+                  {isGoalsOpen ? (
+                    <div id="admin-goals-panel">
+                      <textarea
+                        value={goals}
+                        onChange={(e) => setGoals(e.target.value)}
+                        rows={4}
+                        placeholder="e.g. Build toward a cleaner two-arm flag line while improving compression and shoulder control."
+                        className={`${inputClass} min-h-[110px] resize-y`}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Recent Submissions */}
+                <div className="mb-8 min-w-0 rounded-none border border-[#4b543c] bg-[#22261d] p-6 md:p-8">
+                  <div className={`${isRecentSubmissionsOpen ? "mb-5" : ""} flex items-start justify-between gap-4`}>
+                    <div className="min-w-0">
+                      <h2 className={sectionTitleClass}>
+                        Recent Submissions
+                      </h2>
+                      <p className="mt-2 text-xs text-[#9ba38f]">
+                        Last 5 progress videos from this member.
+                      </p>
+                    </div>
+                    <div className="flex flex-shrink-0 items-center gap-3">
+                      <Link href="/admin/reviews" className="hidden text-xs font-bold tracking-widest uppercase text-[#b6beaa] hover:text-white transition-colors sm:inline-block">
+                        View all reviews
+                      </Link>
+                      <button
+                        type="button"
+                        aria-label={isRecentSubmissionsOpen ? "Collapse recent submissions" : "Expand recent submissions"}
+                        aria-expanded={isRecentSubmissionsOpen}
+                        aria-controls="admin-recent-submissions-panel"
+                        onClick={() => setIsRecentSubmissionsOpen(prev => !prev)}
+                        className="flex h-9 w-9 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] hover:text-white hover:border-[#d6ed9b] transition-colors"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isRecentSubmissionsOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  {isRecentSubmissionsOpen ? (
+                    <div id="admin-recent-submissions-panel">
+                      <Link href="/admin/reviews" className="mb-4 inline-block text-xs font-bold tracking-widest uppercase text-[#b6beaa] hover:text-white transition-colors sm:hidden">
+                        View all reviews
+                      </Link>
+
+                      {!recentSubmissionsLoaded ? (
+                        <p className="text-sm text-[#b6beaa]">Loading recent submissions...</p>
+                      ) : recentSubmissionsError ? (
+                        <p className="text-sm text-[#dc2626]">{recentSubmissionsError}</p>
+                      ) : recentSubmissions.length === 0 ? (
+                        <p className="text-sm text-[#b6beaa]">No review videos submitted yet.</p>
+                      ) : (
+                        <div className="divide-y divide-[#1e1e1e]">
+                          {recentSubmissions.map((submission) => {
+                            const isOpen = !!openSubmissionIds[submission.id];
+                            const displayDate = formatSubmissionDate(submission.submittedAt ?? submission.createdAt);
+                            return (
+                              <div key={submission.id} className="py-4 first:pt-0 last:pb-0">
+                                <button
+                                  type="button"
+                                  aria-expanded={isOpen}
+                                  aria-controls={`recent-submission-${submission.id}`}
+                                  onClick={() => toggleRecentSubmission(submission.id)}
+                                  className="flex w-full items-start justify-between gap-4 text-left"
+                                >
+                                  <div className="min-w-0">
+                                    <div className="mb-2 flex flex-wrap items-center gap-2">
+                                      <span className={`rounded-none border px-3 py-1 text-xs font-medium ${REVIEW_STATUS_STYLES[submission.status]}`}>
+                                        {REVIEW_STATUS_LABELS[submission.status]}
+                                      </span>
+                                      <span className="text-xs text-[#9ba38f]">{displayDate}</span>
+                                    </div>
+                                    <p className="truncate text-sm text-[#aaa]">
+                                      {submission.note || submission.fileName || "No note added."}
+                                    </p>
+                                  </div>
+                                  <span className="mt-2 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-none border border-[#4b543c] text-[#c1c8b7] transition-colors hover:border-[#d6ed9b] hover:text-white">
+                                    <span
+                                      aria-hidden="true"
+                                      className={`block h-2 w-2 border-b-2 border-r-2 border-current transition-transform ${isOpen ? "rotate-[225deg] translate-y-0.5" : "rotate-45 -translate-y-0.5"}`}
+                                    />
+                                  </span>
+                                </button>
+
+                                {isOpen ? (
+                                  <div id={`recent-submission-${submission.id}`} className="mt-4 space-y-4">
+                                    {submission.playbackId && submission.playbackTokens ? (
+                                      <ReviewVideoPlayer
+                                        submissionId={submission.id}
+                                        playbackId={submission.playbackId}
+                                        tokens={submission.playbackTokens}
+                                      />
+                                    ) : (
+                                      <div className="aspect-video w-full rounded-none border border-[#4b543c] bg-[#111310] flex items-center justify-center">
+                                        <p className="text-[#adb5a0] text-xs tracking-widest uppercase">
+                                          {submission.status === "error" ? "Upload failed" : "Video not ready"}
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                      <div className="min-w-0">
+                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#b6beaa]">Member note</p>
+                                        <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#aaa]">
+                                          {submission.note || "No note added."}
+                                        </p>
+                                      </div>
+                                      <div className="min-w-0">
+                                        <p className="mb-2 text-xs tracking-widest uppercase text-[#b6beaa]">Coach note</p>
+                                        <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#aaa]">
+                                          {submission.coachNote || "No coach note yet."}
+                                        </p>
+                                      </div>
+                                    </div>
+
+                                    {submission.errorMessage ? (
+                                      <p className="text-sm text-[#dc2626]">{submission.errorMessage}</p>
+                                    ) : null}
+                                  </div>
+                                ) : null}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ) : null}
+                </div>
+
                 </div>
 
                 {/* Save Workout */}
