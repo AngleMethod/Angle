@@ -1,8 +1,26 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { supabase } from '@/lib/supabase'
 import s from './Chat.module.css'
+
+const launcherPreference = 'angle:coach-launcher-collapsed:v1'
+const launcherEvent = 'angle:coach-launcher-change'
+function subscribeLauncher(callback: () => void) {
+  window.addEventListener('storage', callback)
+  window.addEventListener(launcherEvent, callback)
+  return () => { window.removeEventListener('storage', callback); window.removeEventListener(launcherEvent, callback) }
+}
+let collapsedFallback = false
+function getCollapsedLauncher() {
+  try { return window.localStorage.getItem(launcherPreference) === 'true' } catch { return collapsedFallback }
+}
+const getServerLauncher = () => false
+function saveCollapsedLauncher(value: boolean) {
+  collapsedFallback = value
+  try { window.localStorage.setItem(launcherPreference, String(value)) } catch { /* Still works when browser storage is unavailable. */ }
+  window.dispatchEvent(new Event(launcherEvent))
+}
 
 type Message = { id: string; senderRole: 'admin' | 'user'; body: string; createdAt: string; unread?: boolean }
 type Thread = { userId: string; userEmail: string; latestMessage: string; latestAt: string; unreadCount: number }
@@ -16,6 +34,13 @@ async function request(url: string, init?: RequestInit) {
   return result
 }
 export default function Chat({ admin = false, onThreadsChange }: { admin?: boolean; onThreadsChange?: (threads: Thread[]) => void }) {
+  const collapsed = useSyncExternalStore(subscribeLauncher, getCollapsedLauncher, getServerLauncher)
+  const launcher = useRef<HTMLButtonElement>(null)
+  const restore = useRef<HTMLButtonElement>(null)
+  function toggleLauncher(hide: boolean) {
+    saveCollapsedLauncher(hide)
+    requestAnimationFrame(() => (hide ? restore : launcher).current?.focus())
+  }
   const [open, setOpen] = useState(false)
   const [threads, setThreads] = useState<Thread[]>([])
   const [members, setMembers] = useState<Member[]>([])
@@ -143,10 +168,16 @@ export default function Chat({ admin = false, onThreadsChange }: { admin?: boole
   }
   const contacts = [...threads.map(t => ({ ...t, email: t.userEmail })), ...members.filter(m => !threads.some(t => t.userId === m.userId)).map(m => ({ ...m, latestMessage: 'Start a conversation', latestAt: '', unreadCount: 0 }))].filter(m => m.email.toLowerCase().includes(search.toLowerCase()))
   return <>
-    <button className={s.launcher} onClick={() => { setOpen(true); setLoaded(false); setNewBelow(false); setSendError(''); nearBottom.current = true }} aria-label={`${admin ? 'Open student inbox' : 'Message your coach'}${unread ? `, ${unread} unread` : ''}`}>
+    <div className={`${s.launcherDock} ${!admin ? s.memberDock : ''} ${!admin && collapsed ? s.collapsedDock : ''}`}>
+    <button ref={launcher} className={s.launcher} onClick={() => { setOpen(true); setLoaded(false); setNewBelow(false); setSendError(''); nearBottom.current = true }} aria-label={`${admin ? 'Open student inbox' : 'Message your coach'}${unread ? `, ${unread} unread` : ''}`}>
       <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M20 15a3 3 0 0 1-3 3H9l-5 3V6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3Z" /></svg>
       {admin ? 'Messages' : 'Message coach'}{unread > 0 && <span className={s.badge}>{unread}</span>}
     </button>
+    {!admin && <>
+      <button className={s.dismissLauncher} onClick={() => toggleLauncher(true)} aria-label="Hide message coach button" title="Hide message coach button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg></button>
+      <button ref={restore} className={s.restoreLauncher} onClick={() => toggleLauncher(false)} aria-label={`Show message coach button${unread ? `, ${unread} unread` : ''}`} title="Show message coach button"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M20 15a3 3 0 0 1-3 3H9l-5 3V6a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3Z" /></svg>{unread > 0 && <span className={s.unreadDot} aria-hidden="true" />}</button>
+    </>}
+    </div>
     {open && <dialog ref={dialog} className={s.dialog} onCancel={e => { e.preventDefault(); setOpen(false) }} aria-labelledby="chat-title">
       <header className={s.header}>{admin && selected && <button disabled={sending} onClick={() => { setSelected(null); setMessages([]); setError(''); setNewBelow(false) }} aria-label="Back to inbox">Back</button>}<div><h2 id="chat-title">{admin ? selected?.email || 'Your inbox' : 'Your coach'}</h2><p>{admin ? 'Student conversations' : 'Questions, updates, and your next breakthrough.'}</p></div><button onClick={() => setOpen(false)} aria-label="Close messages">Close</button></header>
       {admin && !selected ? <div className={s.inbox}><input type="search" aria-label="Search students" placeholder="Find a student…" value={search} onChange={e => setSearch(e.target.value)} />{contacts.map(t => <button className={s.contact} key={t.userId} onClick={() => { setSelected({ userId: t.userId, email: t.email }); setMessages([]); setLoaded(false); setError(''); setNewBelow(false); setSendError(''); nearBottom.current = true }}><span className={s.avatar}>{t.email[0].toUpperCase()}</span><span><strong>{t.email}</strong><small>{t.latestMessage}</small></span>{t.unreadCount > 0 && <span className={s.badge}>{t.unreadCount}</span>}</button>)}{!inboxLoaded && <p>Loading your inbox…</p>}{inboxLoaded && !contacts.length && !inboxError && <p>No conversations found.</p>}{inboxError && <p role="alert">{inboxError} We’ll retry automatically.</p>}{error && <p role="alert">{error}</p>}</div> : <>

@@ -69,7 +69,6 @@ function Calendar({userId,coach}:{userId:string;coach:boolean}) {
         {selectedRows.length ? <ul>{selectedRows.map(row=><li key={row.session_id}><strong>{row.workout_name}</strong><span>{row.completed_exercises} of {row.total_exercises} exercises · {row.completed_exercises===row.total_exercises ? 'Completed' : 'Finished with some exercises unchecked'}</span></li>)}</ul> : <p>No completed sessions recorded for this date.</p>}
       </div>
     </>}
-    <p className={styles.footnote}>History starts with workouts finished after tracking is enabled. Dates follow the student’s local time when they finish. A checkmark means a session was finished, not necessarily every exercise.</p>
   </section>;
 }
 function Arrow({back=false}:{back?:boolean}) {return <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{transform:back?'rotate(180deg)':undefined}}><path d="m9 5 7 7-7 7" /></svg>;}
