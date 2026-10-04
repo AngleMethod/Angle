@@ -3,7 +3,7 @@
 import ProgramEditor from "@/components/ProgramEditor";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Chat from '@/components/Chat';
@@ -142,8 +142,14 @@ function getMuxThumbnailUrl(playbackId: string): string {
   return `https://image.mux.com/${encodeURIComponent(playbackId)}/thumbnail.jpg?time=1&width=320&fit_mode=smartcrop`;
 }
 
+async function getAccessToken(): Promise<string | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.access_token ?? null;
+}
+
 export default function AdminPage() {
   const router = useRouter();
+  const restoredPreviewUser = useRef(false);
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -220,11 +226,6 @@ export default function AdminPage() {
     };
   }, [router]);
 
-  async function getAccessToken(): Promise<string | null> {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token ?? null;
-  }
-
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -268,9 +269,11 @@ export default function AdminPage() {
     return () => { cancelled = true; };
   }, [isLoaded]);
 
-  async function handleLookupUser(emailOverride?: string) {
-    const emailToLookup = (emailOverride ?? lookupEmail).trim();
+  const handleLookupUser = useCallback(async (email: string, accessToken?: string | null) => {
+    const emailToLookup = email.trim();
     if (!emailToLookup) return;
+
+    const token = accessToken ?? await getAccessToken();
 
     setLookupEmail(emailToLookup);
     setActiveUserDropdownOpen(false);
@@ -288,7 +291,6 @@ export default function AdminPage() {
     setIsRecentSubmissionsOpen(false);
     setOpenSubmissionIds({});
 
-    const token = await getAccessToken();
     const res = await fetch("/api/admin/lookup-user", {
       method: "POST",
       headers: {
@@ -343,7 +345,16 @@ export default function AdminPage() {
     });
     setWorkout(loadedSteps);
     setLookupStatus("found");
-  }
+  }, []);
+
+  useEffect(() => {
+    if (!isLoaded || restoredPreviewUser.current) return;
+    restoredPreviewUser.current = true;
+    const email = new URLSearchParams(window.location.search).get("email")?.trim();
+    if (email) {
+      void getAccessToken().then(token => handleLookupUser(email, token)).catch(() => setLookupStatus("not-found"));
+    }
+  }, [isLoaded, handleLookupUser]);
 
   async function handleUpdateStatus(status: OnboardingStatus) {
     if (!assignedUserId) return;
@@ -626,7 +637,7 @@ export default function AdminPage() {
                     }}
                     onFocus={() => setActiveUserDropdownOpen(true)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") handleLookupUser();
+                      if (e.key === "Enter") handleLookupUser(lookupEmail);
                       if (e.key === "Escape") setActiveUserDropdownOpen(false);
                     }}
                     placeholder="User email"
@@ -669,7 +680,7 @@ export default function AdminPage() {
                   ) : null}
                 </div>
                 <Button
-                  onClick={() => handleLookupUser()}
+                  onClick={() => handleLookupUser(lookupEmail)}
                   disabled={lookupStatus === "loading"}
                   size="md"
                 >

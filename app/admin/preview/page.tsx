@@ -156,7 +156,7 @@ export default function AdminPreviewPage() {
                 </p>
               </div>
               <Link
-                href="/admin"
+                href={previewEmail ? `/admin?email=${encodeURIComponent(previewEmail)}` : "/admin"}
                 className="self-start rounded-none border border-[#4b543c] px-4 py-2 text-xs font-bold uppercase tracking-widest text-[#c1c8b7] transition-colors hover:border-[#d6ed9b] hover:text-white sm:self-auto md:px-6 md:py-3"
               >
                 Back To Admin
