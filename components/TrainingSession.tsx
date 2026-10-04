@@ -25,7 +25,7 @@ export default function TrainingSession(props: Props) {
   const grouped = props.workout.some(item => isBanner(item) && item.separateDay === true);
   if (!grouped) return <SessionView key={`${props.userId ?? 'preview'}:${program}`} {...props} program={program} />;
   return <div className={styles.days}>
-    <p className={styles.guidance}>Choose your training day. Each day has its own session progress; section dividers stay within that day.</p>
+    <p className={styles.guidance}>Choose your training day.</p>
     {splitTrainingDays(props.workout).map(day => <details className={styles.day} key={`${props.userId ?? 'preview'}:${day.key}:${program}`}>
       <summary className={styles.dayHeader}><span><span className={styles.dayTitle}>{day.title}</span><span className={styles.dose}>{[day.frequency, `${day.items.filter(item => !isBanner(item)).length} exercises`].filter(Boolean).join(' · ')}</span></span><svg className={styles.dayChevron} aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m6 9 6 6 6-6" /></svg></summary>
       <div className={styles.dayBody}><SessionView {...props} workout={day.items} program={JSON.stringify(day.items)} storageScope={day.key} dayTitle={day.title} /></div>
