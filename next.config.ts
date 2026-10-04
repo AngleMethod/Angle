@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  outputFileTracingIncludes: { '/api/certificates/**': ['./public/certificates/v1/**/*'], '/api/admin/certificates/**': ['./public/certificates/v1/**/*'], '/api/admin/certificates': ['./public/certificates/v1/**/*'] },
 };
 
 export default nextConfig;

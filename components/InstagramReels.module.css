@@ -19,5 +19,43 @@
 .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; border-top: 1px solid #343e2b; padding-top: 22px; margin: 0; }.stats dt { color: #aeb7a3; font-size: 11px; }.stats dd { font-size: 21px; margin: 5px 0 0; font-variant-numeric: tabular-nums; }
 .more { margin-top: 24px; border-top: 1px solid #343e2b; border-bottom: 1px solid #343e2b; }.more summary { display: flex; align-items: center; justify-content: space-between; padding: 16px 0; font-size: 11px; color: #b7bdac; cursor: pointer; list-style: none; }.more summary::-webkit-details-marker { display: none; }.more[open] summary span { transform: rotate(45deg); }.more dl { margin: 0; padding-bottom: 18px; }.more dl div { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; font-size: 11px; }.more dt { color: #aeb7a3; }.more dd { margin: 0; font-variant-numeric: tabular-nums; }
 .watch { display: flex; justify-content: space-between; align-items: center; color: #d6ed9b; font-size: 12px; margin-top: 22px; }.watch:hover { color: #fff; }.note { color: #9ca78d; font-size: 10px; line-height: 1.8; margin: 22px 0 0; }
-@media(max-width: 1100px) and (min-width: 701px) { .grid { grid-template-columns: repeat(3, 340px); overflow-x: auto; scroll-snap-type: x proximity; padding-bottom: 18px; }.card { scroll-snap-align: start; } }
-@media(max-width: 700px) { .section { padding: 64px 22px; }.headingRow { flex-direction: column; align-items: flex-start; gap: 28px; }.section h2 { font-size: 42px; }.profile { width: 100%; justify-content: space-between; }.grid { grid-template-columns: 1fr; gap: 28px; }.totals { align-items: flex-start; }.totals>span:first-child { max-width: 200px; }.totals strong { display: block; margin-bottom: 5px; }.cardBody { padding: 22px; }.views strong { font-size: 36px; } }
+
+/* Compact reel gallery. Scale the official embed as a whole to preserve its controls. */
+.section { padding: 72px 5%; }
+.headingRow, .totals, .grid, .note { max-width: 900px; margin-left: auto; margin-right: auto; }
+.headingRow { gap: 24px; margin-bottom: 30px; }
+.section h2 { font-size: clamp(36px, 3.6vw, 52px); margin-bottom: 18px; }
+.eyebrow { margin-bottom: 18px; }
+.profile { padding: 14px 16px; gap: 12px; }
+.profile strong { font-size: 17px; }
+.totals { padding: 16px 0; margin-bottom: 14px; }
+.totals strong { font-size: 28px; }
+.grid { gap: 16px; }
+.cardTop { padding: 11px 14px; font-size: 9px; }
+.embed { min-height: 0; }
+.embedInner { zoom: .78; width: 100%; }
+.fallback { min-height: 400px; }
+.cardBody { padding: 16px; }
+.section .cardBody h3 { font-size: 14px; min-height: 39px; margin-bottom: 12px; }
+.views { gap: 8px; margin-bottom: 3px; }
+.views strong { font-size: 27px; }
+.views span { font-size: 8px; }
+.likes { margin: 0; color: #b7bdac; font-size: 11px; }
+.more { margin-top: 14px; }
+.more summary { min-height: 44px; padding: 10px 0; }
+.more .stats { padding: 6px 0 12px; border: 0; gap: 8px 12px; }
+.more .stats div { display: block; padding: 0; }
+.more .stats dd { font-size: 16px; margin-top: 3px; }
+.more dl { padding-bottom: 12px; }
+.watch { margin-top: 14px; min-height: 30px; font-size: 11px; }
+.note { margin-top: 18px; }
+@media(max-width: 700px) {
+  .section { padding: 52px 22px; }
+  .headingRow { flex-direction: column; align-items: flex-start; gap: 22px; }
+  .section h2 { font-size: 38px; }
+  .profile { width: 100%; justify-content: space-between; }
+  .grid { grid-template-columns: 1fr; gap: 22px; max-width: 280px; }
+  .totals { align-items: flex-start; }
+  .totals>span:first-child { max-width: 180px; }
+  .totals strong { display: block; margin-bottom: 5px; }
+}

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Nav from "@/components/Nav";
+import CertificateCollection from "@/components/CertificateCollection";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
 import TrainingSession from "@/components/TrainingSession";
 
@@ -191,6 +192,7 @@ export default function AdminPreviewPage() {
             )}
 
             {previewUserId && <WorkoutCalendar userId={previewUserId} coach />}
+            {previewUserId && <CertificateCollection userId={previewUserId} readOnly />}
             <div className="mt-8 rounded-none border border-[#4b543c] bg-[#22261d] p-4 md:p-8">
               <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-3">Preview note</p>
               <p className="text-sm leading-relaxed text-[#b6beaa]">

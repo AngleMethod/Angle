@@ -9,6 +9,7 @@ import BookedRedirectHandler from "@/components/BookedRedirectHandler";
 import Chat from '@/components/Chat';
 import Nav from "@/components/Nav";
 import Button from "@/components/ui/Button";
+import CertificateCollection from "@/components/CertificateCollection";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
 import reviewStyles from "./ProgressReview.module.css";
 import StarterProgram from "@/components/StarterProgram";
@@ -813,6 +814,7 @@ export default function Dashboard() {
 
             <Chat />
             {userId && <WorkoutCalendar userId={userId} />}
+            {userId && <CertificateCollection userId={userId} />}
 
             <div className={reviewStyles.panel}>
               <div className={`${reviewStyles.header} ${isCoachReviewOpen ? reviewStyles.open : ""}`}>

@@ -4,6 +4,7 @@ import panelStyles from "./AdminPanels.module.css";
 import { moveProgramExercise } from "@/lib/programReorder";
 import BeginnerTemplateButton from "@/components/BeginnerTemplateButton";
 import ProgramEditor from "@/components/ProgramEditor";
+import CertificateCollection from "@/components/CertificateCollection";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -1163,6 +1164,7 @@ export default function AdminPage() {
               </>
             ) : null}
             {assignedUserId && <WorkoutCalendar userId={assignedUserId} coach />}
+            {assignedUserId && <CertificateCollection userId={assignedUserId} coach memberEmail={assignedUserEmail ?? undefined} />}
           </div>
         </section>
       </main>
