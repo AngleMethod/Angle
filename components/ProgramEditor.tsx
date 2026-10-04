@@ -11,6 +11,7 @@ type Step = { type?: 'video'; title: string; description: string; videoId?: stri
 type Item = Step | TrainingBanner;
 type Video = { id: string; title: string; mux_playback_id: string; description: string | null };
 type Props = {
+  template?: boolean;
   workout: Item[]; videos: Video[];
   onUpdate: (index: number, patch: Partial<Step>) => void;
   onBannerText: (index: number, text: string) => void;
@@ -75,11 +76,11 @@ export default function ProgramEditor(p: Props) {
     accessibility={{ restoreFocus: false, screenReaderInstructions: { draggable: 'Press Space to pick up an exercise. Use the up and down arrow keys to choose a position or another day. Press Space to drop, or Escape to cancel.' }, announcements: {
       onDragStart: ({ active }) => `Picked up ${active.data.current?.title}.`,
       onDragOver: ({ over }) => over ? `Move ${over.data.current?.label}.` : 'Outside the program. Drop to cancel.',
-      onDragEnd: ({ over }) => over ? `Exercise placed ${over.data.current?.label}. Save Workout to keep your changes.` : 'Move cancelled.',
+      onDragEnd: ({ over }) => over ? `Exercise placed ${over.data.current?.label}. ${p.template ? 'Save template' : 'Save Workout'} to keep your changes.` : 'Move cancelled.',
       onDragCancel: () => 'Move cancelled.',
     } }}>
   <section ref={editorRef} className={s.editor} aria-label="Program workout editor">
-    <div className={s.heading}><div><p className={s.eyebrow}>Your member’s training</p><h2>Program Builder</h2><p className={s.help}>{p.workout.filter(item => !isBanner(item)).length} exercises{grouped ? ` · ${days.length} training days` : ''} · Drag the grip to reorder or move between days. Open an exercise to edit.</p></div><button type="button" className={s.add} onClick={p.onAdd}>Add exercise or banner</button></div>
+    <div className={s.heading}><div><p className={s.eyebrow}>{p.template ? 'Your reusable template' : 'Your member training'}</p><h2>Program Builder</h2><p className={s.help}>{p.workout.filter(item => !isBanner(item)).length} exercises{grouped ? ` · ${days.length} training ${days.length === 1 ? 'day' : 'days'}` : ''} · Drag the grip to reorder or move between days. Open an exercise to edit.</p></div><button type="button" className={s.add} onClick={p.onAdd}>Add exercise or day</button></div>
     {!p.workout.length && <p className={s.empty}>Your program is empty. Add an exercise or a banner to begin.</p>}
     {days.map(day => {
       const bannerIndex = grouped ? p.workout.findIndex((item, index) => isBanner(item) && item.separateDay === true && `day:${item.dayId || index}` === day.key) : -1;
@@ -114,7 +115,7 @@ export default function ProgramEditor(p: Props) {
         })}{!day.items.length && <p className={s.empty}>No exercises in this training day yet.</p>}<ProgramDropTarget id={`end-${day.key}`} boundary={endBoundary} label={`to the end of ${day.title}`} end /></div>}
       </div>;
     })}
-    <p className={s.help}>Edits stay in your draft until you select Save Workout.</p>
+    <p className={s.help}>Edits stay in your draft until you select {p.template ? 'Save template' : 'Save Workout'}.</p>
   </section>
   <DragOverlay dropAnimation={null}>{dragged && <div className={s.dragOverlay}><span>Moving exercise</span><strong>{dragged.title}</strong><small>Drop between exercises or onto a training day</small></div>}</DragOverlay>
   </DndContext>;

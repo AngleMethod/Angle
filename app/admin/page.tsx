@@ -618,7 +618,6 @@ export default function AdminPage() {
                 <Link href="/dashboard" className={secondaryLinkClass}>
                   View Dashboard
                 </Link>
-                <Link href="/admin/templates" target="_blank" rel="noreferrer" className={secondaryLinkClass}>Beginner Template</Link>
                 <Link href="/admin/videos" className={secondaryLinkClass}>
                   Video Library
                 </Link>
@@ -715,14 +714,7 @@ export default function AdminPage() {
 
             {assignedUserId ? (
               <>
-                <div className="mb-8 flex flex-wrap items-start justify-between gap-5">
-                  <BeginnerTemplateButton key={assignedUserId}
-                    hasDraft={workout.length > 0 || !!(title || description || video || sets || repsOrHoldTime)}
-                    disabled={saveStatus === "saving"}
-                    onApply={steps => {
-                      setWorkout(steps); setTemplateRevision(v => v + 1); setSaveStatus("idle");
-                      setTitle(""); setDescription(""); setVideo(""); setSets(""); setRepsOrHoldTime(""); setVideoSearch(""); setAddStepError("");
-                    }} />
+                <div className="mb-8 flex justify-end">
                   <Button
                     onClick={handleSaveWorkout}
                     disabled={saveStatus === "saving"}
@@ -756,12 +748,27 @@ export default function AdminPage() {
                   }}
                 />
 
+                <section className={panelStyles.panel} aria-labelledby="program-templates-heading">
+                  <div className={`${panelStyles.header} flex-wrap`}>
+                    <div className="min-w-0">
+                      <h2 id="program-templates-heading" className={panelStyles.heading}>Program templates</h2>
+                      <p className={panelStyles.caption}>Start with a saved program, then tailor it for this member.</p>
+                    </div>
+                  <BeginnerTemplateButton key={assignedUserId}
+                    hasDraft={workout.length > 0 || !!(title || description || video || sets || repsOrHoldTime)}
+                    disabled={saveStatus === "saving"}
+                    onApply={steps => {
+                      setWorkout(steps); setTemplateRevision(v => v + 1); setSaveStatus("idle");
+                      setTitle(""); setDescription(""); setVideo(""); setSets(""); setRepsOrHoldTime(""); setVideoSearch(""); setAddStepError("");
+                    }} />
+                  </div>
+                </section>
                 {/* Program */}
                 <div className={panelStyles.panel}>
                   <div className={`${panelStyles.header} ${isProgramOpen ? panelStyles.open : ""}`}>
                     <div className="min-w-0">
                       <h2 className={panelStyles.heading}>
-                        Add exercise or banner
+                        Add exercise or day
                       </h2>
                       <p className={panelStyles.caption}>
                         Add videos and programming details for this member.
@@ -940,7 +947,7 @@ export default function AdminPage() {
                         onClick={addBanner}
                         className="rounded-none border border-[#4b543c] px-6 py-3 text-sm font-bold uppercase tracking-widest text-[#ddd] transition-colors hover:border-[#d6ed9b] hover:text-white"
                       >
-                        Add Banner
+                        Add Day
                       </button>
                     </div>
                   </div>

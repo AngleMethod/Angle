@@ -24,15 +24,19 @@ async function missingVideos(admin: ReturnType<typeof createAdminClient>, steps:
 }
 export async function GET(req: NextRequest) {
   if (!await isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  const templateId = req.nextUrl.searchParams.get('id') ?? 'beginner';
+  if (!['beginner', 'intermediate', 'advanced'].includes(templateId)) return NextResponse.json({ error: 'Unknown template.' }, { status: 400 });
   try {
     const admin = createAdminClient();
-    const { data, error } = await admin.from('program_templates').select('steps, version, updated_at').eq('id', 'beginner').single();
+    const { data, error } = await admin.from('program_templates').select('steps, version, updated_at').eq('id', templateId).single();
     if (error || !data) return failure();
     return NextResponse.json({ template: data, missingVideoIds: await missingVideos(admin, data.steps) }, { headers: { 'Cache-Control': 'no-store' } });
   } catch { return failure(); }
 }
 export async function PUT(req: NextRequest) {
   if (!await isAdmin(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  const templateId = req.nextUrl.searchParams.get('id') ?? 'beginner';
+  if (!['beginner', 'intermediate', 'advanced'].includes(templateId)) return NextResponse.json({ error: 'Unknown template.' }, { status: 400 });
   let steps: TemplateItem[], version: number;
   try {
     const body = await req.json();
@@ -47,7 +51,7 @@ export async function PUT(req: NextRequest) {
     if ((await missingVideos(admin, steps)).length) return NextResponse.json({ error: 'A template video was removed from the library. Replace or remove it before saving.' }, { status: 400 });
     const { data, error } = await admin.from('program_templates')
       .update({ steps, version: version + 1, updated_at: new Date().toISOString() })
-      .eq('id', 'beginner').eq('version', version).select('steps, version, updated_at').maybeSingle();
+      .eq('id', templateId).eq('version', version).select('steps, version, updated_at').maybeSingle();
     if (error) return failure();
     if (!data) return NextResponse.json({ error: 'Another coach updated this template. Reload it before saving again.' }, { status: 409 });
     return NextResponse.json({ template: data });

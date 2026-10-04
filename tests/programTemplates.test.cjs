@@ -50,7 +50,7 @@ function routeHarness({ email = 'josh@angle.coach', present = true, conflict = f
     assert.ok(['program_templates', 'videos'].includes(table), 'must never write a student workout');
     calls.push(table);
     const builder = {
-      select() { return builder; }, eq() { return builder; },
+      select() { return builder; }, eq(key, value) { calls.push(`${key}=${value}`); return builder; },
       update(value) { calls.push(value); return builder; },
       async in() { return { data: present ? [{ id }] : [], error: null }; },
       async single() { return { data: { steps, version: 2, updated_at: null }, error: dbError ? {} : null }; },
@@ -66,7 +66,7 @@ function routeHarness({ email = 'josh@angle.coach', present = true, conflict = f
   });
   return { route, calls };
 }
-const req = (body = { steps, version: 2 }, token = 'test') => ({ headers: { get: () => token && `Bearer ${token}` }, json: async () => body });
+const req = (body = { steps, version: 2 }, token = 'test') => ({ nextUrl: new URL('https://angle.coach/api/admin/program-templates'), headers: { get: () => token && `Bearer ${token}` }, json: async () => body });
 test('both endpoints deny anonymous users and non-admin students before database access', async () => {
   for (const token of ['', 'test']) {
     const { route, calls } = routeHarness({ email: 'student@example.com' });
@@ -91,4 +91,20 @@ test('concurrent edit conflicts do not overwrite another coach and setup failure
   assert.equal((await routeHarness({ conflict: true }).route.PUT(req())).status, 409);
   assert.equal((await routeHarness({ dbError: true }).route.GET(req())).status, 503);
   assert.equal((await routeHarness().route.PUT(req({ steps, version: -1 }))).status, 400);
+});
+
+test('advanced reads and saves target advanced only; invalid template IDs are rejected', async () => {
+  const { route, calls } = routeHarness();
+  const request = req(); request.nextUrl.searchParams.set('id', 'advanced');
+  assert.equal((await route.GET(request)).status, 200);
+  assert.equal((await route.PUT(request)).status, 200);
+  assert.equal(calls.filter(c => c === 'id=advanced').length, 2);
+  assert.ok(!calls.includes('id=beginner'));
+  request.nextUrl.searchParams.set('id', 'unknown');
+  assert.equal((await route.GET(request)).status, 400);
+  assert.equal((await route.PUT(request)).status, 400);
+});
+test('saving an imported template preserves legacy prescription fields', () => {
+  const exercise = { ...steps[1], frequency: '3x/week', section: 'handstands', sectionDescription: 'Original dose', sectionTitle: 'Straight' };
+  assert.deepEqual(model.parseTemplateSteps([exercise])[0], exercise);
 });

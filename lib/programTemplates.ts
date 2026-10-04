@@ -34,7 +34,7 @@ export function parseTemplateSteps(value: unknown): TemplateItem[] {
     if (item.type !== undefined && item.type !== 'video') throw new Error('Invalid exercise type.');
     const id = text('videoId', 36, true);
     if (!uuid.test(id)) throw new Error('Choose a library video for every exercise.');
-    return { type: 'video', videoId: id, title: text('title', 300, true), description: text('description', 10000), sets: text('sets', 100), repsOrHoldTime: text('repsOrHoldTime', 200) };
+    return { type: 'video', videoId: id, title: text('title', 300, true), description: text('description', 10000), sets: text('sets', 100), repsOrHoldTime: text('repsOrHoldTime', 200), ...Object.fromEntries(['frequency', 'section', 'sectionTitle', 'sectionDescription'].filter(key => item[key] !== undefined).map(key => [key, text(key, 10000)])) };
   });
 }
 
