@@ -184,7 +184,6 @@ export default function AdminPage() {
   const [video, setVideo] = useState("");
   const [sets, setSets] = useState("");
   const [repsOrHoldTime, setRepsOrHoldTime] = useState("");
-  const [frequency, setFrequency] = useState(DEFAULT_FREQUENCY);
   const [addStepError, setAddStepError] = useState("");
 
   const [videoLibrary, setVideoLibrary] = useState<VideoOption[]>([]);
@@ -283,7 +282,6 @@ export default function AdminPage() {
     setAssignedUserId(null);
     setAssignedUserEmail(null);
     setWorkout([]);
-    setFrequency(DEFAULT_FREQUENCY);
     setGoals("");
     setIsGoalsOpen(false);
     setIsProgramOpen(false);
@@ -407,7 +405,7 @@ export default function AdminPage() {
         description: description.trim() || pendingVideoDescription,
         sets: sets.trim(),
         repsOrHoldTime: repsOrHoldTime.trim(),
-        frequency: frequency.trim() || DEFAULT_FREQUENCY,
+        frequency: DEFAULT_FREQUENCY,
       };
       if (pendingVideoId) pendingStep.videoId = pendingVideoId;
 
@@ -427,8 +425,7 @@ export default function AdminPage() {
         setVideoSearch("");
         setSets("");
         setRepsOrHoldTime("");
-        setFrequency(DEFAULT_FREQUENCY);
-      }
+          }
     }
 
     stepsToSave = stepsToSave.map((step) => {
@@ -491,7 +488,7 @@ export default function AdminPage() {
       description: description.trim() || videoDescription,
       sets: sets.trim(),
       repsOrHoldTime: repsOrHoldTime.trim(),
-      frequency: frequency.trim() || DEFAULT_FREQUENCY,
+      frequency: DEFAULT_FREQUENCY,
     };
     if (videoId) newStep.videoId = videoId;
 
@@ -502,7 +499,6 @@ export default function AdminPage() {
     setVideoSearch("");
     setSets("");
     setRepsOrHoldTime("");
-    setFrequency(DEFAULT_FREQUENCY);
   }
 
   function addBanner() {
@@ -736,7 +732,6 @@ export default function AdminPage() {
                   key={assignedUserId}
                   workout={workout}
                   videos={videoLibrary}
-                  frequency={getWorkoutFrequency}
                   onUpdate={updateStep}
                   onBannerText={updateBanner}
                   onBanner={(index, patch) => setWorkout(prev => prev.map((item, i) => i === index && isWorkoutBanner(item) ? { ...item, ...patch } : item))}
@@ -817,15 +812,6 @@ export default function AdminPage() {
                           className={inputClass}
                         />
                       </div>
-                    </div>
-                    <div>
-                      <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Frequency</label>
-                      <input
-                        value={frequency}
-                        onChange={(e) => setFrequency(e.target.value)}
-                        placeholder={DEFAULT_FREQUENCY}
-                        className={inputClass}
-                      />
                     </div>
                     <div>
                       <label className="block text-[#b6beaa] text-xs tracking-widest uppercase mb-2">Video (optional)</label>

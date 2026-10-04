@@ -12,7 +12,6 @@ type Item = Step | TrainingBanner;
 type Video = { id: string; title: string; mux_playback_id: string; description: string | null };
 type Props = {
   workout: Item[]; videos: Video[];
-  frequency: (step: Step) => string;
   onUpdate: (index: number, patch: Partial<Step>) => void;
   onBannerText: (index: number, text: string) => void;
   onBanner: (index: number, patch: Partial<TrainingBanner>) => void;
@@ -101,13 +100,12 @@ export default function ProgramEditor(p: Props) {
           const sets = item.sets ? `${item.sets}${/^\d+(?:\s*[-–]\s*\d+)?$/.test(item.sets.trim()) ? ' sets' : ''}` : '';
           return <ProgramDropTarget key={`exercise-${i}`} id={`before-${i}`} boundary={i} label={`before ${title} in ${day.title}`}><article className={`${s.exercise} ${open ? s.open : ''} ${dragged?.index === i ? s.dragSource : ''}`}>
             <div className={s.exerciseHeader}><ExerciseDragHandle index={i} title={title} />
-            <button type="button" className={s.row} aria-expanded={open} aria-controls={`program-exercise-${i}`} onClick={() => setActive(open ? null : i)}><span className={s.number}>{String(number).padStart(2,'0')}</span><span className={s.title}><strong>{title}</strong><small>{[sets, item.repsOrHoldTime].filter(Boolean).join(' · ') || 'No sets or reps set'}</small><small>{p.frequency(item)}</small></span><span className={s.editHint}>{open ? 'Editing' : 'Edit'}</span><Chevron /></button></div>
+            <button type="button" className={s.row} aria-expanded={open} aria-controls={`program-exercise-${i}`} onClick={() => setActive(open ? null : i)}><span className={s.number}>{String(number).padStart(2,'0')}</span><span className={s.title}><strong>{title}</strong><small>{[sets, item.repsOrHoldTime].filter(Boolean).join(' · ') || 'No sets or reps set'}</small></span><span className={s.editHint}>{open ? 'Editing' : 'Edit'}</span><Chevron /></button></div>
             {open && <div id={`program-exercise-${i}`}><div className={s.detail}>
               <div className={s.media}>{video ? <VideoPlayer playbackId={video.mux_playback_id} /> : <div className={s.empty}>{item.videoId ? 'Video not found in library.' : 'No video attached.'}</div>}<p className={s.help}>{video?.title || 'Instruction-only exercise'}</p></div>
               <div className={s.form}>
                 <label>Exercise title<input value={item.title} placeholder={video?.title || 'Exercise title'} onChange={e => p.onUpdate(i,{title:e.target.value})} /></label>
                 <div className={s.fields}><label>Sets<input value={item.sets || ''} placeholder="e.g. 3" onChange={e => p.onUpdate(i,{sets:e.target.value})} /></label><label>Reps / hold time<input value={item.repsOrHoldTime || ''} placeholder="e.g. 30–45 sec" onChange={e => p.onUpdate(i,{repsOrHoldTime:e.target.value})} /></label></div>
-                <label>Frequency<input value={p.frequency(item)} onChange={e => p.onUpdate(i,{frequency:e.target.value})} /></label>
                 <label>Exercise instructions<textarea rows={6} value={item.description} placeholder={video?.description || 'Optional'} onChange={e => p.onUpdate(i,{description:e.target.value})} /></label>
                 {!item.description && video?.description && <p className={s.inherited}>{video.description}</p>}
               </div>
