@@ -2,6 +2,7 @@
 
 import panelStyles from "./AdminPanels.module.css";
 import { moveProgramExercise } from "@/lib/programReorder";
+import BeginnerTemplateButton from "@/components/BeginnerTemplateButton";
 import ProgramEditor from "@/components/ProgramEditor";
 import WorkoutCalendar from "@/components/WorkoutCalendar";
 import Link from "next/link";
@@ -167,6 +168,7 @@ export default function AdminPage() {
   const [activeUsersLoaded, setActiveUsersLoaded] = useState(false);
   const [activeUserDropdownOpen, setActiveUserDropdownOpen] = useState(false);
 
+  const [templateRevision, setTemplateRevision] = useState(0);
   const [workout, setWorkout] = useState<WorkoutItem[]>([]);
   const [goals, setGoals] = useState("");
   const [isGoalsOpen, setIsGoalsOpen] = useState(false);
@@ -616,6 +618,7 @@ export default function AdminPage() {
                 <Link href="/dashboard" className={secondaryLinkClass}>
                   View Dashboard
                 </Link>
+                <Link href="/admin/templates" target="_blank" rel="noreferrer" className={secondaryLinkClass}>Beginner Template</Link>
                 <Link href="/admin/videos" className={secondaryLinkClass}>
                   Video Library
                 </Link>
@@ -712,7 +715,14 @@ export default function AdminPage() {
 
             {assignedUserId ? (
               <>
-                <div className="mb-8 flex justify-end">
+                <div className="mb-8 flex flex-wrap items-start justify-between gap-5">
+                  <BeginnerTemplateButton key={assignedUserId}
+                    hasDraft={workout.length > 0 || !!(title || description || video || sets || repsOrHoldTime)}
+                    disabled={saveStatus === "saving"}
+                    onApply={steps => {
+                      setWorkout(steps); setTemplateRevision(v => v + 1); setSaveStatus("idle");
+                      setTitle(""); setDescription(""); setVideo(""); setSets(""); setRepsOrHoldTime(""); setVideoSearch(""); setAddStepError("");
+                    }} />
                   <Button
                     onClick={handleSaveWorkout}
                     disabled={saveStatus === "saving"}
@@ -729,7 +739,7 @@ export default function AdminPage() {
                 </div>
 
                 <ProgramEditor
-                  key={assignedUserId}
+                  key={`${assignedUserId}:${templateRevision}`}
                   workout={workout}
                   videos={videoLibrary}
                   onUpdate={updateStep}

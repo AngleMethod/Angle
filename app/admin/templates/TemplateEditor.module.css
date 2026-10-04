@@ -1,0 +1,26 @@
+.page { min-height:100vh; background:#111310; color:#f0eee8; padding:140px 24px 80px; }
+.wrap { max-width:1152px; margin:auto; }
+.header { display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:24px; margin-bottom:32px; }
+.eyebrow { color:#adb5a0; font-size:11px; letter-spacing:.16em; text-transform:uppercase; margin-bottom:14px; }
+.header h1 { font-size:clamp(32px,5vw,54px); line-height:1.05; letter-spacing:-.04em; margin:0 0 14px; }
+.intro { color:#b6beaa; font-size:14px; max-width:590px; line-height:1.6; }
+.link { color:#d6ed9b; font-size:13px; text-decoration:underline; text-underline-offset:4px; }
+.panel { border:1px solid #39422f; background:#1c2119; padding:20px; margin:24px 0; }
+.toolbar { display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+.title { font-size:16px; font-weight:500; margin:0 0 5px; }
+.muted { color:#a6af99; font-size:12px; line-height:1.6; }
+.status { color:#d6ed9b; font-size:13px; margin-top:12px; }
+.error { color:#f1aaa0; font-size:13px; margin-top:12px; }
+.fieldset { border:0; padding:0; margin:0; min-width:0; }
+.fieldset:disabled { opacity:.65; }
+.search { display:block; color:#b6beaa; font-size:12px; margin:20px 0 16px; }
+.search input { display:block; margin-top:8px; width:100%; border:1px solid #4b543c; background:#111310; padding:13px 16px; color:#f0eee8; font-size:14px; }
+.list { max-height:440px; overflow:auto; }
+.row { display:flex; align-items:center; gap:16px; padding:12px 0; border-top:1px solid #39422f; }
+.row img { width:88px; height:50px; object-fit:cover; flex-shrink:0; }
+.rowTitle { flex:1; min-width:0; font-size:14px; }
+.rowTitle small { display:block; font-size:11px; color:#a6af99; margin-top:4px; }
+.actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:20px; }
+.outline { padding:10px 15px; border:1px solid #4b543c; color:#d6ed9b; font-size:12px; background:transparent; }
+.outline:hover { background:#293321; }
+@media(max-width:600px) { .page{padding:110px 16px 50px}.panel{padding:16px}.row{gap:10px}.row img{width:64px;height:40px} }
