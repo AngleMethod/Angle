@@ -211,8 +211,9 @@
 .photoGrid{
   position:absolute;
   inset:0;
-  opacity:.18;
-  background-image:linear-gradient(#bcbfb31c 1px,transparent 1px),linear-gradient(90deg,#bcbfb31c 1px,transparent 1px);
+  opacity:.55;
+  pointer-events:none;
+  background-image:linear-gradient(#a6b87959 1px,transparent 1px),linear-gradient(90deg,#a6b87959 1px,transparent 1px);
   background-size:130px 130px
 }
 .photoCaption{
@@ -1233,7 +1234,7 @@
     inset:auto;
     z-index:0;
     width:100%;
-    aspect-ratio:4 / 5
+    aspect-ratio:1 / 1
   }
   .heroPhoto img{
     object-position:50% 48%;
@@ -1242,8 +1243,20 @@
   .heroPhoto:after{
     background:linear-gradient(180deg,#111310,transparent 30%,transparent 75%,#111310),linear-gradient(90deg,#111310a0,transparent 45%)
   }
-  .photoCaption,.orbit{
+  .photoCaption{
     display:none
+  }
+  .photoGrid{
+    background-size:80px 80px
+  }
+  .orbit{
+    display:block;
+    top:12%;
+    right:8%;
+    width:68%;
+    border-color:#d6ed9b66;
+    border-left-color:transparent;
+    pointer-events:none
   }
   .heroContent{
     padding:32px 24px 36px;
