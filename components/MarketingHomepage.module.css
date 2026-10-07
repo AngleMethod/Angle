@@ -256,17 +256,17 @@
 .hero h1{
   font-family:var(--font-bebas),sans-serif;
   font-weight:400;
-  font-size:clamp(92px,10.5vw,162px);
+  font-size:clamp(64px,7.4vw,112px);
   line-height:.86;
   letter-spacing:-2px
 }
 .hero h1 .serif{
   display:block;
   color:var(--lime);
-  font-size:.86em;
-  line-height:1.05;
-  margin-top:0;
-  margin-left:12%
+  font-size:.78em;
+  line-height:1.02;
+  margin-top:12px;
+  margin-left:0
 }
 .heroCopy{
   max-width:360px;
@@ -1123,7 +1123,7 @@
     min-height:680px
   }
   .hero h1{
-    font-size:125px
+    font-size:clamp(64px,8.5vw,89px)
   }
   .heroPhoto{
     left:30%
@@ -1225,11 +1225,15 @@
   }
   .hero{
     height:auto;
-    min-height:820px;
+    min-height:0;
     max-height:none
   }
   .heroPhoto{
-    inset:260px 0 0 12%
+    position:relative;
+    inset:auto;
+    z-index:0;
+    width:100%;
+    aspect-ratio:4 / 5
   }
   .heroPhoto img{
     object-position:50% 48%;
@@ -1242,7 +1246,7 @@
     display:none
   }
   .heroContent{
-    padding:39px 24px 70px;
+    padding:32px 24px 36px;
     max-width:none
   }
   .heroContent>.eyebrow{
@@ -1251,17 +1255,17 @@
     letter-spacing:1.2px
   }
   .hero h1{
-    font-size:106px;
-    line-height:.86
+    font-size:clamp(48px,12vw,78px);
+    line-height:.95
   }
   .hero h1 .serif{
-    margin-left:15px;
-    line-height:.95;
-    font-size:.9em
+    margin-left:0;
+    line-height:1.04;
+    font-size:.88em
   }
   .heroCopy{
     font-size:12px;
-    max-width:235px;
+    max-width:360px;
     margin-top:30px!important;
     text-shadow:0 1px 15px #111
   }
@@ -1280,14 +1284,17 @@
     background:#11131077
   }
   .heroNote{
-    max-width:160px;
+    max-width:none;
     line-height:1.7;
     font-size:8px
   }
   .heroBottom{
-    left:24px;
-    right:24px;
-    bottom:22px;
+    position:relative;
+    left:auto;
+    right:auto;
+    bottom:auto;
+    margin:0 24px 24px;
+    gap:16px;
     font-size:7px;
     letter-spacing:.8px
   }
@@ -1618,8 +1625,9 @@
 .priceVisual img { object-fit: contain; object-position: center; }
 .heroPhoto img { object-position: 50% 60%; }
 @media (max-width: 700px) {
-  .heroPhoto { inset: 285px 0 0; }
-  .heroPhoto img { object-fit: contain; object-position: center bottom; }
+  .heroPhoto { inset: auto; }
+  .heroPhoto img { object-fit: cover; object-position: center; opacity: 1; }
+  .heroPhoto:after { background: linear-gradient(0deg, #111310 0%, transparent 16%); }
   .techniquePhoto { aspect-ratio: 3 / 2; }
 }
 /* Member access follows the homepage typography and spacing. */
