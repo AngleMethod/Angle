@@ -641,7 +641,7 @@ export default function Dashboard() {
     return (
       <>
         {DashboardNav}
-        <main className="min-h-screen bg-[#111310] text-white">
+        <main className="min-h-screen bg-[#151a16] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-6 md:px-12">
             <div className="mx-auto max-w-6xl">
               <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">— Angle Member</p>
@@ -664,7 +664,7 @@ export default function Dashboard() {
     return (
       <>
         {DashboardNav}
-        <main className="min-h-screen bg-[#111310] text-white">
+        <main className="min-h-screen bg-[#151a16] text-white">
           <section className="pt-32 md:pt-40 pb-16 md:pb-28 px-4 sm:px-6 md:px-12">
             <div className="mx-auto max-w-xl text-center">
               <p className="text-[#adb5a0] text-xs tracking-widest uppercase mb-4">— Membership</p>
@@ -692,7 +692,7 @@ export default function Dashboard() {
   return (
     <>
       {DashboardNav}
-      <main className="min-h-screen bg-[#111310] text-white">
+      <main className="min-h-screen bg-[#151a16] text-white">
         <section className="pt-28 md:pt-40 pb-12 md:pb-28 px-4 sm:px-6 md:px-12">
           <div className="mx-auto max-w-6xl">
             <Suspense fallback={null}>

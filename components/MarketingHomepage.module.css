@@ -1284,12 +1284,7 @@
     display:none
   }
   .principles{
-    padding:24px;
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:18px 8px;
-    font-size:9px;
-    line-height:1.6
+    display:none
   }
   .section{
     padding:65px 24px
