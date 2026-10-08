@@ -9,7 +9,7 @@
 .card:has(input:focus-visible) { outline: 2px solid #d6ed9b; outline-offset: 4px; }
 .cardTop { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
 .number { font-size: 11px; color: #a5b18f; letter-spacing: .1em; }
-.indicator { width: 18px; height: 18px; border: 1px solid #81906b; border-radius: 50%; }
+.indicator { width: 18px; height: 18px; border: 1px solid #81906b; border-radius:0; }
 .selected .indicator { border-color: #d6ed9b; background: #d6ed9b; box-shadow: inset 0 0 0 4px #27301e; }
 .label { font-size: 18px; font-weight: 600; line-height: 1.4; margin-bottom: 10px; }
 .selected .label { color: #d6ed9b; }

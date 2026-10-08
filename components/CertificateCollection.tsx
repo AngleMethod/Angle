@@ -1,4 +1,5 @@
 "use client";
+import headingStyles from './DashboardSectionHeading.module.css';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 import { certificateDate, certificateNumber, certificateSkills, certificateSkillLines, type Certificate } from '@/lib/certificates';
@@ -93,7 +94,7 @@ function Collection({userId,coach,memberEmail,readOnly}:{userId:string;coach:boo
   }
   return <section id="certificates" className={s.collection} aria-labelledby="mastery-title">
     <details className={s.disclosure} open={coach || undefined}>
-    <summary className={s.header}><div><p className={s.eyebrow}>Collect them all!</p><h2 id="mastery-title">Certificates of<br/><em>Handstand Mastery</em></h2><p>{coach?'Celebrate a breakthrough. Award a skill they have earned.':'Keep grinding hard to earn more.'}</p></div><div className={s.counter}><CaneIcon small/><strong>{loading?'—':rows.length}</strong><span>{rows.length===1?'milestone unlocked':'milestones unlocked'}</span></div><svg className={s.chevron} aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m6 9 6 6 6-6"/></svg></summary>
+    <summary className={s.header}><div><p className={s.eyebrow}>Collect them all!</p><h2 id="mastery-title" className={headingStyles.heading}>Certificates of<br/>Handstand Mastery</h2><p>{coach?'Celebrate a breakthrough. Award a skill they have earned.':'Keep grinding hard to earn more.'}</p></div><div className={s.counter}><CaneIcon small/><strong>{loading?'—':rows.length}</strong><span>{rows.length===1?'milestone unlocked':'milestones unlocked'}</span></div><svg className={s.chevron} aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m6 9 6 6 6-6"/></svg></summary>
     {coach&&<div className={s.adminBar}><p>Awarded by you. Personalized for {memberEmail||'this member'}.</p><button className={s.primary} onClick={()=>{setAdding(!adding);setError('');}} disabled={!!busy}>{adding?'Close form':'+ Add certificate'}</button></div>}
     {adding&&<form className={s.form} onSubmit={e=>{e.preventDefault();void award();}}>
       <div className={s.formHeading}><h3>A moment worth recognizing</h3><p>Review the name and skill. Awarding adds it to this member’s dashboard and emails their PDF.</p></div>

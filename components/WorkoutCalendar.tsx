@@ -1,4 +1,5 @@
 'use client';
+import headingStyles from './DashboardSectionHeading.module.css';
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { dateInZone, type WorkoutCompletion } from '@/lib/workoutHistory';
@@ -52,7 +53,7 @@ function Calendar({userId,coach}:{userId:string;coach:boolean}) {
   }
   return <section className={styles.calendar} aria-label="Workout completion calendar">
     <details className={styles.disclosure}>
-    <summary className={styles.header}><div><p className={styles.eyebrow}>Consistency, one session at a time</p><h2>Workout tracker</h2><p>{coach ? 'Your student’s completed sessions.' : 'Finish a session to add a checkmark to your calendar.'}</p></div><svg className={styles.chevron} aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m6 9 6 6 6-6" /></svg></summary>
+    <summary className={styles.header}><div><p className={styles.eyebrow}>Consistency, one session at a time</p><h2 className={headingStyles.heading}>Workout tracker</h2><p>{coach ? 'Your student’s completed sessions.' : 'Finish a session to add a checkmark to your calendar.'}</p></div><svg className={styles.chevron} aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m6 9 6 6 6-6" /></svg></summary>
     <div className={styles.navigation}><button onClick={()=>changeMonth(-1)} disabled={!month || year<=2020 && m===1} aria-label="Previous month"><Arrow back /></button><h3>{month ? monthDate.toLocaleDateString(undefined,{month:'long',year:'numeric'}) : 'Loading calendar…'}</h3><button onClick={()=>changeMonth(1)} disabled={!month || month>=today.slice(0,7)} aria-label="Next month"><Arrow /></button></div>
     {error ? <div role="alert" className={styles.message}>{error} <button onClick={refresh}>Retry</button></div> : loading ? <p role="status" className={styles.message}>Loading workout history…</p> : <>
       <div className={styles.stats}><span><strong>{rows.length}</strong> sessions this month</span><span><strong>{new Set(rows.map(r=>r.completed_date)).size}</strong> days trained</span></div>

@@ -1,5 +1,6 @@
 'use client';
 
+import headingStyles from './DashboardSectionHeading.module.css';
 import { useEffect, useId, useRef, useState } from 'react';
 import { splitTrainingDays, type TrainingBanner } from '@/lib/trainingDays';
 import { supabase } from '@/lib/supabase';
@@ -52,7 +53,7 @@ export default function TrainingSession(props: Props) {
   return <div className={styles.days}>
     {days.length > 1 && <p className={styles.guidance}>Choose your training day.</p>}
     {days.map(day => <details className={styles.day} key={`${props.userId ?? 'preview'}:${day.key}:${program}`}>
-      <summary className={styles.dayHeader}><span><span className={styles.dayTitle}>{day.title}</span><span className={styles.dose}>{[day.frequency, `${day.items.filter(item => !isBanner(item)).length} exercises`].filter(Boolean).join(' · ')}</span></span><svg className={styles.dayChevron} aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m6 9 6 6 6-6" /></svg></summary>
+      <summary className={styles.dayHeader}><span><span className={`${styles.dayTitle} ${headingStyles.heading}`}>{day.title}</span><span className={styles.dose}>{[day.frequency, `${day.items.filter(item => !isBanner(item)).length} exercises`].filter(Boolean).join(' · ')}</span></span><svg className={styles.dayChevron} aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="m6 9 6 6 6-6" /></svg></summary>
       <div className={styles.dayBody}><SessionView key={sessionDate} sessionDate={sessionDate} {...props} workout={day.items} program={JSON.stringify(day.items)} storageScope={day.key} dayTitle={day.title} /></div>
     </details>)}
   </div>;
