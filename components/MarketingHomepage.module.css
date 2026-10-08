@@ -1679,9 +1679,9 @@
 @media (max-width:700px){
   .heroPhoto img{
     object-fit:cover;
-    object-position:35% 85%;
+    object-position:40% 85%;
     transform:scale(1.35);
-    transform-origin:35% 85%
+    transform-origin:40% 85%
   }
   .heroPhoto .mobileHeroOverlay{
     display:block;
