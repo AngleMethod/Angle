@@ -591,12 +591,7 @@ export default function Dashboard() {
     if (onboardingStatus === "completed") {
       const playlistAssigned = workoutLoaded && workout.length > 0;
       if (playlistAssigned) {
-        return {
-          label: "Coach-led",
-          border: "border-[#4b543c]",
-          bg: "#293321",
-          text: "#d6ed9b",
-        };
+        return null;
       }
       return {
         label: "Built for you",
@@ -706,14 +701,14 @@ export default function Dashboard() {
 
 <div data-workspace-heading className="mb-10 md:mb-14 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
               <div>
-                <div className="mb-4 md:mb-6">
+                {eyebrowPill && <div className="mb-4 md:mb-6">
                   <span
                     className={`text-xs px-3 py-1 rounded-none font-medium border ${eyebrowPill.border}`}
                     style={{ backgroundColor: eyebrowPill.bg, color: eyebrowPill.text }}
                   >
                     {eyebrowPill.label}
                   </span>
-                </div>
+                </div>}
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                 >

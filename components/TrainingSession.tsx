@@ -145,15 +145,16 @@ function SessionView({ workout, videos, userId, preview = false, program, sessio
 
   return <section className={styles.training} aria-label={dayTitle || "Today's training"}>
     <fieldset disabled={saving} style={{border:0,padding:0,margin:0,minWidth:0}}>
-    <div className={styles.top}>
-      <div><p className={styles.eyebrow}>Today’s training</p><p className={styles.muted}>{indices.length} exercises</p></div>
-      {!session.started && !session.finished && <button className={styles.primary} disabled={!ready} onClick={() => {
+    {!session.started && !session.finished && <div className={styles.top}>
+      <button className={styles.primary} disabled={!ready} onClick={() => {
         const active = session.active ?? indices.find(i => !session.done.includes(i)) ?? indices[0];
         update({ ...session, started: true, active }); focusRow(active);
-      }}>{session.done.length || session.active !== null ? 'Resume session' : dayTitle ? 'Start this day' : 'Start session'} <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></button>}
-    </div>
-    <div className={styles.progressText}><span>{session.finished ? 'Session complete' : session.started ? 'In progress' : 'Your program'}</span><span aria-live="polite">{session.done.length} of {indices.length} complete</span></div>
+      }}>{session.done.length || session.active !== null ? 'Resume session' : dayTitle ? 'Start this day' : 'Start session'} <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></button>
+    </div>}
+    {(session.started || session.finished || session.done.length > 0) && <>
+    <div className={styles.progressText}><span>{session.finished ? 'Session complete' : 'In progress'}</span><span aria-live="polite">{session.done.length} of {indices.length} complete</span></div>
     <div className={styles.track} role="progressbar" aria-label="Exercise completion" aria-valuemin={0} aria-valuemax={indices.length} aria-valuenow={session.done.length}><div style={{ width: `${session.done.length / indices.length * 100}%` }} /></div>
+    </>}
     {session.finished ? <div className={styles.summary} tabIndex={-1} ref={summaryRef}>
       <h2>Session complete.</h2>
     </div> : <>
