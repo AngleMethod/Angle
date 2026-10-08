@@ -113,9 +113,33 @@ function SessionView({ workout, videos, userId, preview = false, program, sessio
   function toggle(index: number, advance = false) {
     const removing = session.done.includes(index);
     const done = removing ? session.done.filter(i => i !== index) : [...session.done, index];
+    if (session.finished) {
+      void correctCompletedSession({ ...session, done });
+      return;
+    }
     const nextIndex = !removing && advance ? indices.find(i => i > index && !done.includes(i)) ?? indices.find(i => !done.includes(i)) ?? index : session.active;
     update({ ...session, done, active: nextIndex, started: advance ? true : session.started, finished: false });
     if (advance) focusRow(nextIndex);
+  }
+  async function correctCompletedSession(next: Session) {
+    if (savingRef.current || localTrainingDate() !== sessionDate) return;
+    savingRef.current = true; setSaving(true); setSaveError('');
+    try {
+      if (!preview) {
+        const {data:{session:auth}} = await supabase.auth.getSession();
+        if (!auth || auth.user.id !== userId) throw new Error('Please sign in again to update your workout.');
+        const res = await fetch('/api/workout-history', {
+          method:'PATCH', signal:AbortSignal.timeout(20000),
+          headers:{'Content-Type':'application/json',Authorization:`Bearer ${auth.access_token}`},
+          body:JSON.stringify({sessionId:next.id,completedExercises:next.done.length}),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Could not update your checkmarks. Please try again.');
+        window.dispatchEvent(new Event('angle:workout-completed'));
+      }
+      update(next);
+    } catch(e) { setSaveError(e instanceof Error ? e.message : 'Could not update your checkmarks. Please try again.'); }
+    finally {savingRef.current=false;setSaving(false);}
   }
   async function finish() {
     if (savingRef.current || !session.done.length || localTrainingDate() !== sessionDate) return;
@@ -164,7 +188,7 @@ function SessionView({ workout, videos, userId, preview = false, program, sessio
         const sets = item.sets ? `${item.sets}${/^\d+(?:\s*[-–]\s*\d+)?$/.test(item.sets.trim()) ? ' sets' : ''}` : '';
         return <li className={`${styles.item} ${open ? styles.active : ''}`} key={index}>
           <div className={styles.row}>
-            <input type="checkbox" className={styles.check} aria-label={`Complete ${item.title}`} checked={done} disabled={!ready || session.finished} onChange={() => toggle(index)} />
+            <input type="checkbox" className={styles.check} aria-label={`Complete ${item.title}`} checked={done} disabled={!ready} onChange={() => toggle(index)} />
             <button ref={node => { rowRefs.current[index] = node; }} className={styles.exercise} aria-expanded={open} aria-controls={`${detailId}-exercise-detail-${index}`} disabled={!ready} onClick={() => update({ ...session, started: !session.finished, active: open ? null : index })}>
               <span className={styles.number}>{String(indices.indexOf(index) + 1).padStart(2, '0')}</span><span className={styles.text}><span className={styles.name}>{item.title}</span><span className={styles.dose}>{[sets, item.repsOrHoldTime].filter(Boolean).join(' · ')}</span>{!dayTitle && <span className={styles.dose}>{frequency(item)}</span>}</span>
               <span className={styles.status}>{done ? 'Complete' : open ? 'Now' : ''}</span>
@@ -186,7 +210,7 @@ function SessionView({ workout, videos, userId, preview = false, program, sessio
       </div>}
     </fieldset>
     {saving && <p role="status" className={styles.muted}>Saving your workout to the calendar…</p>}
-    {saveError && <div role="alert"><p>{saveError} Your checkmarks are still here.</p><button className={styles.primary} onClick={finish} disabled={saving}>Retry saving workout</button></div>}
+    {saveError && <div role="alert"><p>{saveError} Your checkmarks are still here.</p>{!session.finished && <button className={styles.primary} onClick={finish} disabled={saving}>Retry saving workout</button>}</div>}
     {preview && <p className={styles.storage}>Preview only.</p>}
     {!storageAvailable && <p role="status" className={styles.storage}>Progress can’t be saved on this browser.</p>}
   </section>;

@@ -53,3 +53,24 @@ export async function POST(req: NextRequest) {
     return reply({completion:data});
   } catch { return reply({error:'Your workout could not be saved. Please retry.'},503); }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const user = await authenticate(req);
+    if (!user) return reply({error:'Please sign in again to update your workout.'},401);
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body.sessionId !== 'string' || !UUID.test(body.sessionId)
+      || !Number.isInteger(body.completedExercises) || body.completedExercises < 0 || body.completedExercises > 1000)
+      return reply({error:'Invalid workout correction.'},400);
+    const db = createAdminClient();
+    const {data:existing,error:readError} = await db.from('workout_completions').select('total_exercises')
+      .eq('user_id',user.id).eq('session_id',body.sessionId).maybeSingle();
+    if (readError) return reply({error:'Could not update your checkmarks. Please try again.'},503);
+    if (!existing) return reply({error:'Workout not found.'},404);
+    if (body.completedExercises > existing.total_exercises) return reply({error:'Invalid workout correction.'},400);
+    const {data,error} = await db.from('workout_completions').update({completed_exercises:body.completedExercises})
+      .eq('user_id',user.id).eq('session_id',body.sessionId).select(columns).single();
+    if (error) return reply({error:'Could not update your checkmarks. Please try again.'},503);
+    return reply({completion:data});
+  } catch { return reply({error:'Could not update your checkmarks. Please try again.'},503); }
+}
