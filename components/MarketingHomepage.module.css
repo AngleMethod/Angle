@@ -206,18 +206,15 @@
   content:'';
   position:absolute;
   inset:0;
+  z-index:2;
+  pointer-events:none;
   background:linear-gradient(90deg,#111310 0%,transparent 28%),linear-gradient(0deg,#111310 0%,transparent 22%)
 }
-.mobileHeroOverlay{
-  display:none
-}
-.photoGrid{
-  position:absolute;
-  inset:0;
-  opacity:.55;
-  pointer-events:none;
-  background-image:linear-gradient(#a6b87959 1px,transparent 1px),linear-gradient(90deg,#a6b87959 1px,transparent 1px);
-  background-size:130px 130px
+.heroPhoto .heroOverlay{
+  display:block;
+  z-index:1;
+  opacity:1;
+  pointer-events:none
 }
 .photoCaption{
   position:absolute;
@@ -228,25 +225,6 @@
   line-height:1.8;
   z-index:1;
   color:#a4a69d
-}
-.orbit{
-  position:absolute;
-  right:9%;
-  top:13%;
-  width:49%;
-  aspect-ratio:1;
-  border:1px solid #d6ed9b40;
-  border-radius:50%;
-  transform:rotate(-28deg);
-  border-left-color:transparent;
-  z-index:1
-}
-.orbit:before{
-  content:'+';
-  position:absolute;
-  right:14%;
-  top:8%;
-  color:var(--lime)
 }
 .heroContent{
   padding:65px 0 100px 7%;
@@ -1249,18 +1227,6 @@
   .photoCaption{
     display:none
   }
-  .photoGrid{
-    background-size:80px 80px
-  }
-  .orbit{
-    display:block;
-    top:12%;
-    right:8%;
-    width:68%;
-    border-color:#d6ed9b66;
-    border-left-color:transparent;
-    pointer-events:none
-  }
   .heroContent{
     padding:32px 24px 36px;
     max-width:none
@@ -1675,7 +1641,7 @@
   .quizBanner .bannerMark { display: none; }
 }
 
-/* Match the photo and silhouette mask exactly at every mobile width. */
+/* The photo and silhouette overlay share the same crop on every screen. */
 @media (max-width:700px){
   .heroPhoto img{
     object-fit:cover;
@@ -1683,12 +1649,5 @@
     transform:scale(1.35);
     transform-origin:40% 85%
   }
-  .heroPhoto .mobileHeroOverlay{
-    display:block;
-    z-index:1;
-    opacity:1;
-    pointer-events:none
-  }
-  .heroPhoto .photoGrid,.heroPhoto .orbit{display:none}
   .heroPhoto:after{z-index:2;pointer-events:none}
 }
