@@ -120,7 +120,7 @@ export default function MarketingHomepage({ authReady, isLoggedIn, isStartingTra
           <div className={s.heroBottom}><span>01 — A NEW PERSPECTIVE</span><a href="#journey">EXPLORE THE METHOD <Arrow direction="down" /></a><span>STRENGTH / BALANCE / CONTROL</span></div>
         </section>
 
-        <div className={s.principles}><span>Built around your body.</span><span>Led by a clear method.</span><span>Made for your next breakthrough.</span><span className={s.accent}>THIS IS ANGLE. <Arrow /></span></div>
+        <div className={s.principles}><span>Built around your body.</span><span>Led by a clear method.</span><span>Made for your next breakthrough.</span><span><a className={s.accent} href="#how-it-works">THIS IS ANGLE. <Arrow /></a></span></div>
 
         <section id="journey" className={`${s.section} ${s.light}`}>
           <div className={s.sectionHeading}><div><p className={s.eyebrow}>01 / YOUR NEXT CHAPTER</p><h2>A different starting point.<br /><span className={s.serif}>The same possibility.</span></h2></div><p>You don’t need to be “good enough” to begin.<br />You need a path that starts where you are.</p></div>
