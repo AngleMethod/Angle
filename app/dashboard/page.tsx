@@ -648,7 +648,7 @@ export default function Dashboard() {
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-6"
               >
-                Today’s <em>training.</em>
+                Today’s <em>training</em>
               </h1>
               <p className="text-[#b6beaa]">
                 {authStatus === "redirecting" ? "Redirecting..." : "Checking login..."}
@@ -671,7 +671,7 @@ export default function Dashboard() {
               <h1
                 className="text-white uppercase leading-[0.95] tracking-wide mb-4 md:mb-6"
               >
-                Your next <em>chapter.</em>
+                Your next <em>chapter</em>
               </h1>
               <p className="text-[#b6beaa] mb-10 md:mb-14">
                 This training program is part of the paid Angle membership.
@@ -712,7 +712,7 @@ export default function Dashboard() {
                 <h1
                   className="text-white uppercase leading-[0.95] tracking-wide mb-4"
                 >
-                  Your <em>training.</em>
+                  Your <em>training</em>
                 </h1>
                 {workoutLoaded && workout.length > 0 ? null : (
                   <p className="text-[#b6beaa]">

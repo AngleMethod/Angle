@@ -41,7 +41,7 @@ export default function StarterProgram({ getAccessToken }: { getAccessToken: () 
 
   return (
     <section className={styles.panel} aria-labelledby="starter-heading" aria-busy={saving}>
-      <h2 id="starter-heading" className={styles.heading}>Your training starts now.</h2>
+      <h2 id="starter-heading" className={styles.heading}>Your training starts now</h2>
       <p className={styles.intro}>While you wait for your assessment call, choose the level that best describes your current handstand level. Josh will personalize your program after your assessment.</p>
       <fieldset className={styles.choices} disabled={saving}>
         <legend className="sr-only">Choose your handstand level</legend>

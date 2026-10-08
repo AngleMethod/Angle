@@ -82,7 +82,7 @@ function SessionView({ workout, videos, userId, preview = false, program, sessio
         if (data.date === sessionDate && data.program === program && Array.isArray(data.session?.done)) {
           restored = {
             done: [...new Set<number>(data.session.done.filter((i: unknown) => typeof i === 'number' && indices.includes(i)))],
-            active: indices.includes(data.session.active) ? data.session.active : null,
+            active: null,
             started: data.session.started === true,
             finished: data.session.finished === true,
             id: typeof data.session.id === 'string' && UUID.test(data.session.id) ? data.session.id : undefined,
@@ -113,8 +113,8 @@ function SessionView({ workout, videos, userId, preview = false, program, sessio
   function toggle(index: number, advance = false) {
     const removing = session.done.includes(index);
     const done = removing ? session.done.filter(i => i !== index) : [...session.done, index];
-    const nextIndex = !removing && advance ? indices.find(i => i > index && !done.includes(i)) ?? indices.find(i => !done.includes(i)) ?? index : index;
-    update({ id: session.id, done, active: nextIndex, started: true, finished: false });
+    const nextIndex = !removing && advance ? indices.find(i => i > index && !done.includes(i)) ?? indices.find(i => !done.includes(i)) ?? index : session.active;
+    update({ ...session, done, active: nextIndex, started: advance ? true : session.started, finished: false });
     if (advance) focusRow(nextIndex);
   }
   async function finish() {
@@ -152,23 +152,20 @@ function SessionView({ workout, videos, userId, preview = false, program, sessio
       }}>{session.done.length || session.active !== null ? 'Resume session' : dayTitle ? 'Start this day' : 'Start session'} <svg aria-hidden="true" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></button>
     </div>}
     {(session.started || session.finished || session.done.length > 0) && <>
-    <div className={styles.progressText}><span>{session.finished ? 'Session complete' : 'In progress'}</span><span aria-live="polite">{session.done.length} of {indices.length} complete</span></div>
+    <div className={styles.progressText} tabIndex={-1} ref={summaryRef}><span className={session.finished ? styles.completedHeading : undefined}>{session.finished ? 'Session complete' : 'In progress'}</span><span aria-live="polite">{session.done.length} of {indices.length} complete</span></div>
     <div className={styles.track} role="progressbar" aria-label="Exercise completion" aria-valuemin={0} aria-valuemax={indices.length} aria-valuenow={session.done.length}><div style={{ width: `${session.done.length / indices.length * 100}%` }} /></div>
     </>}
-    {session.finished ? <div className={styles.summary} tabIndex={-1} ref={summaryRef}>
-      <h2>Session complete.</h2>
-    </div> : <>
       <ol className={styles.list}>{workout.map((item, index) => {
         if (isBanner(item)) return <li className={styles.banner} key={index}><h2>{item.text || 'Flexibility - 3x/week'}</h2></li>;
-        const open = session.started && session.active === index;
+        const open = (session.started || session.finished) && session.active === index;
         const done = session.done.includes(index);
         const video = item.videoId ? videos[item.videoId] : undefined;
         const note = item.description || video?.description || '';
         const sets = item.sets ? `${item.sets}${/^\d+(?:\s*[-–]\s*\d+)?$/.test(item.sets.trim()) ? ' sets' : ''}` : '';
         return <li className={`${styles.item} ${open ? styles.active : ''}`} key={index}>
           <div className={styles.row}>
-            <input type="checkbox" className={styles.check} aria-label={`Complete ${item.title}`} checked={done} disabled={!ready} onChange={() => toggle(index)} />
-            <button ref={node => { rowRefs.current[index] = node; }} className={styles.exercise} aria-expanded={open} aria-controls={`${detailId}-exercise-detail-${index}`} disabled={!ready} onClick={() => update({ ...session, started: true, active: open ? null : index })}>
+            <input type="checkbox" className={styles.check} aria-label={`Complete ${item.title}`} checked={done} disabled={!ready || session.finished} onChange={() => toggle(index)} />
+            <button ref={node => { rowRefs.current[index] = node; }} className={styles.exercise} aria-expanded={open} aria-controls={`${detailId}-exercise-detail-${index}`} disabled={!ready} onClick={() => update({ ...session, started: !session.finished, active: open ? null : index })}>
               <span className={styles.number}>{String(indices.indexOf(index) + 1).padStart(2, '0')}</span><span className={styles.text}><span className={styles.name}>{item.title}</span><span className={styles.dose}>{[sets, item.repsOrHoldTime].filter(Boolean).join(' · ')}</span>{!dayTitle && <span className={styles.dose}>{frequency(item)}</span>}</span>
               <span className={styles.status}>{done ? 'Complete' : open ? 'Now' : ''}</span>
               <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ transform: open ? 'rotate(180deg)' : undefined }}><path d="m6 9 6 6 6-6" /></svg>
@@ -176,18 +173,17 @@ function SessionView({ workout, videos, userId, preview = false, program, sessio
           </div>
           <div id={`${detailId}-exercise-detail-${index}`} hidden={!open}>{open && <div className={styles.detail}>
             <div>{video?.mux_playback_id ? <VideoPlayer key={video.mux_playback_id} playbackId={video.mux_playback_id} /> : <div className={styles.noVideo}>{item.videoId ? 'Video unavailable. Your exercise instructions are below.' : 'Follow your coaching instructions for this exercise.'}</div>}</div>
-            <div><p className={styles.note}>{note || 'Follow the prescribed sets and reps above.'}</p>{!dayTitle && <p className={styles.muted}>{frequency(item)}</p>}<button className={styles.primary} onClick={() => toggle(index, true)}>{done ? 'Mark incomplete' : 'Complete exercise'}</button></div>
+            <div><p className={styles.note}>{note || 'Follow the prescribed sets and reps above.'}</p>{!dayTitle && <p className={styles.muted}>{frequency(item)}</p>}{!session.finished && <button className={styles.primary} onClick={() => toggle(index, true)}>{done ? 'Mark incomplete' : 'Complete exercise'}</button>}</div>
           </div>}</div>
         </li>;
       })}</ol>
-      <div className={styles.footer}><div className={styles.actions}>
+      {!session.finished && <div className={styles.footer}><div className={styles.actions}>
         {session.started && <button className={styles.secondary} onClick={() => update({ ...session, started: false })}>Pause session</button>}
         {session.done.length > 0 && <button className={styles.primary} onClick={() => session.done.length === indices.length ? finish() : setConfirmFinish(true)}>Finish session</button>}
-      </div></div>
+      </div></div>}
       {confirmFinish && <div className={styles.confirm} role="group" aria-label="Finish this session">
         <p>Finish today’s session?</p><div className={styles.actions}><button className={styles.primary} onClick={finish}>Yes, finish session</button><button className={styles.secondary} onClick={() => setConfirmFinish(false)}>Keep training</button></div>
       </div>}
-    </>}
     </fieldset>
     {saving && <p role="status" className={styles.muted}>Saving your workout to the calendar…</p>}
     {saveError && <div role="alert"><p>{saveError} Your checkmarks are still here.</p><button className={styles.primary} onClick={finish} disabled={saving}>Retry saving workout</button></div>}
